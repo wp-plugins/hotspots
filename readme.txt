@@ -25,7 +25,7 @@ If you find any bugs, or have any enhancement ideas, please e-mail danielpowney@
 Some limitations:
 Currently does not cater for responsive design.
 Websites must be HTML5 compliant and the heat map can only be viewed in a browser which supports HTML5 canvas.
-This plugin should only be used to assist usability testing, not used in production. When turned on, an additional server request is made for each mouse click.
+This plugin should only be used to assist usability testing, not used on production where performance is critical. When turned on, an additional server request is made for each mouse click.
 	
 == Installation ==
 
@@ -45,3 +45,6 @@ This plugin should only be used to assist usability testing, not used in product
 
 = 1.0 =
 * Initial release
+
+= 1.1 =
+* Canvas caters for scrolling
