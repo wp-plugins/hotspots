@@ -48,3 +48,4 @@ This plugin should only be used to assist usability testing, not used on product
 
 = 1.1 =
 * Canvas caters for scrolling
+* Fixed refresh database bug
