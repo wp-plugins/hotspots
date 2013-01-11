@@ -23,9 +23,9 @@ Tested using Google Chrome v23, Firefox v10 and Internet Explorer v9.
 If you find any bugs, or have any enhancement ideas, please e-mail danielpowney@gmail.com. The next release may include drawing options for filtering IP addresses, browsers and specific web pages.
 
 Some limitations:
-Currently does not cater for responsive design.
-Websites must be HTML5 compliant and the heat map can only be viewed in a browser which supports HTML5 canvas.
-This plugin should only be used to assist usability testing, not used on production where performance is critical. When turned on, an additional server request is made for each mouse click.
+* Currently does not cater for responsive design.
+* Websites must be HTML5 compliant and the heat map can only be viewed in a browser which supports HTML5 canvas.
+* This plugin should only be used to assist usability testing and not used in production where performance is critical. When turned on, an additional server request is made for each mouse click.
 	
 == Installation ==
 
