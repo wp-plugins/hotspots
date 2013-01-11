@@ -1,7 +1,7 @@
 === HotSpots ===
 Contributors: dpowney
 Donate link:
-Tags: hotspot, hot, spot, mouse click, click, usability, heat map
+Tags: hotspot, hot, spot, mouse click, click, usability, heat map, click map
 Requires at least: 3.0.1
 Tested up to: 3.5
 Stable tag: trunk
