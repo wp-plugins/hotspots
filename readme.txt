@@ -31,7 +31,8 @@ Tested using Google Chrome v23, Firefox v10 and Internet Explorer v9.
 == Screenshots ==
 
 1. Heat map of mouse clicks on a Wordpress website. This is an example of 200 random mouse clicks. As you can see from a usability perspective, the navigation menu bar and top search input are highly used but the second search input is rarely used.
-1. HotSpots plugin settings page
+
+2. HotSpots plugin settings page
 
 == Changelog ==
 
