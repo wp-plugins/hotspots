@@ -1,14 +1,14 @@
 === HotSpots ===
 Contributors: dpowney
 Donate link:
-Tags: hotspot, hot, spot, mouse click, click, usability, heat map, click map
+Tags: hotspot, hot, spot, mouse click, click, usability, heat map
 Requires at least: 3.0.1
 Tested up to: 3.5
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-HotSpots is a plugin which draws a heat map of mouse clicks on a webpage allowing you to improve usability by analysing user behaviour.
+HotSpots is a plugin which draws a heat map of mouse clicks on a webpage allowing you to improve usability by analysing user behaviour and where they click more.
 
 == Description ==
 
@@ -26,7 +26,7 @@ Some limitations:
 Currently does not cater for responsive design.
 Websites must be HTML5 compliant and the heat map can only be viewed in a browser which supports HTML5 canvas.
 This plugin should only be used to assist usability testing, not used in production. When turned on, an additional server request is made for each mouse click.
-
+	
 == Installation ==
 
 1. Download plugin to plugins directory
