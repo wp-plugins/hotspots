@@ -49,7 +49,7 @@ jQuery(document).ready(function() {
 				 jQuery(this).css({ opacity: 0.99 });
 			});
 			
-			// Get mouse clicks data
+			// Get mouse clicks
 			var data =  { action : "get_mouse_clicks", nonce : hotSpotData.ajaxNonce };
 			jQuery.post(hotSpotData.ajaxUrl, data, function(response) {
 				drawAllMouseClicks(jQuery.parseJSON(response));
@@ -58,50 +58,59 @@ jQuery(document).ready(function() {
 		
 		// Add mouse clicks
 		jQuery(document).live('click',function(e) {
-			if ((!jQuery.browser.msie && e.button == 0)
-					|| (jQuery.browser.msie && e.button == 1)) {
-				addMouseClick(e);
-			}
+			addMouseClick(e);
 		});
 	}
 });
 
 
-/** 
+/**
+ * Gets the mouse click coordinates for different browsers and scrolling
+ */
+function getMouseClickCoords(e) {
+	var evt = e ? e : window.event;
+	var clickX = 0, clickY = 0;
+
+	if ((evt.clientX || evt.clientY) && document.body
+			&& document.body.scrollLeft != null) {
+		clickX = evt.clientX + document.body.scrollLeft;
+		clickY = evt.clientY + document.body.scrollTop;
+	}
+	if ((evt.clientX || evt.clientY) && document.compatMode == 'CSS1Compat'
+			&& document.documentElement
+			&& document.documentElement.scrollLeft != null) {
+		clickX = evt.clientX + document.documentElement.scrollLeft;
+		clickY = evt.clientY + document.documentElement.scrollTop;
+	}
+	if (evt.pageX || evt.pageY) {
+		clickX = evt.pageX;
+		clickY = evt.pageY;
+	}
+	return {
+		posx : clickX,
+		posy : clickY
+	}
+}
+
+/**
  * Gets mouse click coordinates on the screen and submits to the server
  */
 function addMouseClick(e) {
-	var posx = 0;
-	var posy = 0;
+	var coords = getMouseClickCoords(e);
 
-	if (!e) {
-		e = window.event;
-	}
-	
-	// get mouse click position coords relative to the document
-	if (e.pageX || e.pageY) {
-		posx = e.pageX;
-		posy = e.pageY;
-	} else if (e.clientX || e.clientY) {
-		posx = e.clientX + document.body.scrollLeft
-				+ document.documentElement.scrollLeft;
-		posy = e.clientY + document.body.scrollTop
-				+ document.documentElement.scrollTop;
-	}
-
-	var data =  { action : "add_mouse_click", nonce : hotSpotData.ajaxNonce, x : posx, y : posy };
+	var data =  { action : "add_mouse_click", nonce : hotSpotData.ajaxNonce, x : coords.posx, y : coords.posy };
 	jQuery.post(hotSpotData.ajaxUrl, data, function(response) {
 		// do nothing
 	});
 	
 	if (drawHotSpots === true && showOnClick === true) {		
 		// draw the mouse click on the canvas
-		var heatValue = calculateHeatValue(posx, posy);
+		var heatValue = calculateHeatValue(coords.posx, coords.posy);
 		
-		drawMouseClick(posx, posy, heatValue);
+		drawMouseClick(coords.posx, coords.posy, heatValue);
 		
 		// Add mouse click last so that it does not affect the heat value
-		allMouseClicks.push({ "x" : posx, "y" : posy });
+		allMouseClicks.push({ "x" : coords.posx, "y" : coords.posy });
 	}
 }
 
@@ -191,28 +200,26 @@ function drawMouseClick(posx, posy, heatValue) {
  * Creates the canvas element
  */
 function createCanvasElement() {
+	var docWidth = jQuery(document).width();
+	var docHeight = jQuery(document).height();
+	
 	// Create a blank div where we are going to put the canvas into.
 	var canvasContainer = document.createElement('div');
-	// Add the div into the document
 	document.body.appendChild(canvasContainer);
 	canvasContainer.style.position = "absolute";
-	// Set to 100% so that it will have the dimensions of the document
 	canvasContainer.style.left = "0px";
 	canvasContainer.style.top = "0px";
-	canvasContainer.style.width = "100%";
-	canvasContainer.style.height = "100%";
-	// Set to high index so that this is always above everything else
+	canvasContainer.style.width = "100%"; 
+	canvasContainer.style.height = "100%"; 
 	canvasContainer.style.zIndex = "1000";
 
 	// create the canvas
 	var canvas = document.createElement("canvas");
 	canvas.setAttribute("id", "canvas");
-	canvas.style.width = canvasContainer.scrollWidth + "px";
-	canvas.style.height = canvasContainer.scrollHeight + "px";
-	// must set this otherwise the canvas will be streethed to fit the
-	// container
-	canvas.width = canvasContainer.scrollWidth;
-	canvas.height = canvasContainer.scrollHeight;
+	canvas.style.width = docWidth; 
+	canvas.style.height = docHeight; 
+	canvas.width = docWidth;
+	canvas.height = docHeight;
 	canvas.style.overflow = 'visible';
 	canvas.style.position = 'absolute';
 
