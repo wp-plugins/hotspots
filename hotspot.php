@@ -3,7 +3,7 @@
 Plugin Name: HotSpots
 Plugin URI: www.danielpowney.com/hotspots.zip
 Description: A plugin to track user mouse clicks and to show a heat map to help improve usability
-Version: 1.0
+Version: 1.1
 Author: Daniel Powney
 Auhtor URI: www.danielpowney.com
 License: GPL2
@@ -281,12 +281,12 @@ function addHotSpotMenu() {
 add_action('admin_menu', 'addHotSpotMenu');
 
 
-add_action('admin_head', 'hotspots_admin_style');
+add_action('admin_head', 'hotspotsAdminStyle');
 
 /**
  * Add some admin styles
  */
-function hotspots_admin_style() {
+function hotspotsAdminStyle() {
 	echo'
 	<style type="text/css">
 		#hotSpotsOptionsForm label.smallWidth { min-width: 140px; display: inline-block; }
