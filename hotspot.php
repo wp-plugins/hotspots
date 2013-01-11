@@ -311,5 +311,6 @@ function refreshHotSpotsDBTable() {
 	die();
 }
 add_action('wp_ajax_refresh_hotSpots_db_table', 'refreshHotSpotsDBTable');
+add_action('wp_ajax_nopriv_refresh_hotSpots_db_table', 'refreshHotSpotsDBTable');
 
 ?>
