@@ -284,12 +284,21 @@ function createCanvasElement() {
 	var docWidth = jQuery(document).width();
 	var docHeight = jQuery(document).height();
 	
+	
+
+	// WordPress admin bar fix.
+	var top = 0;
+	if (jQuery('#wpadminbar').length > 0) {
+		top = jQuery('#wpadminbar').height();
+	}
+	alert(top);
+	
 	// Create a blank div where we are going to put the canvas into.
 	var canvasContainer = document.createElement('div');
 	document.body.appendChild(canvasContainer);
 	canvasContainer.style.position = "absolute";
 	canvasContainer.style.left = "0px";
-	canvasContainer.style.top = "0px";
+	canvasContainer.style.top = top + "px";
 	canvasContainer.style.width = "100%"; 
 	canvasContainer.style.height = "100%"; 
 	canvasContainer.style.zIndex = "1000";

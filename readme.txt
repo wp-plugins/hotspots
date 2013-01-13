@@ -47,6 +47,7 @@ Currently does not cater for responsive design. Websites must be HTML5 compliant
 * Fixed admin styles
 * Added updated and error messages on admin actions.
 * Added AJAX to admin actions
+* Fixed canvas top absolute position if wordpress admin bar is present
 
 = 1.1 =
 * Canvas caters for scrolling
