@@ -291,7 +291,6 @@ function createCanvasElement() {
 	if (jQuery('#wpadminbar').length > 0) {
 		top = jQuery('#wpadminbar').height();
 	}
-	alert(top);
 	
 	// Create a blank div where we are going to put the canvas into.
 	var canvasContainer = document.createElement('div');
