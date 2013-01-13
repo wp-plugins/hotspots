@@ -20,7 +20,7 @@ The drawing of the heap map is done using HTML5 canvas. AJAX is used to send inf
 
 Tested using Google Chrome v23, Firefox v10 and Internet Explorer v9.
 
-If you find any bugs, or have any enhancement ideas, please e-mail danielpowney@gmail.com. The next release may include drawing options for filtering IP addresses, browsers and specific web pages.
+If you find any bugs, or have any enhancement ideas, please e-mail danielpowney@gmail.com.
 
 Some limitations:
 
