@@ -12,7 +12,7 @@ HotSpots is a plugin which draws a heat map of mouse clicks overlayed on your we
 
 == Description ==
 
-HotSpots is a plugin which draws a heat map of mouse clicks on a webpage allowing you to improve usability by analysing which buttons or links are popular and easy to use.
+HotSpots is a simple plugin which draws a heat map of mouse clicks on a webpage allowing you to improve usability by analysing which buttons or links are popular and easy to use.
 
 To show the heat map on the web page, add <i>?drawHotSpots=true</i> to the URL (i.e. www.mywebsite.com?drawHotSpots=true). Make sure the enable option is checked. The hot spots are shown as a heat map with a colour range from green (cold), to orange (warm) and red (hot). Each mouse click is represented as a coloured spot or circle. The colour of the spot is calculated based on how many other spots it is touching	within it's radius (i.e if a spot is touching another spot, then it has a heat value of 1).
 
@@ -23,9 +23,8 @@ Tested using Google Chrome v23, Firefox v10 and Internet Explorer v9.
 If you find any bugs, or have any enhancement ideas, please e-mail danielpowney@gmail.com. The next release may include drawing options for filtering IP addresses, browsers and specific web pages.
 
 Some limitations:
-* Currently does not cater for responsive design.
-* Websites must be HTML5 compliant and the heat map can only be viewed in a browser which supports HTML5 canvas.
-* This plugin should only be used to assist usability testing and not used in production where performance is critical. When turned on, an additional server request is made for each mouse click.
+
+Currently does not cater for responsive design. Websites must be HTML5 compliant to view the heat map and browsers need to support HTML5 canvas. This plugin should not be used where performance is critical as an additional server request is made for each mouse click.
 	
 == Installation ==
 
@@ -37,15 +36,22 @@ Some limitations:
 
 == Screenshots ==
 
-1. Heat map of mouse clicks on a Wordpress website. This is an example of 200 random mouse clicks. As you can see from a usability perspective, the navigation menu bar and top search input are highly used but the second search input is rarely used.
+1. Heat map of mouse clicks on a Wordpress website. This is an example of 200 saved mouse clicks. As you can see, the navigation menu bar and top search input are highly used but the second search input is rarely used.
 
 2. HotSpots plugin settings page
 
 == Changelog ==
 
-= 1.0 =
-* Initial release
+= 1.2 =
+* Made the hot spots display for each page on website
+* Fixed bug related to heat colour of hot spots
+* Fixed admin styles
+* Added updated and error messages on admin actions.
+* Added AJAX to admin actions
 
 = 1.1 =
 * Canvas caters for scrolling
 * Fixed refresh database bug
+
+= 1.0 =
+* Initial release

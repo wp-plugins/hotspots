@@ -11,34 +11,9 @@ var warm = hot / 2; // default is 10
 var opacity = 0.2; // default is 0.2
 var drawHotSpots = false; // default is false
 
-/**
- * Helper function to get the query string parameters from the URL
- */
-jQuery.extend({
-	getUrlVars : function() {
-		var vars = [], hash;
-		var hashes = window.location.href.slice(
-				window.location.href.indexOf('?') + 1).split('&');
-		for ( var i = 0; i < hashes.length; i++) {
-			hash = hashes[i].split('=');
-			vars.push(hash[0]);
-			vars[hash[0]] = hash[1];
-		}
-		return vars;
-	},
-	getUrlVar : function(name) {
-		return jQuery.getUrlVars()[name];
-	}
-});
-
-jQuery(document).ready(function() {
-	enabled = (hotSpotData.enabled == "on") ? true : false;
-	showOnClick = (hotSpotData.showOnClick) == "on" ? true : false;
-	spotRadius = parseInt(hotSpotData.spotRadius);
-	hot = parseInt(hotSpotData.hotValue);
-	warm = hot / 2;
-	opacity = hotSpotData.spotOpacity;
-	drawHotSpots = jQuery.getUrlVar('drawHotSpots') === "true" ? true : false;
+jQuery(document).ready(function() {	
+	
+	init();
 	
 	if (enabled) {
 		if (drawHotSpots === true) {
@@ -56,13 +31,127 @@ jQuery(document).ready(function() {
 			});
 		}
 		
-		// Add mouse clicks
+		// Register event to add mouse clicks
 		jQuery(document).live('click',function(e) {
 			addMouseClick(e);
 		});
 	}
 });
 
+/**
+ * Helper function to get the query string parameters from the URL
+ */
+var urlHelper = new function() {
+
+	/**
+	 * Retrieves an array of URL query string parameters in order
+	 * @param url
+	 * @returns params JSON object
+	 */
+	this.getUrlParams = function(url) {
+		var params = [], hash;
+		var hashes = url.slice(url.indexOf('?') + 1).split('&');
+		for ( var i = 0; i < hashes.length; i++) {
+			hash = hashes[i].split('=');
+			params.push(hash[0]);
+			params[hash[0]] = hash[1];
+		}
+		return params;
+	};
+
+	/**
+	 * Gets a URL query string parameter by name
+	 * 
+	 * @param url
+	 * @param name
+	 * @returns
+	 */
+	this.getUrlParamByName = function(url, name) {
+		return this.getUrlParams(url)[name];
+	};
+
+	/**
+	 * Checks whether two URL's are the same. The query string parameters can be
+	 * in different orders and some query string parameter names can be ignored
+	 * 
+	 * @param url1
+	 * @param url2
+	 * @param ignoreParams
+	 */
+	this.equals = function(url1, url2, ignoreParams) {
+		var params1 = this.getUrlParams(url1);
+		var params2 = this.getUrlParams(url2);
+		
+		// iterate params1 and check for matches
+		for (var i=0; i<params1.length; i++) {
+			// skip if this param is ignored
+			if (!this.isIgnored(params1[i], ignoreParams)) {
+				var foundMatch = false;
+				for (var j=0; j<params2.length; j++) {
+					if (params1[i] === params2[j]) {
+						foundMatch = true;
+						// same query parameter names, check values now
+						if (this.getUrlParamByName(url1, params1[i]) !== this.getUrlParamByName(url2, params1[j])) {
+							return false;
+						}
+					}
+				}
+				// If no match is found, URL's are not the same
+				if (foundMatch === false) {
+					return false;
+				}
+			}
+		}
+
+		// Iterate params2 and check for matches in case it was missing in params1
+		for (var i=0; i<params2.length; i++) {
+			if (!this.isIgnored(params2[i], ignoreParams)) {
+				var foundMatch = false;
+				for (var j=0; j<params1.length; j++) {
+					if (params1[i] === params2[j]) {
+						foundMatch = true;
+						// we do not need to check values here as this was done above
+					}
+				}
+				// If no match is found, URL's are not the same
+				if (foundMatch === false) {
+					return false;
+				}
+			}
+		}
+		return true;
+	};
+	
+
+	/** 
+	 * Checks if the param name is to be ignored
+	 * 
+	 * @param param
+	 * @param ignoreParams
+	 */
+	this.isIgnored = function(param, ignoreParams) {
+		for ( var k = 0; k < ignoreParams.length; k++) {
+			if (param == ignoreParams[k]) {
+				return true;
+			}
+		}
+		return false;
+	};
+};
+
+/**
+ * Initialises constants
+ */
+function init() {
+	enabled = (hotSpotData.enabled == "on") ? true : false;
+	showOnClick = (hotSpotData.showOnClick) == "on" ? true : false;
+	spotRadius = parseInt(hotSpotData.spotRadius);
+	hot = parseInt(hotSpotData.hotValue);
+	warm = hot / 2;
+	opacity = hotSpotData.spotOpacity;
+	drawHotSpots = urlHelper.getUrlParamByName(window.location.href,
+			'drawHotSpots') === "true" ? true : false;
+}
 
 /**
  * Gets the mouse click coordinates for different browsers and scrolling
@@ -87,8 +176,8 @@ function getMouseClickCoords(e) {
 		clickY = evt.pageY;
 	}
 	return {
-		posx : clickX,
-		posy : clickY
+		posX : clickX,
+		posY : clickY
 	}
 }
 
@@ -97,21 +186,22 @@ function getMouseClickCoords(e) {
  */
 function addMouseClick(e) {
 	var coords = getMouseClickCoords(e);
-
-	var data =  { action : "add_mouse_click", nonce : hotSpotData.ajaxNonce, x : coords.posx, y : coords.posy };
-	jQuery.post(hotSpotData.ajaxUrl, data, function(response) {
-		// do nothing
-	});
 	
-	if (drawHotSpots === true && showOnClick === true) {		
-		// draw the mouse click on the canvas
-		var heatValue = calculateHeatValue(coords.posx, coords.posy);
+	var data =  { action : "add_mouse_click", nonce : hotSpotData.ajaxNonce, x : coords.posX, y : coords.posY, url : window.location.href };
+	var id = "";
+	jQuery.post(hotSpotData.ajaxUrl, data, function(response) {
+		id = response;
 		
-		drawMouseClick(coords.posx, coords.posy, heatValue);
-		
-		// Add mouse click last so that it does not affect the heat value
-		allMouseClicks.push({ "x" : coords.posx, "y" : coords.posy });
-	}
+		if (drawHotSpots === true && showOnClick === true) {		
+			// draw the mouse click on the canvas
+			var heatValue = calculateHeatValue(coords.posX, coords.posY);
+			
+			drawMouseClick(coords.posX, coords.posY, heatValue);
+			
+			// Add mouse click last so that it does not affect the heat value
+			allMouseClicks.push({ "x" : coords.posX, "y" : coords.posY, "id" : id });
+		}
+	});
 }
 
 /**
@@ -122,53 +212,44 @@ function drawAllMouseClicks(response) {
 	allMouseClicks = [];
 	
 	for (var index in response) {
-		var coords = response[index];
-		var posx = coords.x;
-		var posy = coords.y;
+		var clickData = response[index];
 		
-		// Add mouse click x and y position to array
-		allMouseClicks.push({ "x" : posx, "y" : posy });
+		// add mouse click if it was the same URL
+		if (urlHelper.equals(window.location.href, clickData.url, ['drawHotSpots'])) {
+			allMouseClicks.push({ "x" : clickData.x, "y" : clickData.y, "id" : clickData.id });
+		}
 	}
 	for (var index in allMouseClicks) {
-		var coords = allMouseClicks[index];
-		var posx = coords.x;
-		var posy = coords.y;
-		var heatValue = calculateHeatValue(posx, posy);
+		var clickData = allMouseClicks[index];
+		var posX = clickData.x;
+		var posY = clickData.y;
+		var id = clickData.id;
+		var heatValue = calculateHeatValue(posX, posY, id);
 	
 		// draw the mouse click on the canvas
-		drawMouseClick(posx, posy, heatValue);
+		drawMouseClick(posX, posY, heatValue);
 	}
 }
 
 /**
  * Draws a mouse clicks circle with heat
- * @param posx
- * @param posy
+ * @param posX
+ * @param posY
  * @param allMouseClicks
  * @param heatValue
  * @returns
  */
-function drawMouseClick(posx, posy, heatValue) {
+function drawMouseClick(posX, posY, heatValue) {
 	var canvas = jQuery("#canvas").get(0);
 	var context = canvas.getContext("2d");
 	context.beginPath();
-	context.arc(posx, posy, spotRadius, 0, 2 * Math.PI);
+	context.arc(posX, posY, spotRadius, 0, 2 * Math.PI);
 
 	/* 
 	 * Calculates RGB colour for corresponding heat value. From Green to Red, 
 	 * therefore Blue is always 0.
 	 * Green is cold, Orange is warm and Red is hot
 	 * Green is 0, 255, 0 and Red is 255, 0, 0. In between is 255, 255, 0
-	 *
-	 * We need to figure out the red or green colur values in the heat value scale.
-	 * Let the scale be 0 - 10 where 10 is hot, 5 is warm and the heat value is 7.
-	 * Therefore we need to determine the red colur value as it's hottern than warm.
-	 * We have 255 possible red colour values and the red colour scale is 6-10. 
-	 * So the equation for red is x = 255 X (<heat value> - warm / warm) 
-	 *                      		= 255 X 2/5
-	 *                      		= 255 X 0.4
-	 *                      		= 102.
-	 * The equation for green is x = 255 X heat value / warm.
 	 */
 	var fillStyle = null;
 	if (heatValue === 0) { // green
@@ -228,18 +309,29 @@ function createCanvasElement() {
 
 /**
  * Calculates the heat value given closeness of existing mouse clicks
+ * 
+ * @param posX
+ * @param posY
+ * @param id
  */
-function calculateHeatValue(posx, posy) {
+function calculateHeatValue(posX, posY, id) {
 	// Calculate heat value
 	var heatValue = 0;
 	for ( var index in allMouseClicks) {
-		var tempx = allMouseClicks[index].x;
-		var tempy = allMouseClicks[index].y;
-		var diffx = posx - tempx;
-		var diffy = posy - tempy;
-		var hotx = (diffx > -spotRadius && diffx < spotRadius);
-		var hoty = (diffy > -spotRadius && diffy < spotRadius);
-		if (hotx && hoty) {
+		var currentX = allMouseClicks[index].x;
+		var currentY = allMouseClicks[index].y;
+		var currentId = allMouseClicks[index].y;
+		
+		// skip if comparing the same mouse click
+		if (id !== undefined && id === currentId) {
+			continue;
+		}
+		
+		var diffX = posX - currentX;
+		var diffY = posY - currentY;
+		var hotX = (diffX > -spotRadius && diffX < spotRadius);
+		var hotY = (diffY > -spotRadius && diffY < spotRadius);
+		if (hotX && hotY) {
 			heatValue++;
 		}
 	}
