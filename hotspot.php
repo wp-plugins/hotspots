@@ -2,7 +2,7 @@
 /*
 Plugin Name: HotSpots
 Plugin URI: www.danielpowney.com/hotspots.zip
-Description: A plugin to track user mouse clicks and to show a heat map to help improve usability
+Description: HotSpots is a simple plugin which draws a heat map of mouse clicks overlayed on your webpage allowing you to improve usability by analysing user behaviour.
 Version: 1.1
 Author: Daniel Powney
 Auhtor URI: www.danielpowney.com
