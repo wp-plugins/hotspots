@@ -8,7 +8,7 @@ Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-HotSpots is a plugin which draws a heat map of mouse clicks overlayed on your webpage allowing you to improve usability by analysing user behaviour.
+HotSpots is a simple plugin which draws a heat map of mouse clicks overlayed on your webpage allowing you to improve usability by analysing user behaviour.
 
 == Description ==
 
@@ -23,7 +23,6 @@ Tested using Google Chrome v23, Firefox v10 and Internet Explorer v9.
 If you find any bugs, or have any enhancement ideas, please e-mail danielpowney@gmail.com.
 
 Some limitations:
-
 Currently does not cater for responsive design. Websites must be HTML5 compliant to view the heat map and browsers need to support HTML5 canvas. This plugin should not be used where performance is critical as an additional server request is made for each mouse click.
 	
 == Installation ==
