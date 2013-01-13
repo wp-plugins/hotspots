@@ -14,7 +14,7 @@ HotSpots is a plugin which draws a heat map of mouse clicks overlayed on your we
 
 HotSpots is a simple plugin which draws a heat map of mouse clicks overlayed on your webpage allowing you to improve usability by analysing which buttons or links are popular and easy to use.
 
-To show the heat map on the web page, add <i>?drawHotSpots=true</i> to the URL (i.e. www.mywebsite.com?drawHotSpots=true). Make sure the enable option is checked. The hot spots are shown as a heat map with a colour range from green (cold), to orange (warm) and red (hot). Each mouse click is represented as a coloured spot or circle. The colour of the spot is calculated based on how many other spots it is touching	within it's radius (i.e if a spot is touching another spot, then it has a heat value of 1).
+To show the heat map on the web page, add <i>?drawHotSpots=true</i> to the URL (i.e. www.mywebsite.com?drawHotSpots=true). Make sure the enable option is checked. The hot spots are shown as a heat map with a colour range from green (cold), to orange (warm) and red (hot). Each mouse click is represented as a coloured spot or circle. The colour of the spot is calculated based on how many other spots it is touching	within it's radius (i.e if a spot is touching another spot, then it has a heat value of 1. If it is touching two spots, then it has a heat value of 2 and so on).
 
 The drawing of the heap map is done using HTML5 canvas. AJAX is used to send information about mouse clicks to the server in the background.
 
