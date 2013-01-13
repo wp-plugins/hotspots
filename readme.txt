@@ -41,6 +41,9 @@ Currently does not cater for responsive design. Websites must be HTML5 compliant
 
 == Changelog ==
 
+= 1.2.1 =
+* Minor bug fixes
+
 = 1.2 =
 * Made the hot spots display for each page on website
 * Fixed bug related to heat colour of hot spots
