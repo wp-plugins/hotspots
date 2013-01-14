@@ -12,8 +12,15 @@ var opacity = 0.2; // default is 0.2
 var drawHotSpots = false; // default is false
 
 jQuery(document).ready(function() {	
-	
-	init();
+	// get options
+	enabled = (hotSpotData.enabled == "on") ? true : false;
+	showOnClick = (hotSpotData.showOnClick) == "on" ? true : false;
+	spotRadius = parseInt(hotSpotData.spotRadius);
+	hot = parseInt(hotSpotData.hotValue);
+	warm = hot / 2;
+	opacity = hotSpotData.spotOpacity;
+	drawHotSpots = urlHelper.getUrlParamByName(window.location.href,
+			'drawHotSpots') === "true" ? true : false;
 	
 	if (enabled) {
 		if (drawHotSpots === true) {
@@ -21,14 +28,19 @@ jQuery(document).ready(function() {
 			
 			// set opacity for all elements so that hot spots are visible
 			jQuery("body *").each(function() {
-				 jQuery(this).css({ opacity: 0.99 });
+				// if current element already already has opacity < 1, leave as is
+				var opacity = jQuery(this).css("opacity");
+				if (opacity !== undefined && opacity === 1) {
+					jQuery(this).css({ opacity: 0.99 });
+				}
 			});
-			
+				
 			// Get mouse clicks
-			var data =  { action : "get_mouse_clicks", nonce : hotSpotData.ajaxNonce };
+			var data =  { action : "get_mouse_clicks", nonce : hotSpotData.ajaxNonce, url : window.location.href };
 			jQuery.post(hotSpotData.ajaxUrl, data, function(response) {
 				drawAllMouseClicks(jQuery.parseJSON(response));
 			});
+			
 		}
 		
 		// Register event to add mouse clicks
@@ -42,7 +54,6 @@ jQuery(document).ready(function() {
  * Helper function to get the query string parameters from the URL
  */
 var urlHelper = new function() {
-
 	/**
 	 * Retrieves an array of URL query string parameters in order
 	 * @param url
@@ -71,89 +82,7 @@ var urlHelper = new function() {
 	this.getUrlParamByName = function(url, name) {
 		return this.getUrlParams(url)[name];
 	};
-
-	/**
-	 * Checks whether two URL's are the same. The query string parameters can be
-	 * in different orders and some query string parameter names can be ignored
-	 * 
-	 * @param url1
-	 * @param url2
-	 * @param ignoreParams
-	 */
-	this.equals = function(url1, url2, ignoreParams) {
-		var params1 = this.getUrlParams(url1);
-		var params2 = this.getUrlParams(url2);
-		
-		// iterate params1 and check for matches
-		for (var i=0; i<params1.length; i++) {
-			// skip if this param is ignored
-			if (!this.isIgnored(params1[i], ignoreParams)) {
-				var foundMatch = false;
-				for (var j=0; j<params2.length; j++) {
-					if (params1[i] === params2[j]) {
-						foundMatch = true;
-						// same query parameter names, check values now
-						if (this.getUrlParamByName(url1, params1[i]) !== this.getUrlParamByName(url2, params1[j])) {
-							return false;
-						}
-					}
-				}
-				// If no match is found, URL's are not the same
-				if (foundMatch === false) {
-					return false;
-				}
-			}
-		}
-
-		// Iterate params2 and check for matches in case it was missing in params1
-		for (var i=0; i<params2.length; i++) {
-			if (!this.isIgnored(params2[i], ignoreParams)) {
-				var foundMatch = false;
-				for (var j=0; j<params1.length; j++) {
-					if (params1[i] === params2[j]) {
-						foundMatch = true;
-						// we do not need to check values here as this was done above
-					}
-				}
-				// If no match is found, URL's are not the same
-				if (foundMatch === false) {
-					return false;
-				}
-			}
-		}
-		return true;
-	};
-	
-
-	/** 
-	 * Checks if the param name is to be ignored
-	 * 
-	 * @param param
-	 * @param ignoreParams
-	 */
-	this.isIgnored = function(param, ignoreParams) {
-		for ( var k = 0; k < ignoreParams.length; k++) {
-			if (param == ignoreParams[k]) {
-				return true;
-			}
-		}
-		return false;
-	};
 };
-
-/**
- * Initialises constants
- */
-function init() {
-	enabled = (hotSpotData.enabled == "on") ? true : false;
-	showOnClick = (hotSpotData.showOnClick) == "on" ? true : false;
-	spotRadius = parseInt(hotSpotData.spotRadius);
-	hot = parseInt(hotSpotData.hotValue);
-	warm = hot / 2;
-	opacity = hotSpotData.spotOpacity;
-	drawHotSpots = urlHelper.getUrlParamByName(window.location.href,
-			'drawHotSpots') === "true" ? true : false;
-}
 
 /**
  * Gets the mouse click coordinates for different browsers and scrolling
@@ -217,9 +146,10 @@ function drawAllMouseClicks(response) {
 		var clickData = response[index];
 		
 		// add mouse click if it was the same URL
-		if (urlHelper.equals(window.location.href, clickData.url, ['drawHotSpots'])) {
+		// Fix in v1.2.2 do not need to worry about url as this is handled by server
+		//if (urlHelper.equals(window.location.href, clickData.url, ['drawHotSpots'])) {
 			allMouseClicks.push({ "x" : clickData.x, "y" : clickData.y, "id" : clickData.id });
-		}
+		//}
 	}
 	for (var index in allMouseClicks) {
 		var clickData = allMouseClicks[index];
@@ -318,6 +248,7 @@ function createCanvasElement() {
 }
 
 /**
+ * TODO move to server
  * Calculates the heat value given closeness of existing mouse clicks
  * 
  * @param posX
@@ -330,7 +261,7 @@ function calculateHeatValue(posX, posY, id) {
 	for ( var index in allMouseClicks) {
 		var currentX = allMouseClicks[index].x;
 		var currentY = allMouseClicks[index].y;
-		var currentId = allMouseClicks[index].y;
+		var currentId = allMouseClicks[index].id;
 		
 		// skip if comparing the same mouse click
 		if (id !== undefined && id === currentId) {

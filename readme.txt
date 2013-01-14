@@ -18,12 +18,12 @@ To show the heat map on the web page, add <i>?drawHotSpots=true</i> to the URL (
 
 The drawing of the heap map is done using HTML5 canvas. AJAX is used to send information about mouse clicks to the server in the background.
 
-Tested using Google Chrome v23, Firefox v10 and Internet Explorer v9.
+Tested using Google Chrome v23, Firefox v10 and Internet Explorer v9. This plugin should not be used where performance is critical as an additional server request is made for each mouse click.
 
 If you find any bugs, or have any enhancement ideas, please e-mail danielpowney@gmail.com.
 
 Some limitations:
-Currently does not cater for responsive design. Websites must be HTML5 compliant to view the heat map and browsers need to support HTML5 canvas. This plugin should not be used where performance is critical as an additional server request is made for each mouse click.
+Currently does not cater for responsive design. Websites must be HTML5 compliant to view the heat map and browsers need to support HTML5 canvas.
 	
 == Installation ==
 
@@ -40,6 +40,11 @@ Currently does not cater for responsive design. Websites must be HTML5 compliant
 2. HotSpots plugin settings page
 
 == Changelog ==
+
+= 1.2.2 =
+* Fixed current id bug when drawing hot spots and calculating heat value
+* Added where clause by url when getting all mouse clicks to draw the heat map
+* URLs are now escaped when they're saved to the database
 
 = 1.2.1 =
 * Minor bug fixes

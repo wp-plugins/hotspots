@@ -3,7 +3,7 @@
 Plugin Name: HotSpots
 Plugin URI: http://wordpress.org/extend/plugins/hotspots/
 Description: HotSpots is a plugin which draws a heat map of mouse clicks overlayed on your webpage allowing you to improve usability by analysing user behaviour.
-Version: 1.2.1
+Version: 1.2.2
 Author: Daniel Powney
 Auhtor URI: www.danielpowney.com
 License: GPL2
@@ -78,7 +78,7 @@ function addMouseClick() {
 	if (wp_verify_nonce($ajaxNonce, 'hotspot-nonce')) {
 		$x = isset($_POST['x']) ? $_POST['x'] : '';
 		$y = isset($_POST['y']) ? $_POST['y'] : '';
-		$url = isset($_POST['url']) ? $_POST['url'] : '';
+		$url = isset($_POST['url']) ? removeQueryStringParam(addslashes($_POST['url']), "drawHotSpots") : '';
 		$rows_affected = $wpdb->insert( "hsp_hotspot", array( 'x' => $x, 'y' => $y, 'url' => $url ) );
 		echo $wpdb->insert_id;
 	}
@@ -100,8 +100,9 @@ function getMouseClicks() {
 	$ajaxNonce = $_POST['nonce'];
 	$rows = null;
 	if (wp_verify_nonce($ajaxNonce, 'hotspot-nonce')) {
+		$url = isset($_POST['url']) ? removeQueryStringParam(addslashes($_POST['url']), "drawHotSpots") : '';
+		$rows = $wpdb->get_results( "SELECT x, y, url, id FROM hsp_hotspot WHERE url = '" . $url . "'");
 		
-		$rows = $wpdb->get_results( "SELECT x, y, url, id FROM hsp_hotspot" );
 	}
 	echo json_encode($rows);
 	die();
@@ -329,5 +330,16 @@ function saveChanges() {
 add_action('wp_ajax_saveChanges', 'saveChanges');
 add_action('wp_ajax_nopriv_saveChanges', 'saveChanges');
 
+
+/**
+ * Removes a query string parameter from URL
+ * @param $url
+ * @param $param
+ * @return string
+ */
+function removeQueryStringParam($url, $param) {
+	$url = preg_replace('/(?:&|(\?))' . $param . '=[^&]*(?(1)&|)?/i', "$1", $url);
+	return $url;
+}
 
 ?>
