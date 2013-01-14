@@ -33,6 +33,12 @@ jQuery(document).ready(function() {
 				if (opacity !== undefined && opacity === 1) {
 					jQuery(this).css({ opacity: 0.99 });
 				}
+				// check z-index to ensure heat map is overlayed on top of any element
+				var zIndex = jQuery(this).css("z-index");
+				if (zIndex > 1000) {
+					var canvasContainer = jQuery("#canvasContainer");
+					canvasContainer.css("z-index", zIndex + 1);
+				}
 			});
 				
 			// Get mouse clicks
@@ -227,6 +233,7 @@ function createCanvasElement() {
 	// Create a blank div where we are going to put the canvas into.
 	var canvasContainer = document.createElement('div');
 	document.body.appendChild(canvasContainer);
+	canvasContainer.setAttribute("id", "canvasContainer");
 	canvasContainer.style.position = "absolute";
 	canvasContainer.style.left = "0px";
 	canvasContainer.style.top = top + "px";

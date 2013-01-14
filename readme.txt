@@ -41,6 +41,10 @@ Currently does not cater for responsive design. Websites must be HTML5 compliant
 
 == Changelog ==
 
+= 1.2.3 =
+* Ensured opacity of elements is unchanged if < 1
+* Check z-index to ensure heat map is overlayed on top of all elements
+
 = 1.2.2 =
 * Fixed current id bug when drawing hot spots and calculating heat value
 * Added where clause by url when getting all mouse clicks to draw the heat map
