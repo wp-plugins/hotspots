@@ -222,11 +222,9 @@ function createCanvasElement() {
 	var docWidth = jQuery(document).width();
 	var docHeight = jQuery(document).height();
 	
-	
-
 	// WordPress admin bar fix.
 	var top = 0;
-	if (jQuery('#wpadminbar').length > 0) {
+	if (jQuery.browser.msie && jQuery('#wpadminbar').length > 0) {
 		top = jQuery('#wpadminbar').height();
 	}
 	

@@ -41,6 +41,9 @@ Currently does not cater for responsive design. Websites must be HTML5 compliant
 
 == Changelog ==
 
+= 1.2.4 =
+* Fixed IE canvas top position when wordpress admin bar is present
+
 = 1.2.3 =
 * Ensured opacity of elements is unchanged if < 1
 * Check z-index to ensure heat map is overlayed on top of all elements
