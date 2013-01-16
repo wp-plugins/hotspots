@@ -338,7 +338,8 @@ add_action('wp_ajax_nopriv_saveChanges', 'saveChanges');
  * @return string
  */
 function removeQueryStringParam($url, $param) {
-	$url = preg_replace('/(?:&|(\?))' . $param . '=[^&]*(?(1)&|)?/i', "$1", $url);
+ 	$url = preg_replace('/(.*)(\?|&)' . $param . '=[^&]+?(&)(.*)/i', '$1$2$4', $url . '&');
+    $url = substr($url, 0, -1);
 	return $url;
 }
 

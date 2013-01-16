@@ -41,6 +41,9 @@ Currently does not cater for responsive design. Websites must be HTML5 compliant
 
 == Changelog ==
 
+= 1.2.5 =
+* Fixed stripping ? and & when removing drawHotSpots query parameter from URL
+
 = 1.2.4 =
 * Fixed IE canvas top position when wordpress admin bar is present
 
