@@ -10,6 +10,7 @@ var hot = 20; // default is 20
 var warm = hot / 2; // default is 10
 var opacity = 0.2; // default is 0.2
 var drawHotSpots = false; // default is false
+var isResponsive = false; // default is false
 
 jQuery(document).ready(function() {	
 	// get options
@@ -21,28 +22,14 @@ jQuery(document).ready(function() {
 	opacity = hotSpotData.spotOpacity;
 	drawHotSpots = urlHelper.getUrlParamByName(window.location.href,
 			'drawHotSpots') === "true" ? true : false;
+	isResponsive = (hotSpotData.isResponsive) == "on" ? true : false;
 	
 	if (enabled) {
 		if (drawHotSpots === true) {
-			createCanvasElement();
-			
-			// set opacity for all elements so that hot spots are visible
-			jQuery("body *").each(function() {
-				// if current element already already has opacity < 1, leave as is
-				var opacity = jQuery(this).css("opacity");
-				if (opacity !== undefined && opacity === 1) {
-					jQuery(this).css({ opacity: 0.99 });
-				}
-				// check z-index to ensure heat map is overlayed on top of any element
-				var zIndex = jQuery(this).css("z-index");
-				if (zIndex > 1000) {
-					var canvasContainer = jQuery("#canvasContainer");
-					canvasContainer.css("z-index", zIndex + 1);
-				}
-			});
+			initCanvas();
 				
-			// Get mouse clicks
-			var data =  { action : "get_mouse_clicks", nonce : hotSpotData.ajaxNonce, url : window.location.href };
+			// Get mouse clicks ands draw them
+			var data =  { action : "get_mouse_clicks", nonce : hotSpotData.ajaxNonce, url : window.location.href, screenWidth : window.innerWidth };
 			jQuery.post(hotSpotData.ajaxUrl, data, function(response) {
 				drawAllMouseClicks(jQuery.parseJSON(response));
 			});
@@ -52,6 +39,19 @@ jQuery(document).ready(function() {
 		// Register event to add mouse clicks
 		jQuery(document).live('click',function(e) {
 			addMouseClick(e);
+		});
+		
+		// redraw canvas if window is resized
+		jQuery(window).resize(function() {
+			// remove canvas element and create it again to refresh
+			jQuery("#canvasContainer").remove();
+			initCanvas();
+			
+			// Get mouse clicks and draw them
+			var data =  { action : "get_mouse_clicks", nonce : hotSpotData.ajaxNonce, url : window.location.href, screenWidth : window.innerWidth };
+			jQuery.post(hotSpotData.ajaxUrl, data, function(response) {
+				drawAllMouseClicks(jQuery.parseJSON(response));
+			});
 		});
 	}
 });
@@ -123,8 +123,7 @@ function getMouseClickCoords(e) {
  */
 function addMouseClick(e) {
 	var coords = getMouseClickCoords(e);
-	
-	var data =  { action : "add_mouse_click", nonce : hotSpotData.ajaxNonce, x : coords.posX, y : coords.posY, url : window.location.href };
+	var data =  { action : "add_mouse_click", nonce : hotSpotData.ajaxNonce, x : coords.posX, y : coords.posY, url : window.location.href, screenWidth : window.innerWidth };
 	var id = "";
 	jQuery.post(hotSpotData.ajaxUrl, data, function(response) {
 		id = response;
@@ -136,7 +135,7 @@ function addMouseClick(e) {
 			drawMouseClick(coords.posX, coords.posY, heatValue);
 			
 			// Add mouse click last so that it does not affect the heat value
-			allMouseClicks.push({ "x" : coords.posX, "y" : coords.posY, "id" : id });
+			allMouseClicks.push({ "x" : coords.posX, "y" : coords.posY, "id" : id, screenWidth : window.innerWidth });
 		}
 	});
 }
@@ -154,7 +153,9 @@ function drawAllMouseClicks(response) {
 		// add mouse click if it was the same URL
 		// Fix in v1.2.2 do not need to worry about url as this is handled by server
 		//if (urlHelper.equals(window.location.href, clickData.url, ['drawHotSpots'])) {
-			allMouseClicks.push({ "x" : clickData.x, "y" : clickData.y, "id" : clickData.id });
+		allMouseClicks.push({ "x" : clickData.x, "y" : clickData.y, "id" : clickData.id });
+		
+		
 		//}
 	}
 	for (var index in allMouseClicks) {
@@ -216,9 +217,9 @@ function drawMouseClick(posX, posY, heatValue) {
 }
 
 /**
- * Creates the canvas element
+ * Initialises the canvas element
  */
-function createCanvasElement() {
+function initCanvas() {
 	var docWidth = jQuery(document).width();
 	var docHeight = jQuery(document).height();
 	
@@ -250,6 +251,21 @@ function createCanvasElement() {
 	canvas.style.position = 'absolute';
 
 	canvasContainer.appendChild(canvas);
+	
+	// set opacity for all elements so that hot spots are visible
+	jQuery("body *").each(function() {
+		// if current element already already has opacity < 1, leave as is
+		var opacity = jQuery(this).css("opacity");
+		if (opacity !== undefined && opacity === 1) {
+			jQuery(this).css({ opacity: 0.99 });
+		}
+		// check z-index to ensure heat map is overlayed on top of any element
+		var zIndex = jQuery(this).css("z-index");
+		if (zIndex > 1000) {
+			var canvasContainer = jQuery("#canvasContainer");
+			canvasContainer.css("z-index", zIndex + 1);
+		}
+	});
 }
 
 /**

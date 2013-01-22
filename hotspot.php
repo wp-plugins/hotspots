@@ -3,7 +3,7 @@
 Plugin Name: HotSpots
 Plugin URI: http://wordpress.org/extend/plugins/hotspots/
 Description: HotSpots is a plugin which draws a heat map of mouse clicks overlayed on your webpage allowing you to improve usability by analysing user behaviour.
-Version: 1.2.4
+Version: 1.2.6
 Author: Daniel Powney
 Auhtor URI: www.danielpowney.com
 License: GPL2
@@ -27,7 +27,7 @@ function assets() {
 			'ajaxNonce' => wp_create_nonce('hotspot-nonce'),
 			'enabled' => get_option('enabled'),
 			'showOnClick' => get_option('showOnClick'),
-			'warmValue' => get_option('warmValue'),
+			'isResponsive' => get_option('isResponsive'),
 			'hotValue' => get_option('hotValue'),
 			'spotOpacity' => get_option('spotOpacity'),
 			'spotRadius' => get_option('spotRadius')
@@ -59,6 +59,7 @@ function createHotSpotDBTable() {
 	x int(11) NOT NULL,
 	y int(11) NOT NULL,
 	url varchar(255),
+	screenWidth int(11),
 	PRIMARY KEY (id)
 	) ENGINE=InnoDB AUTO_INCREMENT=1;";
 	dbDelta($sql1);
@@ -79,7 +80,8 @@ function addMouseClick() {
 		$x = isset($_POST['x']) ? $_POST['x'] : '';
 		$y = isset($_POST['y']) ? $_POST['y'] : '';
 		$url = isset($_POST['url']) ? removeQueryStringParam(addslashes($_POST['url']), "drawHotSpots") : '';
-		$rows_affected = $wpdb->insert( "hsp_hotspot", array( 'x' => $x, 'y' => $y, 'url' => $url ) );
+		$screenWidth = isset($_POST['screenWidth']) ? intval($_POST['screenWidth']) : '';
+		$rows_affected = $wpdb->insert( "hsp_hotspot", array( 'x' => $x, 'y' => $y, 'url' => $url, 'screenWidth' => $screenWidth ) );
 		echo $wpdb->insert_id;
 	}
     die(); 
@@ -101,8 +103,18 @@ function getMouseClicks() {
 	$rows = null;
 	if (wp_verify_nonce($ajaxNonce, 'hotspot-nonce')) {
 		$url = isset($_POST['url']) ? removeQueryStringParam(addslashes($_POST['url']), "drawHotSpots") : '';
-		$rows = $wpdb->get_results( "SELECT x, y, url, id FROM hsp_hotspot WHERE url = '" . $url . "'");
+		$query = "SELECT id, x, y, url, screenWidth FROM hsp_hotspot WHERE url = '" . $url . "'";
 		
+		$isResponsive = get_option('isResponsive') === 'on' ? true : false;
+		if ($isResponsive === true && isset($_POST['screenWidth'])){
+			$range = 6; // allow a range of 6 pixels either side to be the same
+			$screenWidth = intval($_POST['screenWidth']);
+			$diffLeft = $screenWidth - $range;
+			$diffRight = $screenWidth + $range;
+			$query .= ' AND screenWidth >= ' . $diffLeft . ' AND screenWidth <= '. $diffRight;			
+		}
+		
+		$rows = $wpdb->get_results($query);
 	}
 	echo json_encode($rows);
 	die();
@@ -122,6 +134,8 @@ function setHotSpotOptions() {
 	add_option('hotValue', '20', '', 'yes');
 	add_option('spotOpacity', '0.2', '', 'yes');
 	add_option('spotRadius', '8', '', 'yes');
+	add_option('isResponsive', 'on', '', 'yes');
+	
 }
 register_activation_hook(__FILE__,'setHotSpotOptions');
 
@@ -136,6 +150,7 @@ function unsetHotSpotOptions() {
 	delete_option('hotValue');
 	delete_option('spotOpacity');
 	delete_option('spotRadius');
+	delete_option('isResponsive');
 }
 register_deactivation_hook(__FILE__,'unsetHotSpotOptions');
 
@@ -152,61 +167,84 @@ function hotSpotOptions() {
 	$default_hotValue = get_option('hotValue');
 	$default_spotOpacity = get_option('spotOpacity');
 	$default_spotRadius = get_option('spotRadius');
+	
+	$default_isResponsive = get_option('isResponsive');
 	?>
 	
 	<div id="hotSpotOptions" class="wrap">
 		<div class="clear"></div>
 		<div class="icon32" id="icon-tools"><br /></div>
 		<h1>HotSpots</h1>
-		<p>HotSpots is a simple plugin which draws a heat map of mouse clicks
+		<h2>Description</h2>
+		<p>HotSpots is a plugin which draws a heat map of mouse clicks
 			overlayed on your webpage allowing you to improve usability by
-			analysing which buttons or links are popular and easy to use.</p>
+			analysing user behaviour. This can give insight into which buttons or
+			links are popular and easy to use including the effecfiveness of
+			advertising placement. Each page on your website has it's own heat
+			map. Different heat maps are drawn when you resize the window to cater
+			for responsive design.</p>
 		<p>
 			To show the heat map on the web page, add <i>?drawHotSpots=true</i> to
 			the URL (i.e. www.mywebsite.com?drawHotSpots=true). Make sure the
-			enable option is checked. The hot spots are shown as a heat map with a
-			colour range from green (cold), to orange (warm) and red (hot). Each
-			mouse click is represented as a coloured spot or circle. The colour of
-			the spot is calculated based on how many other spots it is touching
-			within it's radius (i.e if a spot is touching another spot, then it
-			has a heat value of 1).
+			enable option is checked.
 		</p>
 	
-	
 		<form method="post" action="#" id="hotSpotsOptionsForm">
+			<h2>Options</h2>
+			
 			<div id="hotSpotsMessages"></div>
 		
 			<ul>
 				<li>
 					<input type="checkbox" value="<?php echo $default_enabled ?>" name="enabled" id="enabled" <?php if ($default_enabled == "on") { ?> checked="checked" <?php } ?> />
-					<label for="enabled">Enable</label><p class="description">Save mouse clicks and allow displaying heat map using URL query parameter ?drawHotSpots=true</p>
+					<label for="enabled">Enable</label><p class="description">Turn on to save mouse clicks and to be able to display the heat map of mouse clicks.</p>
 				</li>
-			
 				<li>
 					<input type="checkbox" value="<?php echo $default_showOnClick ?>" name="showOnClick" id="showOnClick" <?php if ($default_showOnClick == "on") { ?> checked="checked" <?php } ?> />
 					<label for="showOnClick">Show on click</label>
-					<p class="description">Draw spots on every mouse click</p>
+					<p class="description">Turn on to draw each hot spot on every mouse click. Enabled option needs to be turned on.</p>
 				</li>
-			
-				<h2>Heat Map</h2>
-			
-				<li><label for="hotValue" class="smallWidth">Set a hot value</label>
+				<li>
+					<input type="checkbox" value="<?php echo $default_isResponsive ?>" name="isResponsive" id="isResponsive" <?php if ($default_isResponsive == "on") { ?> checked="checked" <?php } ?> />
+					<label for="showOnClick">Is the website responsive?</label>
+					<p class="description">Turn on if you have a responsive website (i.e. stretches and shrinks to fit multiple devices and screen sizes) or your webpage is fixed width and aligned in the middle of the screen.</p>
+				</li>				
+				
+				<h3>Heat Map</h3>
+				<p>The hot spots are shown as a heat map with a colour range from
+					green (cold), to orange (warm) and red (hot). Each mouse click is
+					represented as a coloured spot or circle. The colour of the spot is
+					calculated based on how many other spots it is touching within it's
+					radius (i.e if a spot is touching another spot, then it has a heat
+					value of 1. If it is touching two spots, then it has a heat value of
+					2 and so on).
+				</p>
+			<li><label for="hotValue" class="smallWidth">Set a hot value</label>
 					<input type="text" value="<?php echo $default_hotValue ?>" name="hotValue" id="hotValue" />
+					<p class="description">Set the heat value for the hottest spots which will show as red colour.</p>
 				</li>
-			
 				<li>
 					<label for="spotRadius" class="smallWidth">Set the spot radius</label>
 					<input type="text" value="<?php echo $default_spotRadius ?>" name="spotRadius" id="spotRadius" />
-				</li>
-			
+					<p class="description">Set the radius of each spot. Note: This will
+					effect the heat value calculation as spots with a greater radius
+					are more likely to touch other spots.</p>
+			</li>
 				<li>
 					<label for="spotOpacity" class="smallWidth">Set the spot opacity</label>
 					<input type="text" value="<?php echo $default_spotOpacity ?>" name="spotOpacity" id="spotOpacity" />
-				</li>
-			
+					<p class="description">Set the opacity value of the spots. This is
+					the degree of how much of the background you can see where there
+					are spots.</p>
+			</li>
 				<li>
 					<input  type="button" name="saveChangesBtn" id="saveChangesBtn" class="button-primary" value="<?php esc_attr_e('Save Changes'); ?>" />
+				</li>
+				
+				<h3>Database</h3>	
+				<li>
 					<input type='button' name="refreshBtn" id="refreshBtn" value='<?php esc_attr_e('Refresh database'); ?>' class='button-secondary' />
+					<p class="description">Delete all mouse click records in the database</p>
 				</li>
 			</ul>
 		</form>
@@ -275,6 +313,13 @@ function saveChanges() {
 		update_option('showOnClick', 'on');
 	} else { // make sure it's off anyway
 		update_option('showOnClick', 'off');
+	}
+	
+	// isResponsive option
+	if (isset($_POST['isResponsive'])) {
+		update_option('isResponsive', 'on');
+	} else { // make sure it's off anyway
+		update_option('isResponsive', 'off');
 	}
 	
 	// hot value option
