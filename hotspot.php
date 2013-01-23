@@ -183,13 +183,13 @@ function hotSpotOptions() {
 			advertising placement. Each page on your website has it's own heat
 			map. Different heat maps are drawn when you resize the window to cater
 			for responsive design.</p>
-		<p>
-			To show the heat map on the web page, add <i>?drawHotSpots=true</i> to
-			the URL (i.e. www.mywebsite.com?drawHotSpots=true). Make sure the
-			enable option is checked.
+		<p>Make sure the enabled option is checked to start recording mouse
+			clicks. To view the mouse clicks, add query parameter
+			drawHotSpots=true to the URL (i.e. www.mywebsite.com?drawHotSpots=true
+			or www.mywebsite.com?cat=1&drawHotSpots=true).
 		</p>
-	
-		<form method="post" action="#" id="hotSpotsOptionsForm">
+
+	<form method="post" action="#" id="hotSpotsOptionsForm">
 			<h2>Options</h2>
 			
 			<div id="hotSpotsMessages"></div>
