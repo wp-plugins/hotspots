@@ -36,6 +36,11 @@ Tested using Google Chrome v23, Firefox v10 and Internet Explorer v9. This plugi
 
 == Changelog ==
 
+= 1.2.7 =
+* Resolved issue with drawing hotspots in administrator backend
+* Do not delete records in DB on plugin activation
+* Minor wording changes in plugin settings page
+
 = 1.2.6 =
 * Added responsivene design awareness
 

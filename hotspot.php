@@ -3,7 +3,7 @@
 Plugin Name: HotSpots
 Plugin URI: http://wordpress.org/extend/plugins/hotspots/
 Description: HotSpots is a plugin which draws a heat map of mouse clicks overlayed on your webpage allowing you to improve usability by analysing user behaviour.
-Version: 1.2.6
+Version: 1.2.7
 Author: Daniel Powney
 Auhtor URI: www.danielpowney.com
 License: GPL2
@@ -33,16 +33,35 @@ function assets() {
 			'spotRadius' => get_option('spotRadius')
 	);
 	wp_localize_script('hotspots', 'hotSpotData', $config_array);
+}
+add_action( 'wp_enqueue_scripts', 'assets' );
+
+
+/**
+ * admin backend assets
+ */
+function adminAssets() {
+	$config_array = array(
+			'ajaxUrl' => admin_url('admin-ajax.php'),
+			'ajaxNonce' => wp_create_nonce('hotspot-nonce'),
+			'enabled' => get_option('enabled'),
+			'showOnClick' => get_option('showOnClick'),
+			'isResponsive' => get_option('isResponsive'),
+			'hotValue' => get_option('hotValue'),
+			'spotOpacity' => get_option('spotOpacity'),
+			'spotRadius' => get_option('spotRadius')
+	);
+	wp_enqueue_script('jquery');
 	
 	if (is_admin()) {
 		wp_enqueue_style('hotspots-admin-style', plugins_url('hotspots-admin.css', __FILE__));
 		wp_enqueue_script('hotspots-admin', plugins_url('hotspot-admin.js', __FILE__), array('jquery'));
 		wp_localize_script('hotspot-admin', 'hotSpotData', $config_array);
-		
+	
 	}
+	
 }
-add_action( 'wp_enqueue_scripts', 'assets' );
-add_action( 'admin_enqueue_scripts', 'assets' );
+add_action( 'admin_enqueue_scripts', 'adminAssets' );
 
 
 /**
@@ -53,7 +72,7 @@ add_action( 'admin_enqueue_scripts', 'assets' );
 function createHotSpotDBTable() {
 	global $wpdb;
 	require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-	$wpdb->query("DROP TABLE IF EXISTS hsp_hotspot");
+	// Do not delete table, keep old records
 	$sql1 = "CREATE TABLE hsp_hotspot (
 	id int(11) NOT NULL AUTO_INCREMENT,
 	x int(11) NOT NULL,
@@ -145,12 +164,13 @@ register_activation_hook(__FILE__,'setHotSpotOptions');
  * @since 1.0
  */
 function unsetHotSpotOptions() {
-	delete_option('enabled');
-	delete_option('showOnClick');
-	delete_option('hotValue');
-	delete_option('spotOpacity');
-	delete_option('spotRadius');
-	delete_option('isResponsive');
+	// Commented out delete options to keep options in case of version updates
+	//delete_option('enabled');
+	//delete_option('showOnClick');
+	//delete_option('hotValue');
+	//delete_option('spotOpacity');
+	//delete_option('spotRadius');
+	//delete_option('isResponsive');
 }
 register_deactivation_hook(__FILE__,'unsetHotSpotOptions');
 
@@ -172,10 +192,8 @@ function hotSpotOptions() {
 	?>
 	
 	<div id="hotSpotOptions" class="wrap">
-		<div class="clear"></div>
 		<div class="icon32" id="icon-tools"><br /></div>
 		<h1>HotSpots</h1>
-		<h2>Description</h2>
 		<p>HotSpots is a plugin which draws a heat map of mouse clicks
 			overlayed on your webpage allowing you to improve usability by
 			analysing user behaviour. This can give insight into which buttons or
@@ -206,8 +224,8 @@ function hotSpotOptions() {
 				</li>
 				<li>
 					<input type="checkbox" value="<?php echo $default_isResponsive ?>" name="isResponsive" id="isResponsive" <?php if ($default_isResponsive == "on") { ?> checked="checked" <?php } ?> />
-					<label for="showOnClick">Is the website responsive?</label>
-					<p class="description">Turn on if you have a responsive website (i.e. stretches and shrinks to fit multiple devices and screen sizes) or your webpage is fixed width and aligned in the middle of the screen.</p>
+					<label for="showOnClick">Is your website responsive?</label>
+					<p class="description">Turn on if you have a responsive website (i.e. stretches and shrinks to fit multiple devices and screen sizes). This includes text wrapping and fixed width middle or right alignment. It is recommended to keep this option on.</p>
 				</li>				
 				
 				<h3>Heat Map</h3>
