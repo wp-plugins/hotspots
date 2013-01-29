@@ -1,6 +1,6 @@
 === HotSpots ===
 Contributors: dpowney
-Donate link:
+Donate link: http://www.danielpowney.com
 Tags: hotspot, hot, spot, mouse click, click, usability, heat map, advertising, advertise
 Requires at least: 3.0.1
 Tested up to: 3.5
