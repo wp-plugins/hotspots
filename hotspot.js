@@ -34,24 +34,24 @@ jQuery(document).ready(function() {
 				drawAllMouseClicks(jQuery.parseJSON(response));
 			});
 			
+			// redraw canvas if window is resized
+			jQuery(window).resize(function() {
+				// remove canvas element and create it again to refresh
+				jQuery("#canvasContainer").remove();
+				initCanvas();
+				
+				// Get mouse clicks and draw them
+				var data =  { action : "get_mouse_clicks", nonce : hotSpotData.ajaxNonce, url : window.location.href, screenWidth : window.innerWidth };
+				jQuery.post(hotSpotData.ajaxUrl, data, function(response) {
+					drawAllMouseClicks(jQuery.parseJSON(response));
+				});
+			});
+			
 		}
 		
 		// Register event to add mouse clicks
 		jQuery(document).live('click',function(e) {
 			addMouseClick(e);
-		});
-		
-		// redraw canvas if window is resized
-		jQuery(window).resize(function() {
-			// remove canvas element and create it again to refresh
-			jQuery("#canvasContainer").remove();
-			initCanvas();
-			
-			// Get mouse clicks and draw them
-			var data =  { action : "get_mouse_clicks", nonce : hotSpotData.ajaxNonce, url : window.location.href, screenWidth : window.innerWidth };
-			jQuery.post(hotSpotData.ajaxUrl, data, function(response) {
-				drawAllMouseClicks(jQuery.parseJSON(response));
-			});
 		});
 	}
 });
