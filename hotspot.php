@@ -220,7 +220,12 @@ function hotSpotOptions() {
 				<li>
 					<input type="checkbox" value="<?php echo $default_showOnClick ?>" name="showOnClick" id="showOnClick" <?php if ($default_showOnClick == "on") { ?> checked="checked" <?php } ?> />
 					<label for="showOnClick">Show on click</label>
-					<p class="description">Turn on to draw each hot spot on every mouse click. Enabled option needs to be turned on.</p>
+					<p class="description">Turn on to draw each hot spot on every mouse
+						click. Enabled option needs to be turned on. This option is useful
+						for testing that that the mouse clicks are being recorded and that
+						the drawing of the hot spots is working (i.e. every time you click,
+						a spot will be drawn). You also need to set the URL query parameter
+						drawHotSpots=true.</p>
 				</li>
 				<li>
 					<input type="checkbox" value="<?php echo $default_isResponsive ?>" name="isResponsive" id="isResponsive" <?php if ($default_isResponsive == "on") { ?> checked="checked" <?php } ?> />

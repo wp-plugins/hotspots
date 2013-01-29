@@ -38,6 +38,7 @@ Tested using Google Chrome v23, Firefox v10 and Internet Explorer v9. This plugi
 
 = 1.2.8 =
 * Fixed issue where hot spots were being drawn after a window resize event ignoring the presence of the drawHotSpots URL query parameter and not checking the enabled option
+* Clarified enable and show on click options in plugin settings page
 
 = 1.2.7 =
 * Resolved issue with drawing hotspots in administrator backend
