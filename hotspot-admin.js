@@ -24,6 +24,7 @@ jQuery("#saveChangesBtn").live('click',function(e) {
 	var spotOpacity = jQuery("#spotOpacity").val();
 	var spotRadius = jQuery("#spotRadius").val();
 	var isResponsive = jQuery("#isResponsive").val();
+	var homePageOnly = jQuery("#homePageOnly").val();
 	
 	var data = {
 		action : "saveChanges",
@@ -33,7 +34,8 @@ jQuery("#saveChangesBtn").live('click',function(e) {
 		hotValue : hotValue,
 		spotOpacity : spotOpacity,
 		spotRadius : spotRadius,
-		isResponsive : isResponsive
+		isResponsive : isResponsive,
+		homePageOnly : homePageOnly
 	};
 	jQuery.post(hotSpotData.ajaxUrl,  data, function(response) {
 		var responseJSON = jQuery.parseJSON(response)

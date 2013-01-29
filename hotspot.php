@@ -3,7 +3,7 @@
 Plugin Name: HotSpots
 Plugin URI: http://wordpress.org/extend/plugins/hotspots/
 Description: HotSpots is a plugin which draws a heat map of mouse clicks overlayed on your webpage allowing you to improve usability by analysing user behaviour.
-Version: 1.2.8
+Version: 1.3
 Author: Daniel Powney
 Auhtor URI: www.danielpowney.com
 License: GPL2
@@ -22,10 +22,15 @@ function assets() {
 	wp_enqueue_script('jquery');
 	wp_enqueue_script('hotspots', plugins_url('hotspot.js', __FILE__), array('jquery'));
 	
+	$enabled = get_option('enabled');
+	$homePageOnly = get_option('homePageOnly');
+	if ($homePageOnly == 'on' && is_home() == false && $enabled == 'on') {
+		$enabled = 'off';
+	}
 	$config_array = array(
 			'ajaxUrl' => admin_url('admin-ajax.php'),
 			'ajaxNonce' => wp_create_nonce('hotspot-nonce'),
-			'enabled' => get_option('enabled'),
+			'enabled' => $enabled,
 			'showOnClick' => get_option('showOnClick'),
 			'isResponsive' => get_option('isResponsive'),
 			'hotValue' => get_option('hotValue'),
@@ -43,20 +48,14 @@ add_action( 'wp_enqueue_scripts', 'assets' );
 function adminAssets() {
 	$config_array = array(
 			'ajaxUrl' => admin_url('admin-ajax.php'),
-			'ajaxNonce' => wp_create_nonce('hotspot-nonce'),
-			'enabled' => get_option('enabled'),
-			'showOnClick' => get_option('showOnClick'),
-			'isResponsive' => get_option('isResponsive'),
-			'hotValue' => get_option('hotValue'),
-			'spotOpacity' => get_option('spotOpacity'),
-			'spotRadius' => get_option('spotRadius')
+			'ajaxNonce' => wp_create_nonce('hotspot-nonce')
 	);
 	wp_enqueue_script('jquery');
 	
 	if (is_admin()) {
 		wp_enqueue_style('hotspots-admin-style', plugins_url('hotspots-admin.css', __FILE__));
 		wp_enqueue_script('hotspots-admin', plugins_url('hotspot-admin.js', __FILE__), array('jquery'));
-		wp_localize_script('hotspot-admin', 'hotSpotData', $config_array);
+		wp_localize_script('hotspots-admin', 'hotSpotData', $config_array);
 	
 	}
 	
@@ -154,6 +153,7 @@ function setHotSpotOptions() {
 	add_option('spotOpacity', '0.2', '', 'yes');
 	add_option('spotRadius', '8', '', 'yes');
 	add_option('isResponsive', 'on', '', 'yes');
+	add_option('homePageOnly', 'off', '', 'yes');
 	
 }
 register_activation_hook(__FILE__,'setHotSpotOptions');
@@ -187,8 +187,10 @@ function hotSpotOptions() {
 	$default_hotValue = get_option('hotValue');
 	$default_spotOpacity = get_option('spotOpacity');
 	$default_spotRadius = get_option('spotRadius');
-	
 	$default_isResponsive = get_option('isResponsive');
+	
+	$default_homePageOnly = get_option('homePageOnly');
+	
 	?>
 	
 	<div id="hotSpotOptions" class="wrap">
@@ -231,6 +233,12 @@ function hotSpotOptions() {
 					<input type="checkbox" value="<?php echo $default_isResponsive ?>" name="isResponsive" id="isResponsive" <?php if ($default_isResponsive == "on") { ?> checked="checked" <?php } ?> />
 					<label for="showOnClick">Is your website responsive?</label>
 					<p class="description">Turn on if you have a responsive website (i.e. stretches and shrinks to fit multiple devices and screen sizes). This includes text wrapping and fixed width middle or right alignment. It is recommended to keep this option on.</p>
+				</li>
+				
+				<li>
+					<input type="checkbox" value="<?php echo $default_homePageOnly ?>" name="homePageOnly" id="homePageOnly" <?php if ($default_homePageOnly == "on") { ?> checked="checked" <?php } ?> />
+					<label for="homePageOnly">Only enable for home page</label>
+					<p class="description">Turn on if you are only interested in using this plugin for the home page.</p>
 				</li>				
 				
 				<h3>Heat Map</h3>
@@ -343,6 +351,13 @@ function saveChanges() {
 		update_option('isResponsive', 'on');
 	} else { // make sure it's off anyway
 		update_option('isResponsive', 'off');
+	}
+	
+	// homePageOnly option
+	if (isset($_POST['homePageOnly'])) {
+		update_option('homePageOnly', 'on');
+	} else { // make sure it's off anyway
+		update_option('homePageOnly', 'off');
 	}
 	
 	// hot value option

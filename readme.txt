@@ -36,6 +36,10 @@ Tested using Google Chrome v23, Firefox v10 and Internet Explorer v9. This plugi
 
 == Changelog ==
 
+= 1.3 =
+* Fixed admin AJAX actions bug
+* Added new option for home page only
+
 = 1.2.8 =
 * Fixed issue where hot spots were being drawn after a window resize event ignoring the presence of the drawHotSpots URL query parameter and not checking the enabled option
 * Clarified enable and show on click options in plugin settings page
