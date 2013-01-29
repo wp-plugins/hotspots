@@ -3,7 +3,7 @@
 Plugin Name: HotSpots
 Plugin URI: http://wordpress.org/extend/plugins/hotspots/
 Description: HotSpots is a plugin which draws a heat map of mouse clicks overlayed on your webpage allowing you to improve usability by analysing user behaviour.
-Version: 1.3
+Version: 1.3.1
 Author: Daniel Powney
 Auhtor URI: www.danielpowney.com
 License: GPL2
@@ -24,8 +24,10 @@ function assets() {
 	
 	$enabled = get_option('enabled');
 	$homePageOnly = get_option('homePageOnly');
-	if ($homePageOnly == 'on' && is_home() == false && $enabled == 'on') {
-		$enabled = 'off';
+	if ($homePageOnly == 'on') {
+		if (is_home() == false && $enabled == 'on') {
+			$enabled = 'off';
+		}
 	}
 	$config_array = array(
 			'ajaxUrl' => admin_url('admin-ajax.php'),
@@ -334,30 +336,38 @@ function saveChanges() {
 	$errors = "";
 	// enabled option
 	if (isset($_POST['enabled'])) {
-		update_option('enabled', 'on');
-	} else { // make sure it's off anyway
-		update_option('enabled', 'off');
+		if ($_POST['enabled'] == "true") {
+			update_option('enabled', 'on');
+		} else {
+			update_option('enabled', 'off');
+		}
 	}
 	
 	// showOnClick option
 	if (isset($_POST['showOnClick'])) {
-		update_option('showOnClick', 'on');
-	} else { // make sure it's off anyway
-		update_option('showOnClick', 'off');
+		if ($_POST['showOnClick'] == "true") {
+			update_option('showOnClick', 'on');
+		} else {
+			update_option('showOnClick', 'off');
+		}
 	}
 	
 	// isResponsive option
 	if (isset($_POST['isResponsive'])) {
-		update_option('isResponsive', 'on');
-	} else { // make sure it's off anyway
-		update_option('isResponsive', 'off');
+		if ($_POST['isResponsive'] == "true") {
+			update_option('isResponsive', 'on');
+		} else {
+			update_option('isResponsive', 'off');
+		}
 	}
 	
 	// homePageOnly option
 	if (isset($_POST['homePageOnly'])) {
-		update_option('homePageOnly', 'on');
-	} else { // make sure it's off anyway
-		update_option('homePageOnly', 'off');
+		if ($_POST['homePageOnly'] == "true") {
+			update_option('homePageOnly', 'on');
+		} else {
+			update_option('homePageOnly', 'off');
+		}
 	}
 	
 	// hot value option

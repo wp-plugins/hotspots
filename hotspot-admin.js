@@ -18,13 +18,13 @@ jQuery("#refreshBtn").live('click',function(e) {
 jQuery("#saveChangesBtn").live('click',function(e) {
 	e.preventDefault();
 	
-	var enabled = jQuery("#enabled").val();
-	var showOnClick = jQuery("#showOnClick").val();
+	var enabled = jQuery("#enabled").is(':checked');
+	var showOnClick = jQuery("#showOnClick").is(':checked');
 	var hotValue = jQuery("#hotValue").val();
 	var spotOpacity = jQuery("#spotOpacity").val();
 	var spotRadius = jQuery("#spotRadius").val();
-	var isResponsive = jQuery("#isResponsive").val();
-	var homePageOnly = jQuery("#homePageOnly").val();
+	var isResponsive = jQuery("#isResponsive").is(':checked');
+	var homePageOnly = jQuery("#homePageOnly").is(':checked');
 	
 	var data = {
 		action : "saveChanges",

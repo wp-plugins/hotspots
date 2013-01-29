@@ -36,6 +36,9 @@ Tested using Google Chrome v23, Firefox v10 and Internet Explorer v9. This plugi
 
 == Changelog ==
 
+= 1.3.1 =
+* Fixed saving checkbox options
+
 = 1.3 =
 * Fixed admin AJAX actions bug
 * Added new option for home page only
