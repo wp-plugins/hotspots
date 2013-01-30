@@ -36,6 +36,10 @@ Tested using Google Chrome v23, Firefox v10 and Internet Explorer v9. This plugi
 
 == Changelog ==
 
+
+= 1.3.2 =
+* Fixed colour fill bug with red amount for < warm
+
 = 1.3.1 =
 * Fixed saving checkbox options
 

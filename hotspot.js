@@ -202,13 +202,13 @@ function drawMouseClick(posX, posY, heatValue) {
 				+ MIN_COLOUR + ", " + opacity + ")";
 	} else { // in between
 		if (heatValue > warm) { // more red
-			var red = MAX_COLOUR - (MAX_COLOUR * ((heatValue - warm) / warm));
-			fillStyle = "rgba(" + MAX_COLOUR + ", " + Math.round(red) + ", "
+			var someGreen = MAX_COLOUR - (MAX_COLOUR * ((heatValue - warm) / warm));
+			fillStyle = "rgba(" + MAX_COLOUR + ", " + Math.round(someGreen) + ", "
 					+ MIN_COLOUR + ", " + opacity + ")";
 		} else { // more green
-			var green = MAX_COLOUR - (MAX_COLOUR * (heatValue / warm));
-			fillStyle = "rgba(" + Math.round(green) + ", " + MAX_COLOUR + ", "
-					+ MIN_COLOUR + ", " + opacity + ")";
+			var someRed = MAX_COLOUR * (heatValue / warm);
+			fillStyle = "rgba(" + Math.round(someRed) + ", " + MAX_COLOUR + ", "
+					+ MIN_COLOUR + ", " + opacity + ")";;
 		}
 	}
 	
