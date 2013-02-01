@@ -1,60 +1,141 @@
 // constants
-var allMouseClicks = null;
 var MAX_COLOUR = 255;
 var MIN_COLOUR = 0;
-
-var showOnClick = false; // default is false
-var enabled = false; // default is false
+var debug = false; // default is false
+var saveMouseClicks = false; // default is false
 var spotRadius = 6;
 var hot = 20; // default is 20
 var warm = hot / 2; // default is 10
 var opacity = 0.2; // default is 0.2
-var drawHotSpots = false; // default is false
+var drawHotSpotsEnabled = false; // default is false
 var isResponsive = false; // default is false
 
-jQuery(document).ready(function() {	
+jQuery(window).load(function() {	
 	// get options
-	enabled = (hotSpotData.enabled == "on") ? true : false;
-	showOnClick = (hotSpotData.showOnClick) == "on" ? true : false;
-	spotRadius = parseInt(hotSpotData.spotRadius);
-	hot = parseInt(hotSpotData.hotValue);
+	drawHotSpotsEnabled = (hotSpotsData.drawHotSpotsEnabled) == "1" ? true : false;
+	debug = (hotSpotsData.debug) == "1" ? true : false;
+	saveMouseClicks = (hotSpotsData.saveMouseClicks) == "1" ? true : false;
+	spotRadius = parseInt(hotSpotsData.spotRadius);
+	hot = parseInt(hotSpotsData.hotValue);
 	warm = hot / 2;
-	opacity = hotSpotData.spotOpacity;
-	drawHotSpots = urlHelper.getUrlParamByName(window.location.href,
-			'drawHotSpots') === "true" ? true : false;
-	isResponsive = (hotSpotData.isResponsive) == "on" ? true : false;
+	opacity = hotSpotsData.spotOpacity;
+	isResponsive = (hotSpotsData.isResponsive) == "1" ? true : false;
 	
-	if (enabled) {
-		if (drawHotSpots === true) {
-			initCanvas();
+	// Check for drawHotSpots query param
+	var drawHotSpotsQueryParam = urlHelper.getUrlParamByName(window.location.href,
+			'drawHotSpots') === "true" ? true : false;
+	if (drawHotSpotsQueryParam == false) {
+		// cannot nabled drawing hotspots without the query param set to true
+		drawHotSpotsEnabled = false;
+	}
+	
+	// For draw hotspots enabled option
+	if (drawHotSpotsEnabled) {
+		
+		// If from settings page view site, resize to selected width
+		var innerWidth = urlHelper.getUrlParamByName(window.location.href, 'width');
+		if (innerWidth && windowReady == false) {
+			resizeToInner(innerWidth, window.innerHeight);
+		}
+		
+		initCanvas();
 				
-			// Get mouse clicks ands draw them
-			var data =  { action : "get_mouse_clicks", nonce : hotSpotData.ajaxNonce, url : window.location.href, screenWidth : window.innerWidth };
-			jQuery.post(hotSpotData.ajaxUrl, data, function(response) {
-				drawAllMouseClicks(jQuery.parseJSON(response));
-			});
+		// Get mouse clicks ands draw them
+		var inner = getInnerSize();
+		var data =  { action : "get_mouse_clicks", nonce : hotSpotsData.ajaxNonce, url : window.location.href, width : inner[0] };
+		jQuery.post(hotSpotsData.ajaxUrl, data, function(response) {
+			drawAllMouseClicks(jQuery.parseJSON(response));
+		});
 			
-			// redraw canvas if window is resized
+		// redraw canvas if window is resized
+		if (isResponsive) {
 			jQuery(window).resize(function() {
+				// TODO: don't do anything until a small delay
+					
 				// remove canvas element and create it again to refresh
 				jQuery("#canvasContainer").remove();
 				initCanvas();
 				
 				// Get mouse clicks and draw them
-				var data =  { action : "get_mouse_clicks", nonce : hotSpotData.ajaxNonce, url : window.location.href, screenWidth : window.innerWidth };
-				jQuery.post(hotSpotData.ajaxUrl, data, function(response) {
+				var inner = getInnerSize();
+				var data =  { action : "get_mouse_clicks", nonce : hotSpotsData.ajaxNonce, url : window.location.href, width : inner[0] };
+				jQuery.post(hotSpotsData.ajaxUrl, data, function(response) {
 					drawAllMouseClicks(jQuery.parseJSON(response));
 				});
 			});
-			
 		}
-		
-		// Register event to add mouse clicks
+	}
+	
+	// For save mouse clicks option
+	if (saveMouseClicks) {
 		jQuery(document).live('click',function(e) {
 			addMouseClick(e);
 		});
 	}
 });
+
+
+// http://www.hypergeneric.com/corpus/javascript-inner-viewport-resize/
+/**
+ * getInnerSize
+ */
+function getInnerSize() {
+	var width = null;
+	var height = null;
+	if (self.innerHeight) { // all except Explorer
+		// hack for Google Chrome innerWidth/outerWidth
+		if (typeof window.chrome === "object") {
+			width = self.outerWidth;
+			height = self.outerHeight;
+		} else {
+			width = self.innerWidth;
+			height = self.innerHeight;
+		}
+	} else if (document.documentElement && document.documentElement.clientHeight) { // Explorer 6 Strict Mode
+		width = document.documentElement.clientWidth;
+		height = document.documentElement.clientHeight;
+	} else if (document.body) { // other Explorers
+		width = document.body.clientWidth;
+		height = document.body.clientHeight;
+	}
+	return [width, height];
+}
+/**
+ * resizeToInner
+ * 
+ * @param width
+ * @param height
+ * @param screenX
+ * @param screenY
+ */
+function resizeToInner(width, height, screenX, screenY) {
+	// make sure we have a final x/y value
+	// pick one or the other windows value, not both
+	if (screenX==undefined) {
+		screenX = window.screenLeft || window.screenX;
+	}
+	if (screenY==undefined) {
+		screenY = window.screenTop || window.screenY;
+	}
+	
+	// for now, move the window to the top left
+	// then resize to the maximum viewable dimension possible
+	window.moveTo(0, 0);
+	window.resizeTo(screen.availWidth, screen.availHeight);
+	
+	// now that we have set the browser to it's biggest possible size
+	// get the inner dimensions.  the offset is the difference.
+	var inner = getInnerSize();
+	
+	var diffX = screen.availWidth - inner[0]; 
+	var diffY = screen.availHeight - inner[1];
+	
+	// now that we have an offset value, size the browser
+	// and position it
+	window.resizeTo((parseInt(width) + diffX), height + diffY);
+	window.moveTo(screenX, screenY);
+}
+				
 
 /**
  * Helper function to get the query string parameters from the URL
@@ -92,6 +173,7 @@ var urlHelper = new function() {
 
 /**
  * Gets the mouse click coordinates for different browsers and scrolling
+ * 
  */
 function getMouseClickCoords(e) {
 	var evt = e ? e : window.event;
@@ -115,7 +197,7 @@ function getMouseClickCoords(e) {
 	return {
 		posX : clickX,
 		posY : clickY
-	}
+	};
 }
 
 /**
@@ -123,58 +205,37 @@ function getMouseClickCoords(e) {
  */
 function addMouseClick(e) {
 	var coords = getMouseClickCoords(e);
-	var data =  { action : "add_mouse_click", nonce : hotSpotData.ajaxNonce, x : coords.posX, y : coords.posY, url : window.location.href, screenWidth : window.innerWidth };
-	var id = "";
-	jQuery.post(hotSpotData.ajaxUrl, data, function(response) {
-		id = response;
-		
-		if (drawHotSpots === true && showOnClick === true) {		
-			// draw the mouse click on the canvas
-			var heatValue = calculateHeatValue(coords.posX, coords.posY);
-			
+	
+	var inner = getInnerSize();
+	var data =  { action : "add_mouse_click", nonce : hotSpotsData.ajaxNonce, x : coords.posX, y : coords.posY, url : window.location.href, width : inner[0] };
+	jQuery.post(hotSpotsData.ajaxUrl, data, function(response) {
+		var jsonResponse = jQuery.parseJSON(response);
+
+		if (drawHotSpotsEnabled === true && debug === true) {
+			var heatValue = jsonResponse.heatValue;
 			drawMouseClick(coords.posX, coords.posY, heatValue);
-			
-			// Add mouse click last so that it does not affect the heat value
-			allMouseClicks.push({ "x" : coords.posX, "y" : coords.posY, "id" : id, screenWidth : window.innerWidth });
 		}
 	});
 }
 
 /**
  * Draws all mouse clicks on the screen
+ * 
  * @param response
  */
 function drawAllMouseClicks(response) {
-	allMouseClicks = [];
-	
 	for (var index in response) {
-		var clickData = response[index];
-		
-		// add mouse click if it was the same URL
-		// Fix in v1.2.2 do not need to worry about url as this is handled by server
-		//if (urlHelper.equals(window.location.href, clickData.url, ['drawHotSpots'])) {
-		allMouseClicks.push({ "x" : clickData.x, "y" : clickData.y, "id" : clickData.id });
-		
-		
-		//}
-	}
-	for (var index in allMouseClicks) {
-		var clickData = allMouseClicks[index];
-		var posX = clickData.x;
-		var posY = clickData.y;
-		var id = clickData.id;
-		var heatValue = calculateHeatValue(posX, posY, id);
-	
+		var mouseClick = response[index];
 		// draw the mouse click on the canvas
-		drawMouseClick(posX, posY, heatValue);
+		drawMouseClick(mouseClick.x, mouseClick.y, mouseClick.heatValue);
 	}
 }
 
 /**
  * Draws a mouse clicks circle with heat
+ * 
  * @param posX
  * @param posY
- * @param allMouseClicks
  * @param heatValue
  * @returns
  */
@@ -208,7 +269,7 @@ function drawMouseClick(posX, posY, heatValue) {
 		} else { // more green
 			var someRed = MAX_COLOUR * (heatValue / warm);
 			fillStyle = "rgba(" + Math.round(someRed) + ", " + MAX_COLOUR + ", "
-					+ MIN_COLOUR + ", " + opacity + ")";;
+					+ MIN_COLOUR + ", " + opacity + ")";
 		}
 	}
 	
@@ -218,6 +279,7 @@ function drawMouseClick(posX, posY, heatValue) {
 
 /**
  * Initialises the canvas element
+ * 
  */
 function initCanvas() {
 	var docWidth = jQuery(document).width();
@@ -266,36 +328,4 @@ function initCanvas() {
 			canvasContainer.css("z-index", zIndex + 1);
 		}
 	});
-}
-
-/**
- * TODO move to server
- * Calculates the heat value given closeness of existing mouse clicks
- * 
- * @param posX
- * @param posY
- * @param id
- */
-function calculateHeatValue(posX, posY, id) {
-	// Calculate heat value
-	var heatValue = 0;
-	for ( var index in allMouseClicks) {
-		var currentX = allMouseClicks[index].x;
-		var currentY = allMouseClicks[index].y;
-		var currentId = allMouseClicks[index].id;
-		
-		// skip if comparing the same mouse click
-		if (id !== undefined && id === currentId) {
-			continue;
-		}
-		
-		var diffX = posX - currentX;
-		var diffY = posY - currentY;
-		var hotX = (diffX > -spotRadius && diffX < spotRadius);
-		var hotY = (diffY > -spotRadius && diffY < spotRadius);
-		if (hotX && hotY) {
-			heatValue++;
-		}
-	}
-	return heatValue;
 }

@@ -14,7 +14,7 @@ HotSpots is a plugin which draws a heat map of mouse clicks overlayed on your we
 
 HotSpots is a plugin which draws a heat map of mouse clicks overlayed on your webpage allowing you to improve usability by analysing user behaviour. This can give insight into which buttons or links are popular and easy to use including the effecfiveness of advertising placement. Each page on your website has it's own heat map. Different heat maps are drawn when you resize the window to cater for responsive design.
 
-The hot spots are shown as a heat map with a colour range from green (cold), to orange (warm) and red (hot). Each mouse click is represented as a coloured spot or circle. The colour of the spot is calculated based on how many other spots it is touching	within it's radius (i.e if a spot is touching another spot, then it has a heat value of 1. If it is touching two spots, then it has a heat value of 2 and so on).
+The hot spots are shown as a heat map with a colour range from green (cold), to orange (warm) and red (hot). Each mouse click is represented as a coloured spot or circle. The colour of the spot is calculated based on how many other spots it is touching within it's radius (i.e if a spot is touching another spot, then it has a heat value of 1. If it is touching two spots, then it has a heat value of 2 and so on).
 
 The drawing of the heap map is done using HTML5 canvas. AJAX is used to send information about mouse clicks to the server in the background.
 
@@ -24,18 +24,31 @@ Tested using Google Chrome v23, Firefox v10 and Internet Explorer v9. This plugi
 
 1. Download plugin to plugins directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Go to the options page (Settings > HotSpots) and check the enabled option to start recording mouse clicks. To view the mouse clicks, add query parameter drawHotSpots=true to the URL (i.e. www.mywebsite.com?drawHotSpots=true or www.mywebsite.com?cat=1&drawHotSpots=true)
+1. Go to the options page (Settings > HotSpots)
+1. Turn on the Save Mouse Clicks option to start recording mouse clicks and also the Draw HotSpots Enable option.
+1. To be view a heat map of mouse clicks on any page on your website, add query parameter drawHotSpots=true to the URL (i.e. www.mywebsite.com?drawHotSpots=true or www.mywebsite.com?cat=1&drawHotSpots=true). or you can go to the Settings pagr and click view site to open a new window of a URL with the selected window width.
 
 == Frequently Asked Questions ==
 
 == Screenshots ==
 
-1. Heat map of mouse clicks on a Wordpress website. This is an example of 200 saved mouse clicks. As you can see, the navigation menu bar and top search input are highly used but the second search input is rarely used.
+1. Heat map of mouse clicks on a WordPress website. As you can see, the navigation menu bar and top search input are highly used but the second search input is rarely used.
 
-2. HotSpots plugin settings page
+2. Heat map of mouse clicks on a responsive WordPress website (i.e. mobile phone screen size).
+
+3. HotSpots plugin settings page options for enabling features and configuring the heat map.
+
+4. HotSpots plugin settings page also allows you to open pages on your website and draw the hotspots for different avaialable window sizes.
 
 == Changelog ==
 
+= 2.0 =
+* Refactored code
+* Heat value calculation moved to server side to improve performance
+* Split enabled option into two options to save mouse clicks and to be able to draw the hotspots
+* Renamed showOnClick option to debug
+* Added table in settings page to view URL's, counts of mouse clicks and available window sizes.
+* Added feature on the settings page to open a new window and draw the hot spots for specific URL's with a selected window size width
 
 = 1.3.2 =
 * Fixed colour fill bug with red amount for < warm
