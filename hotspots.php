@@ -11,7 +11,7 @@ License: GPL2
 ?>
 <?php
 
-require dirname(__FILE__).'\tables.php';
+require dirname(__FILE__).DIRECTORY_SEPARATOR .'tables.php';
 
 /**
  * HotSpots class
