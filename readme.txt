@@ -42,6 +42,9 @@ Tested using Google Chrome v23, Firefox v10 and Internet Explorer v9. This plugi
 
 == Changelog ==
 
+= 2.0.1 = 
+* Fixed tables.php import
+
 = 2.0 =
 * Refactored code
 * Heat value calculation moved to server side to improve performance
