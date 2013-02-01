@@ -1,6 +1,6 @@
 <?php 
 /*
- Plugin Name: HotSpots
+Plugin Name: HotSpots
 Plugin URI: http://wordpress.org/extend/plugins/hotspots/
 Description: HotSpots is a plugin which draws a heat map of mouse clicks overlayed on your webpage allowing you to improve usability by analysing user behaviour.
 Version: 2.0.3
