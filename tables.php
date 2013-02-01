@@ -34,8 +34,7 @@ class StatsTable extends WP_List_Table {
 		}
 		if ( $which == "bottom" ){
 			echo '<p class="note">Note: Google Chrome browser has some issues setting the width '
-			. 'of the window when opening a popup. As a workaround, the window is resized on load '
-			. 'and then refreshed when using Google Chrome browser.</p>';
+			. 'of the window when opening a popup so it may not work.</p>';
 		}
 	}
 	

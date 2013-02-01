@@ -30,11 +30,6 @@ jQuery("input.viewBtn").live('click', function(e) {
 		url += "?";
 	}
 	url += queryParams;
-	// hack for Chrome width inconsistencies
-	if (typeof window.chrome === "object") {
-		var diff = window.innerWidth - window.outerWidth;
-		width = parseInt(width) + parseInt(diff) - 10;
-	}
 	window.open(url, "_blank", 'width=' + width + ', scrollbars=yes, resizable=yes, location=yes, toolbar=yes');
 });
 

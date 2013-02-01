@@ -58,7 +58,7 @@ class HotSpots {
 	DEFAULT_IS_RESPONSIVE			= true,
 	DEFAULT_HOME_PAGE_ONLY			= false;
 	
-	public static $ignoreQueryParams = array('drawHotSpots', 'width', 'windowReady');
+	public static $ignoreQueryParams = array('drawHotSpots', 'width');
 
 	/**
 	 * Constructor
@@ -471,12 +471,6 @@ class HotSpots {
 				advertising placement. Each page on your website has it's own heat
 				map. Different heat maps are drawn when you resize the window to cater
 				for responsive design.</p>
-
-			<?php 
-			$stats = new StatsTable();
-			$stats->prepare_items();
-			$stats->display();
-			?>
 	
 			<form method="post" action="#" id="hotSpotsOptionsForm">
 				<h2>Options</h2>
@@ -529,34 +523,36 @@ class HotSpots {
 					</p>
 					<li>
 						<label for="hotValue" class="smallWidth">Set a hot value</label>
-						<input type="text" value="<?php echo $current_hotValue ?>" name="hotValue" id="hotValue" />
+						<input type="text" value="<?php echo $current_hotValue ?>" name="hotValue" id="hotValue" />&nbsp;(must be greater than 0) 
 						<p class="description">Set the heat value for the hottest spots which will show as red colour.</p>
 					</li>
 					<li>
 						<label for="spotRadius" class="smallWidth">Set the spot radius</label>
-						<input type="text" value="<?php echo $current_spotRadius ?>" name="spotRadius" id="spotRadius" />&nbsp;px
+						<input type="text" value="<?php echo $current_spotRadius ?>" name="spotRadius" id="spotRadius" />&nbsp;pixels&nbsp(between 1 and 25)
 						<p class="description">Set the radius of each spot. Note: This will
 						effect the heat value calculation as spots with a greater radius
 						are more likely to touch other spots.</p>
 					</li>
 					<li>
 						<label for="spotOpacity" class="smallWidth">Set the spot opacity</label>
-						<input type="text" value="<?php echo $current_spotOpacity ?>" name="spotOpacity" id="spotOpacity" />
+						<input type="text" value="<?php echo $current_spotOpacity ?>" name="spotOpacity" id="spotOpacity" />&nbsp(between 0 and 1)
 						<p class="description">Set the opacity value of the spots. This is
 						the degree of how much of the background you can see where there
 						are spots.</p>
 					</li>
 					<li>
 						<input  type="button" name="saveChangesBtn" id="saveChangesBtn" class="button-primary" value="<?php esc_attr_e('Save Changes'); ?>" />
-					</li>
-					
-					<h3>Database</h3>	
-					<li>
-						<input type='button' name="refreshBtn" id="refreshBtn" value='<?php esc_attr_e('Refresh database'); ?>' class='button-secondary' />
-						<p class="description">Delete all mouse click records in the database</p>
+						<input type='button' name="refreshBtn" id="refreshBtn" value='<?php esc_attr_e('Clear Database'); ?>' class='button-secondary' />
 					</li>
 				</ul>
 			</form>
+
+			<h2>Mouse Clicks</h2>
+			<?php 
+			$stats = new StatsTable();
+			$stats->prepare_items();
+			$stats->display();
+			?>
 		</div>
 		<?php 
 	}

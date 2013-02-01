@@ -26,15 +26,19 @@ Tested using Google Chrome v23, Firefox v10 and Internet Explorer v9. This plugi
 1. Activate the plugin through the 'Plugins' menu in WordPress
 1. Go to the options page (Settings > HotSpots)
 1. Turn on the Save Mouse Clicks option to start recording mouse clicks and also the Draw HotSpots Enable option.
-1. To be view a heat map of mouse clicks on any page on your websute, add query parameter drawHotSpots=true to the URL (i.e. www.mywebsite.com?drawHotSpots=true or www.mywebsite.com?cat=1&drawHotSpots=true)
+1. To be view a heat map of mouse clicks on any page on your website, add query parameter drawHotSpots=true to the URL (i.e. www.mywebsite.com?drawHotSpots=true or www.mywebsite.com?cat=1&drawHotSpots=true). or you can go to the Settings pagr and click view site to open a new window of a URL with the selected window width.
 
 == Frequently Asked Questions ==
 
 == Screenshots ==
 
-1. Heat map of mouse clicks on a Wordpress website. This is an example of 200 saved mouse clicks. As you can see, the navigation menu bar and top search input are highly used but the second search input is rarely used.
+1. Heat map of mouse clicks on a WordPress website. As you can see, the navigation menu bar and top search input are highly used but the second search input is rarely used.
 
-2. HotSpots plugin settings page
+2. Heat map of mouse clicks on a responsive WordPress website (i.e. mobile phone screen size).
+
+3. HotSpots plugin settings page options for enabling features and configuring the heat map.
+
+4. HotSpots plugin settings page also allows you to open pages on your website and draw the hotspots for different avaialable window sizes.
 
 == Changelog ==
 

@@ -32,24 +32,17 @@ jQuery(window).load(function() {
 	// For draw hotspots enabled option
 	if (drawHotSpotsEnabled) {
 		
-		// hack for Chrome
-		var windowReady = urlHelper.getUrlParamByName(window.location.href, 'windowReady') == "true" ? true : false;
-		var newWidth = urlHelper.getUrlParamByName(window.location.href, 'width');
-		if (typeof window.chrome === "object" && newWidth && windowReady == false) {
-			window.resizeTo(newWidth, window.outerHeight);
-			window.location.href = window.location.href + "&windowReady=true";
+		// If from settings page view site, resize to selected width
+		var innerWidth = urlHelper.getUrlParamByName(window.location.href, 'width');
+		if (innerWidth && windowReady == false) {
+			resizeToInner(innerWidth, window.innerHeight);
 		}
 		
 		initCanvas();
 				
-		var width = window.innerWidth;
-		// hack for Chrome innerWidth
-		if (typeof window.chrome === "object") {
-			width = window.outerWidth;
-		}
-		
 		// Get mouse clicks ands draw them
-		var data =  { action : "get_mouse_clicks", nonce : hotSpotsData.ajaxNonce, url : window.location.href, width : width };
+		var inner = getInnerSize();
+		var data =  { action : "get_mouse_clicks", nonce : hotSpotsData.ajaxNonce, url : window.location.href, width : inner[0] };
 		jQuery.post(hotSpotsData.ajaxUrl, data, function(response) {
 			drawAllMouseClicks(jQuery.parseJSON(response));
 		});
@@ -63,14 +56,9 @@ jQuery(window).load(function() {
 				jQuery("#canvasContainer").remove();
 				initCanvas();
 				
-				var width = window.innerWidth;
-				// hack for Chrome innerWidth
-				if (typeof window.chrome === "object") {
-					width = window.outerWidth;
-				}
-				
 				// Get mouse clicks and draw them
-				var data =  { action : "get_mouse_clicks", nonce : hotSpotsData.ajaxNonce, url : window.location.href, width : width };
+				var inner = getInnerSize();
+				var data =  { action : "get_mouse_clicks", nonce : hotSpotsData.ajaxNonce, url : window.location.href, width : inner[0] };
 				jQuery.post(hotSpotsData.ajaxUrl, data, function(response) {
 					drawAllMouseClicks(jQuery.parseJSON(response));
 				});
@@ -86,6 +74,68 @@ jQuery(window).load(function() {
 	}
 });
 
+
+// http://www.hypergeneric.com/corpus/javascript-inner-viewport-resize/
+/**
+ * getInnerSize
+ */
+function getInnerSize() {
+	var width = null;
+	var height = null;
+	if (self.innerHeight) { // all except Explorer
+		// hack for Google Chrome innerWidth/outerWidth
+		if (typeof window.chrome === "object") {
+			width = self.outerWidth;
+			height = self.outerHeight;
+		} else {
+			width = self.innerWidth;
+			height = self.innerHeight;
+		}
+	} else if (document.documentElement && document.documentElement.clientHeight) { // Explorer 6 Strict Mode
+		width = document.documentElement.clientWidth;
+		height = document.documentElement.clientHeight;
+	} else if (document.body) { // other Explorers
+		width = document.body.clientWidth;
+		height = document.body.clientHeight;
+	}
+	return [width, height];
+}
+/**
+ * resizeToInner
+ * 
+ * @param width
+ * @param height
+ * @param screenX
+ * @param screenY
+ */
+function resizeToInner(width, height, screenX, screenY) {
+	// make sure we have a final x/y value
+	// pick one or the other windows value, not both
+	if (screenX==undefined) {
+		screenX = window.screenLeft || window.screenX;
+	}
+	if (screenY==undefined) {
+		screenY = window.screenTop || window.screenY;
+	}
+	
+	// for now, move the window to the top left
+	// then resize to the maximum viewable dimension possible
+	window.moveTo(0, 0);
+	window.resizeTo(screen.availWidth, screen.availHeight);
+	
+	// now that we have set the browser to it's biggest possible size
+	// get the inner dimensions.  the offset is the difference.
+	var inner = getInnerSize();
+	
+	var diffX = screen.availWidth - inner[0]; 
+	var diffY = screen.availHeight - inner[1];
+	
+	// now that we have an offset value, size the browser
+	// and position it
+	window.resizeTo((parseInt(width) + diffX), height + diffY);
+	window.moveTo(screenX, screenY);
+}
+				
 
 /**
  * Helper function to get the query string parameters from the URL
@@ -156,13 +206,8 @@ function getMouseClickCoords(e) {
 function addMouseClick(e) {
 	var coords = getMouseClickCoords(e);
 	
-	var width = window.innerWidth;
-	// hack for Chrome innerWidth
-	if (typeof window.chrome === "object") {
-		width = window.outerWidth;
-	}
-	
-	var data =  { action : "add_mouse_click", nonce : hotSpotsData.ajaxNonce, x : coords.posX, y : coords.posY, url : window.location.href, width : width };
+	var inner = getInnerSize();
+	var data =  { action : "add_mouse_click", nonce : hotSpotsData.ajaxNonce, x : coords.posX, y : coords.posY, url : window.location.href, width : inner[0] };
 	jQuery.post(hotSpotsData.ajaxUrl, data, function(response) {
 		var jsonResponse = jQuery.parseJSON(response);
 
