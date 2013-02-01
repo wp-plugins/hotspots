@@ -34,7 +34,7 @@ jQuery(window).load(function() {
 		
 		// If from settings page view site, resize to selected width
 		var innerWidth = urlHelper.getUrlParamByName(window.location.href, 'width');
-		if (innerWidth && windowReady == false) {
+		if (innerWidth) {
 			resizeToInner(innerWidth, window.innerHeight);
 		}
 		

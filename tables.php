@@ -19,8 +19,8 @@ class StatsTable extends WP_List_Table {
 	 */
 	function __construct() {
 		parent::__construct( array(
-				'singular'=> self::SINGULAR_LABEL,
-				'plural' => self::PLURAL_LABEL,
+				'singular'=> StatsTable::SINGULAR_LABEL,
+				'plural' => StatsTable::PLURAL_LABEL,
 				'ajax'	=> false
 		) );
 	}
@@ -166,8 +166,8 @@ class FilterTable extends WP_List_Table {
 	 */
 	function __construct() {
 		parent::__construct( array(
-				'singular'=> self::SINGULAR_LABEL,
-				'plural' => self::PLURAL_LABEL,
+				'singular'=> FilterTable::SINGULAR_LABEL,
+				'plural' => FilterTable::PLURAL_LABEL,
 				'ajax'	=> true
 		) );
 	}
@@ -191,9 +191,9 @@ class FilterTable extends WP_List_Table {
 	 */
 	function get_columns() {
 		return $columns= array(
-				self::CHECKBOX_COLUMN => '<input type="checkbox" />',
-				self::URL_COLUMN =>__(self::URL_LABEL),
-				self::ID_COLUMN => __('')
+				FilterTable::CHECKBOX_COLUMN => '<input type="checkbox" />',
+				FilterTable::URL_COLUMN =>__(FilterTable::URL_LABEL),
+				FilterTable::ID_COLUMN => __('')
 		);
 	}
 
@@ -211,7 +211,7 @@ class FilterTable extends WP_List_Table {
 		$this->_column_headers = array($columns, $hidden, $sortable);
 
 		// get table data
-		$query = 'SELECT * FROM '.HotSpots::TABLE_PREFIX.self::FILTER_TBL_NAME;
+		$query = 'SELECT * FROM '.HotSpots::TABLE_PREFIX.FilterTable::FILTER_TBL_NAME;
 		$this->items = $wpdb->get_results($query, ARRAY_A);
 	}
 
@@ -223,9 +223,9 @@ class FilterTable extends WP_List_Table {
 	 */
 	function column_default( $item, $column_name ) {
 		switch( $column_name ) {
-			case self::CHECKBOX_COLUMN :
-			case self::ID_COLUMN :
-			case self::URL_COLUMN :
+			case FilterTable::CHECKBOX_COLUMN :
+			case FilterTable::ID_COLUMN :
+			case FilterTable::URL_COLUMN :
 				return $item[ $column_name ];
 			default:
 				return print_r( $item, true ) ;
@@ -238,7 +238,7 @@ class FilterTable extends WP_List_Table {
 	 * @return string
 	 */
 	function column_url($item){
-		echo stripslashes($item[self::URL_COLUMN]);
+		echo stripslashes($item[FilterTable::URL_COLUMN]);
 	}
 
 	/**
@@ -248,7 +248,7 @@ class FilterTable extends WP_List_Table {
 	 */
 	function column_cb($item) {
 		return sprintf(
-				'<input type="checkbox" name="'.self::DELETE_CHECKBOX.'" value="%s" />', $item[self::ID_COLUMN]
+				'<input type="checkbox" name="'.FilterTable::DELETE_CHECKBOX.'" value="%s" />', $item[FilterTable::ID_COLUMN]
 		);
 	}
 
@@ -258,7 +258,7 @@ class FilterTable extends WP_List_Table {
 	 */
 	function get_bulk_actions() {
 		$actions = array(
-				self::DELETE_BULK_ACTION_NAME => self::DELETE_BULK_ACTION_LABEL
+				FilterTable::DELETE_BULK_ACTION_NAME => FilterTable::DELETE_BULK_ACTION_LABEL
 		);
 		return $actions;
 	}
@@ -269,11 +269,11 @@ class FilterTable extends WP_List_Table {
 	function process_bulk_action() {
 		$action = $this->current_action();
 
-		if ($action === self::DELETE_BULK_ACTION_NAME) {
+		if ($action === FilterTable::DELETE_BULK_ACTION_NAME) {
 			global $wpdb;
 				
 			foreach($_GET['delete'] as $id) {
-				$query = "DELETE FROM ". HotSpots::TABLE_PREFIX.self::FILTER_TBL_NAME . " WHERE " .  self::ID_COLUMN . " = " . $id;
+				$query = "DELETE FROM ". HotSpots::TABLE_PREFIX.FilterTable::FILTER_TBL_NAME . " WHERE " .  FilterTable::ID_COLUMN . " = " . $id;
 
 			}
 		}

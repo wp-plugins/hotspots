@@ -42,6 +42,10 @@ Tested using Google Chrome v23, Firefox v10 and Internet Explorer v9. This plugi
 
 == Changelog ==
 
+= 2.0.2 =
+* Fixed accessing class constants
+* Removed check for windowReady URL query parameter when drawing hot spots
+
 = 2.0.1 = 
 * Fixed tables.php import
 

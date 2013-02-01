@@ -3,7 +3,7 @@
  Plugin Name: HotSpots
 Plugin URI: http://wordpress.org/extend/plugins/hotspots/
 Description: HotSpots is a plugin which draws a heat map of mouse clicks overlayed on your webpage allowing you to improve usability by analysing user behaviour.
-Version: 2.0.1
+Version: 2.0.2
 Author: Daniel Powney
 Auhtor URI: www.danielpowney.com
 License: GPL2
@@ -81,17 +81,17 @@ class HotSpots {
 			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 				
 			// Create database tables if they does not exist
-			$sql1 = "CREATE TABLE ".self::TABLE_PREFIX.self::HOTSPOTS_TBL_NAME." (
-			".self::ID_COLUMN." int(11) NOT NULL AUTO_INCREMENT,
-			".self::X_COLUMN." int(11) NOT NULL,
-			".self::Y_COLUMN." int(11) NOT NULL,
-			".self::URL_COLUMN." varchar(255),
-			".self::WIDTH_COLUMN." int(11),
+			$sql1 = "CREATE TABLE ".HotSpots::TABLE_PREFIX.HotSpots::HOTSPOTS_TBL_NAME." (
+			".HotSpots::ID_COLUMN." int(11) NOT NULL AUTO_INCREMENT,
+			".HotSpots::X_COLUMN." int(11) NOT NULL,
+			".HotSpots::Y_COLUMN." int(11) NOT NULL,
+			".HotSpots::URL_COLUMN." varchar(255),
+			".HotSpots::WIDTH_COLUMN." int(11),
 			PRIMARY KEY (id)
 			) ENGINE=InnoDB AUTO_INCREMENT=1;";
 			dbDelta($sql1);
 
-			$sql2 = "CREATE TABLE ".self::TABLE_PREFIX.FilterTable::FILTER_TBL_NAME." (
+			$sql2 = "CREATE TABLE ".HotSpots::TABLE_PREFIX.FilterTable::FILTER_TBL_NAME." (
 			".FilterTable::ID_COLUMN." int(11) NOT NULL AUTO_INCREMENT,
 			".FilterTable::URL_COLUMN." varchar(255),
 			PRIMARY KEY (id)
@@ -99,14 +99,14 @@ class HotSpots {
 			dbDelta($sql2);
 				
 			// Add options
-			add_option(self::SAVE_MOUSE_CLICKS_OPTION, self::DEFAULT_SAVE_MOUSE_CLICKS, '', 'yes');
-			add_option(self::DRAW_HOTSPOTS_ENABLED_OPTION, self::DEFAULT_DRAW_HOTSPOTS_ENABLED, '', 'yes');
-			add_option(self::DEBUG_OPTION, self::DEFAULT_DEBUG, '', 'yes');
-			add_option(self::HOT_VALUE_OPTION, self::DEFAULT_HOT_VALUE, '', 'yes');
-			add_option(self::SPOT_OPACITY_OPTION, self::DEFAULT_SPOT_OPACITY, '', 'yes');
-			add_option(self::SPOT_RADIUS_OPTION, self::DEFAULT_SPOT_RADIUS, '', 'yes');
-			add_option(self::IS_RESPONSIVE_OPTION, self::DEFAULT_IS_RESPONSIVE, '', 'yes');
-			add_option(self::HOME_PAGE_ONLY_OPTION, self::DEFAULT_HOME_PAGE_ONLY, '', 'yes');
+			add_option(HotSpots::SAVE_MOUSE_CLICKS_OPTION, HotSpots::DEFAULT_SAVE_MOUSE_CLICKS, '', 'yes');
+			add_option(HotSpots::DRAW_HOTSPOTS_ENABLED_OPTION, HotSpots::DEFAULT_DRAW_HOTSPOTS_ENABLED, '', 'yes');
+			add_option(HotSpots::DEBUG_OPTION, HotSpots::DEFAULT_DEBUG, '', 'yes');
+			add_option(HotSpots::HOT_VALUE_OPTION, HotSpots::DEFAULT_HOT_VALUE, '', 'yes');
+			add_option(HotSpots::SPOT_OPACITY_OPTION, HotSpots::DEFAULT_SPOT_OPACITY, '', 'yes');
+			add_option(HotSpots::SPOT_RADIUS_OPTION, HotSpots::DEFAULT_SPOT_RADIUS, '', 'yes');
+			add_option(HotSpots::IS_RESPONSIVE_OPTION, HotSpots::DEFAULT_IS_RESPONSIVE, '', 'yes');
+			add_option(HotSpots::HOME_PAGE_ONLY_OPTION, HotSpots::DEFAULT_HOME_PAGE_ONLY, '', 'yes');
 		});
 
 		// Setup AJAX calls
@@ -141,25 +141,25 @@ class HotSpots {
 
 		$ajaxNonce = $_POST['nonce'];
 
-		if (wp_verify_nonce($ajaxNonce, self::ID.'-nonce')) {
+		if (wp_verify_nonce($ajaxNonce, HotSpots::ID.'-nonce')) {
 			$x = isset($_POST['x']) ? $_POST['x'] : '';
 			$y = isset($_POST['y']) ? $_POST['y'] : '';
-			$url = isset($_POST['url']) ? $this::removeQueryStringParams(addslashes($_POST['url']), self::$ignoreQueryParams) : '';
+			$url = isset($_POST['url']) ? $this::removeQueryStringParams(addslashes($_POST['url']), HotSpots::$ignoreQueryParams) : '';
 			$width = isset($_POST['width']) ? intval($_POST['width']) : '';
-			$rowsAffected = $wpdb->insert( self::TABLE_PREFIX . self::HOTSPOTS_TBL_NAME, array( self::X_COLUMN => $x, self::Y_COLUMN => $y, self::URL_COLUMN => $url, self::WIDTH_COLUMN => $width ) );
+			$rowsAffected = $wpdb->insert( HotSpots::TABLE_PREFIX . HotSpots::HOTSPOTS_TBL_NAME, array( HotSpots::X_COLUMN => $x, HotSpots::Y_COLUMN => $y, HotSpots::URL_COLUMN => $url, HotSpots::WIDTH_COLUMN => $width ) );
 			$id = $wpdb->insert_id;
 				
-			$debug = get_option(self::DEBUG_OPTION);
+			$debug = get_option(HotSpots::DEBUG_OPTION);
 			if ($debug == true) {
 				// get all mouse clicks and calculate heat value for added mouse click
-				$query = "SELECT id, ".self::X_COLUMN.", ".self::Y_COLUMN.", ".self::URL_COLUMN.", ".self::WIDTH_COLUMN." FROM ".self::TABLE_PREFIX.self::HOTSPOTS_TBL_NAME." WHERE ".self::URL_COLUMN." = '" . $url . "'";
-				$isResponsive = get_option(self::IS_RESPONSIVE_OPTION);
+				$query = "SELECT id, ".HotSpots::X_COLUMN.", ".HotSpots::Y_COLUMN.", ".HotSpots::URL_COLUMN.", ".HotSpots::WIDTH_COLUMN." FROM ".HotSpots::TABLE_PREFIX.HotSpots::HOTSPOTS_TBL_NAME." WHERE ".HotSpots::URL_COLUMN." = '" . $url . "'";
+				$isResponsive = get_option(HotSpots::IS_RESPONSIVE_OPTION);
 				if ($isResponsive == true && isset($_POST['width'])){
 					$range = 6; // allow a range of 6 pixels either side to be the same
 					$width = intval($_POST['width']);
 					$diffLeft = $width - $range;
 					$diffRight = $width + $range;
-					$query .= ' AND '.self::WIDTH_COLUMN.' >= ' . $diffLeft . ' AND '.self::WIDTH_COLUMN.' <= '. $diffRight;
+					$query .= ' AND '.HotSpots::WIDTH_COLUMN.' >= ' . $diffLeft . ' AND '.HotSpots::WIDTH_COLUMN.' <= '. $diffRight;
 				}
 
 				$rows = $wpdb->get_results($query);
@@ -184,17 +184,17 @@ class HotSpots {
 
 		$ajaxNonce = $_POST['nonce'];
 		$rows = null;
-		if (wp_verify_nonce($ajaxNonce, self::ID .'-nonce')) {
-			$url = isset($_POST['url']) ? $this::removeQueryStringParams(addslashes($_POST['url']), self::$ignoreQueryParams) : '';
-			$query = "SELECT id, ".self::X_COLUMN.", ".self::Y_COLUMN.", ".self::URL_COLUMN.", ".self::WIDTH_COLUMN." FROM ".self::TABLE_PREFIX.self::HOTSPOTS_TBL_NAME." WHERE ".self::URL_COLUMN." = '" . $url . "'";
+		if (wp_verify_nonce($ajaxNonce, HotSpots::ID .'-nonce')) {
+			$url = isset($_POST['url']) ? $this::removeQueryStringParams(addslashes($_POST['url']), HotSpots::$ignoreQueryParams) : '';
+			$query = "SELECT id, ".HotSpots::X_COLUMN.", ".HotSpots::Y_COLUMN.", ".HotSpots::URL_COLUMN.", ".HotSpots::WIDTH_COLUMN." FROM ".HotSpots::TABLE_PREFIX.HotSpots::HOTSPOTS_TBL_NAME." WHERE ".HotSpots::URL_COLUMN." = '" . $url . "'";
 
-			$isResponsive = get_option(self::IS_RESPONSIVE_OPTION);
+			$isResponsive = get_option(HotSpots::IS_RESPONSIVE_OPTION);
 			if ($isResponsive == true && isset($_POST['width'])){
 				$range = 6; // allow a range of 6 pixels either side to be the same
 				$width = intval($_POST['width']);
 				$diffLeft = $width - $range;
 				$diffRight = $width + $range;
-				$query .= ' AND '.self::WIDTH_COLUMN.' >= ' . $diffLeft . ' AND '.self::WIDTH_COLUMN.' <= '. $diffRight;
+				$query .= ' AND '.HotSpots::WIDTH_COLUMN.' >= ' . $diffLeft . ' AND '.HotSpots::WIDTH_COLUMN.' <= '. $diffRight;
 			}
 
 			$rows = $wpdb->get_results($query);
@@ -227,7 +227,7 @@ class HotSpots {
 	 */
 	public function calculateHeatValue($x, $y, $id, $rows) {
 		$heatValue = 0;
-		$spotRadius = get_option(self::SPOT_RADIUS_OPTION);
+		$spotRadius = get_option(HotSpots::SPOT_RADIUS_OPTION);
 
 		foreach ($rows as $row) {
 			$currentX = $row->x;
@@ -262,8 +262,8 @@ class HotSpots {
 
 		$ajaxNonce = $_POST['nonce'];
 		$rows = null;
-		if (wp_verify_nonce($ajaxNonce, self::ID.'-nonce')) {
-			$rows = $wpdb->get_results( "DELETE FROM ".self::TABLE_PREFIX.self::HOTSPOTS_TBL_NAME." WHERE 1" );
+		if (wp_verify_nonce($ajaxNonce, HotSpots::ID.'-nonce')) {
+			$rows = $wpdb->get_results( "DELETE FROM ".HotSpots::TABLE_PREFIX.HotSpots::HOTSPOTS_TBL_NAME." WHERE 1" );
 			echo json_encode(array('success' => true));
 		} else {
 			echo json_encode(array('success' => false));
@@ -283,45 +283,45 @@ class HotSpots {
 		// draw hotspots enabled option
 		if (isset($_POST['drawHotSpotsEnabled'])) {
 			if ($_POST['drawHotSpotsEnabled'] == "true") {
-				update_option(self::DRAW_HOTSPOTS_ENABLED_OPTION, true);
+				update_option(HotSpots::DRAW_HOTSPOTS_ENABLED_OPTION, true);
 			} else {
-				update_option(self::DRAW_HOTSPOTS_ENABLED_OPTION, false);
+				update_option(HotSpots::DRAW_HOTSPOTS_ENABLED_OPTION, false);
 			}
 		}
 
 		// Save mouse clicks option
 		if (isset($_POST['saveMouseClicks'])) {
 			if ($_POST['saveMouseClicks'] == "true") {
-				update_option(self::SAVE_MOUSE_CLICKS_OPTION, true);
+				update_option(HotSpots::SAVE_MOUSE_CLICKS_OPTION, true);
 			} else {
-				update_option(self::SAVE_MOUSE_CLICKS_OPTION, false);
+				update_option(HotSpots::SAVE_MOUSE_CLICKS_OPTION, false);
 			}
 		}
 
 		// debug option
 		if (isset($_POST['debug'])) {
 			if ($_POST['debug'] == "true") {
-				update_option(self::DEBUG_OPTION, true);
+				update_option(HotSpots::DEBUG_OPTION, true);
 			} else {
-				update_option(self::DEBUG_OPTION, false);
+				update_option(HotSpots::DEBUG_OPTION, false);
 			}
 		}
 
 		// isResponsive option
 		if (isset($_POST['isResponsive'])) {
 			if ($_POST['isResponsive'] == "true") {
-				update_option(self::IS_RESPONSIVE_OPTION, true);
+				update_option(HotSpots::IS_RESPONSIVE_OPTION, true);
 			} else {
-				update_option(self::IS_RESPONSIVE_OPTION, false);
+				update_option(HotSpots::IS_RESPONSIVE_OPTION, false);
 			}
 		}
 
 		// homePageOnly option
 		if (isset($_POST['homePageOnly'])) {
 			if ($_POST['homePageOnly'] == "true") {
-				update_option(self::HOME_PAGE_ONLY_OPTION, true);
+				update_option(HotSpots::HOME_PAGE_ONLY_OPTION, true);
 			} else {
-				update_option(self::HOME_PAGE_ONLY_OPTION, false);
+				update_option(HotSpots::HOME_PAGE_ONLY_OPTION, false);
 			}
 		}
 
@@ -330,7 +330,7 @@ class HotSpots {
 			if (is_numeric($_POST['hotValue'])) {
 				$hotValue = intval($_POST['hotValue']);
 				if ($hotValue > 0) {
-					update_option(self::HOT_VALUE_OPTION, $hotValue);
+					update_option(HotSpots::HOT_VALUE_OPTION, $hotValue);
 				} else {
 					$errors .= "<p>Hot value must be numeric greater than 0.</p>";
 				}
@@ -344,7 +344,7 @@ class HotSpots {
 			if (is_numeric($_POST['spotOpacity'])) {
 				$spotOpacity = floatval($_POST['spotOpacity']);
 				if ($spotOpacity >= 0 && $spotOpacity <= 1) {
-					update_option(self::SPOT_OPACITY_OPTION, $spotOpacity);
+					update_option(HotSpots::SPOT_OPACITY_OPTION, $spotOpacity);
 				} else {
 					$errors .= "<p>Spot opacity must be numeric between 0 and 1.</p>";
 				}
@@ -358,7 +358,7 @@ class HotSpots {
 			if (is_numeric($_POST['spotRadius'])) {
 				$spotRadius = intval($_POST['spotRadius']);
 				if ($spotRadius >= 1 && $spotRadius <= 25) {
-					update_option(self::SPOT_RADIUS_OPTION, $spotRadius);
+					update_option(HotSpots::SPOT_RADIUS_OPTION, $spotRadius);
 				} else {
 					$errors .= "<p>Spot radius must be numeric between 1 and 25.</p>";
 				}
@@ -383,13 +383,13 @@ class HotSpots {
 	 */
 	public function assets(){
 		wp_enqueue_script('jquery');
-		wp_enqueue_script(self::ID, plugins_url('hotspots.js', __FILE__), array('jquery'), self::VERSION, true);
+		wp_enqueue_script(HotSpots::ID, plugins_url('hotspots.js', __FILE__), array('jquery'), HotSpots::VERSION, true);
 
-		$drawHotSpotsEnabled = get_option(self::DRAW_HOTSPOTS_ENABLED_OPTION);
-		$saveMouseClicks = get_option(self::SAVE_MOUSE_CLICKS_OPTION);
+		$drawHotSpotsEnabled = get_option(HotSpots::DRAW_HOTSPOTS_ENABLED_OPTION);
+		$saveMouseClicks = get_option(HotSpots::SAVE_MOUSE_CLICKS_OPTION);
 
 		// check the home page only option
-		$homePageOnly = get_option(self::HOME_PAGE_ONLY_OPTION);
+		$homePageOnly = get_option(HotSpots::HOME_PAGE_ONLY_OPTION);
 		if ($homePageOnly == true && is_home() == false) {
 			// false = 0
 			$drawHotSpotsEnabled = 0;
@@ -398,16 +398,16 @@ class HotSpots {
 
 		$config_array = array(
 				'ajaxUrl' => admin_url('admin-ajax.php'),
-				'ajaxNonce' => wp_create_nonce(self::ID.'-nonce'),
+				'ajaxNonce' => wp_create_nonce(HotSpots::ID.'-nonce'),
 				'drawHotSpotsEnabled' => $drawHotSpotsEnabled,
 				'saveMouseClicks' => $saveMouseClicks,
-				'debug' => get_option(self::DEBUG_OPTION),
-				'isResponsive' => get_option(self::IS_RESPONSIVE_OPTION),
-				'hotValue' => get_option(self::HOT_VALUE_OPTION),
-				'spotOpacity' => get_option(self::SPOT_OPACITY_OPTION),
-				'spotRadius' => get_option(self::SPOT_RADIUS_OPTION)
+				'debug' => get_option(HotSpots::DEBUG_OPTION),
+				'isResponsive' => get_option(HotSpots::IS_RESPONSIVE_OPTION),
+				'hotValue' => get_option(HotSpots::HOT_VALUE_OPTION),
+				'spotOpacity' => get_option(HotSpots::SPOT_OPACITY_OPTION),
+				'spotRadius' => get_option(HotSpots::SPOT_RADIUS_OPTION)
 		);
-		wp_localize_script(self::ID, self::HOTSPOTS_DATA, $config_array);
+		wp_localize_script(HotSpots::ID, HotSpots::HOTSPOTS_DATA, $config_array);
 	}
 
 
@@ -419,14 +419,14 @@ class HotSpots {
 	public function adminAssets() {
 		$config_array = array(
 				'ajaxUrl' => admin_url('admin-ajax.php'),
-				'ajaxNonce' => wp_create_nonce(self::ID.'-nonce')
+				'ajaxNonce' => wp_create_nonce(HotSpots::ID.'-nonce')
 		);
 		wp_enqueue_script('jquery');
 
 		if (is_admin()) {
 			wp_enqueue_style('hotspots-admin-style', plugins_url('hotspots-admin.css', __FILE__));
-			wp_enqueue_script(self::ID.'-admin', plugins_url('hotspots-admin.js', __FILE__), array('jquery'));
-			wp_localize_script(self::ID.'-admin', self::HOTSPOTS_DATA, $config_array);
+			wp_enqueue_script(HotSpots::ID.'-admin', plugins_url('hotspots-admin.js', __FILE__), array('jquery'));
+			wp_localize_script(HotSpots::ID.'-admin', HotSpots::HOTSPOTS_DATA, $config_array);
 
 		}
 
@@ -438,7 +438,7 @@ class HotSpots {
 	 * @since 2.0
 	 */
 	public function createSettingsPage() {
-		add_options_page(__('HotSpots', self::ID), __('HotSpots', self::ID), 'manage_options', self::ID, array($this, 'settingsPage'));
+		add_options_page(__('HotSpots', HotSpots::ID), __('HotSpots', HotSpots::ID), 'manage_options', HotSpots::ID, array($this, 'settingsPage'));
 	}
 
 
@@ -450,14 +450,14 @@ class HotSpots {
 	public function settingsPage() {
 
 		// current values
-		$current_drawHotSpotsEnabled = get_option(self::DRAW_HOTSPOTS_ENABLED_OPTION);
-		$current_saveMouseClicks = get_option(self::SAVE_MOUSE_CLICKS_OPTION);
-		$current_debug = get_option(self::DEBUG_OPTION);
-		$current_hotValue = get_option(self::HOT_VALUE_OPTION);
-		$current_spotOpacity = get_option(self::SPOT_OPACITY_OPTION);
-		$current_spotRadius = get_option(self::SPOT_RADIUS_OPTION);
-		$current_isResponsive = get_option(self::IS_RESPONSIVE_OPTION);
-		$current_homePageOnly = get_option(self::HOME_PAGE_ONLY_OPTION);
+		$current_drawHotSpotsEnabled = get_option(HotSpots::DRAW_HOTSPOTS_ENABLED_OPTION);
+		$current_saveMouseClicks = get_option(HotSpots::SAVE_MOUSE_CLICKS_OPTION);
+		$current_debug = get_option(HotSpots::DEBUG_OPTION);
+		$current_hotValue = get_option(HotSpots::HOT_VALUE_OPTION);
+		$current_spotOpacity = get_option(HotSpots::SPOT_OPACITY_OPTION);
+		$current_spotRadius = get_option(HotSpots::SPOT_RADIUS_OPTION);
+		$current_isResponsive = get_option(HotSpots::IS_RESPONSIVE_OPTION);
+		$current_homePageOnly = get_option(HotSpots::HOME_PAGE_ONLY_OPTION);
 		
 		?>
 		
@@ -581,9 +581,9 @@ class HotSpots {
 		global $wpdb;
 
 		$ajaxNonce = $_POST['nonce'];
-		if (wp_verify_nonce($ajaxNonce, self::ID.'-nonce')) {
+		if (wp_verify_nonce($ajaxNonce, HotSpots::ID.'-nonce')) {
 			$url = isset($_POST['url']) ? $_POST['url'] : '';
-			$results = $wpdb->insert( self::TABLE_PREFIX.FilterTable::FILTER_TBL_NAME, array( 'url' => $url ) );
+			$results = $wpdb->insert( HotSpots::TABLE_PREFIX.FilterTable::FILTER_TBL_NAME, array( 'url' => $url ) );
 		}
 		die();
 	}
@@ -597,10 +597,10 @@ class HotSpots {
 		global $wpdb;
 
 		$ajaxNonce = $_POST['nonce'];
-		if (wp_verify_nonce($ajaxNonce, self::ID.'-nonce')) {
+		if (wp_verify_nonce($ajaxNonce, HotSpots::ID.'-nonce')) {
 			$id = isset($_POST['id']) ? intval($_POST['id']) : '';
 
-			$results = $wpdb->get_results( "DELETE FROM ".self::TABLE_PREFIX.FilterTable::FILTER_TBL_NAME." WHERE id = ".$id );
+			$results = $wpdb->get_results( "DELETE FROM ".HotSpots::TABLE_PREFIX.FilterTable::FILTER_TBL_NAME." WHERE id = ".$id );
 		}
 		die();
 	}
