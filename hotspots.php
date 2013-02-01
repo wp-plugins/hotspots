@@ -3,7 +3,7 @@
  Plugin Name: HotSpots
 Plugin URI: http://wordpress.org/extend/plugins/hotspots/
 Description: HotSpots is a plugin which draws a heat map of mouse clicks overlayed on your webpage allowing you to improve usability by analysing user behaviour.
-Version: 2.0.2
+Version: 2.0.3
 Author: Daniel Powney
 Auhtor URI: www.danielpowney.com
 License: GPL2
@@ -76,43 +76,45 @@ class HotSpots {
 		}
 
 		// Register plugin
-		register_activation_hook(__FILE__, function() {
-			global $wpdb;
-			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-				
-			// Create database tables if they does not exist
-			$sql1 = "CREATE TABLE ".HotSpots::TABLE_PREFIX.HotSpots::HOTSPOTS_TBL_NAME." (
-			".HotSpots::ID_COLUMN." int(11) NOT NULL AUTO_INCREMENT,
-			".HotSpots::X_COLUMN." int(11) NOT NULL,
-			".HotSpots::Y_COLUMN." int(11) NOT NULL,
-			".HotSpots::URL_COLUMN." varchar(255),
-			".HotSpots::WIDTH_COLUMN." int(11),
-			PRIMARY KEY (id)
-			) ENGINE=InnoDB AUTO_INCREMENT=1;";
-			dbDelta($sql1);
-
-			$sql2 = "CREATE TABLE ".HotSpots::TABLE_PREFIX.FilterTable::FILTER_TBL_NAME." (
-			".FilterTable::ID_COLUMN." int(11) NOT NULL AUTO_INCREMENT,
-			".FilterTable::URL_COLUMN." varchar(255),
-			PRIMARY KEY (id)
-			) ENGINE=InnoDB AUTO_INCREMENT=1;";
-			dbDelta($sql2);
-				
-			// Add options
-			add_option(HotSpots::SAVE_MOUSE_CLICKS_OPTION, HotSpots::DEFAULT_SAVE_MOUSE_CLICKS, '', 'yes');
-			add_option(HotSpots::DRAW_HOTSPOTS_ENABLED_OPTION, HotSpots::DEFAULT_DRAW_HOTSPOTS_ENABLED, '', 'yes');
-			add_option(HotSpots::DEBUG_OPTION, HotSpots::DEFAULT_DEBUG, '', 'yes');
-			add_option(HotSpots::HOT_VALUE_OPTION, HotSpots::DEFAULT_HOT_VALUE, '', 'yes');
-			add_option(HotSpots::SPOT_OPACITY_OPTION, HotSpots::DEFAULT_SPOT_OPACITY, '', 'yes');
-			add_option(HotSpots::SPOT_RADIUS_OPTION, HotSpots::DEFAULT_SPOT_RADIUS, '', 'yes');
-			add_option(HotSpots::IS_RESPONSIVE_OPTION, HotSpots::DEFAULT_IS_RESPONSIVE, '', 'yes');
-			add_option(HotSpots::HOME_PAGE_ONLY_OPTION, HotSpots::DEFAULT_HOME_PAGE_ONLY, '', 'yes');
-		});
+		register_activation_hook(__FILE__, array($this, 'activatePlugin'));
 
 		// Setup AJAX calls
 		$this::addAjaxActions();
 	}
 
+	function activatePlugin() {
+		global $wpdb;
+		require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+	
+		// Create database tables if they does not exist
+		$sql1 = "CREATE TABLE ".HotSpots::TABLE_PREFIX.HotSpots::HOTSPOTS_TBL_NAME." (
+		".HotSpots::ID_COLUMN." int(11) NOT NULL AUTO_INCREMENT,
+		".HotSpots::X_COLUMN." int(11) NOT NULL,
+		".HotSpots::Y_COLUMN." int(11) NOT NULL,
+		".HotSpots::URL_COLUMN." varchar(255),
+		".HotSpots::WIDTH_COLUMN." int(11),
+		PRIMARY KEY (id)
+		) ENGINE=InnoDB AUTO_INCREMENT=1;";
+		dbDelta($sql1);
+	
+		$sql2 = "CREATE TABLE ".HotSpots::TABLE_PREFIX.FilterTable::FILTER_TBL_NAME." (
+		".FilterTable::ID_COLUMN." int(11) NOT NULL AUTO_INCREMENT,
+		".FilterTable::URL_COLUMN." varchar(255),
+		PRIMARY KEY (id)
+		) ENGINE=InnoDB AUTO_INCREMENT=1;";
+		dbDelta($sql2);
+	
+		// Add options
+		add_option(HotSpots::SAVE_MOUSE_CLICKS_OPTION, HotSpots::DEFAULT_SAVE_MOUSE_CLICKS, '', 'yes');
+		add_option(HotSpots::DRAW_HOTSPOTS_ENABLED_OPTION, HotSpots::DEFAULT_DRAW_HOTSPOTS_ENABLED, '', 'yes');
+		add_option(HotSpots::DEBUG_OPTION, HotSpots::DEFAULT_DEBUG, '', 'yes');
+		add_option(HotSpots::HOT_VALUE_OPTION, HotSpots::DEFAULT_HOT_VALUE, '', 'yes');
+		add_option(HotSpots::SPOT_OPACITY_OPTION, HotSpots::DEFAULT_SPOT_OPACITY, '', 'yes');
+		add_option(HotSpots::SPOT_RADIUS_OPTION, HotSpots::DEFAULT_SPOT_RADIUS, '', 'yes');
+		add_option(HotSpots::IS_RESPONSIVE_OPTION, HotSpots::DEFAULT_IS_RESPONSIVE, '', 'yes');
+		add_option(HotSpots::HOME_PAGE_ONLY_OPTION, HotSpots::DEFAULT_HOME_PAGE_ONLY, '', 'yes');
+	}
+	
 	/**
 	 * Register AJAX call actions
 	 *
