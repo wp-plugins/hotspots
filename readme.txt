@@ -42,6 +42,9 @@ Tested using Google Chrome v23, Firefox v10 and Internet Explorer v9. This plugi
 
 == Changelog ==
 
+= 2.0.5 =
+* Fixed this:: in tables.php for older versions of PHP
+
 = 2.0.4 
 * Fixed some double colon scope issues for older versions of PHP
 * Added pagination to URL table

@@ -223,7 +223,7 @@ class FilterTable extends WP_List_Table {
 
 		// Register the columns
 		$columns = $this->get_columns();
-		$hidden = array($this::ID_COLUMN );
+		$hidden = array(FilterTable::ID_COLUMN );
 		$sortable = $this->get_sortable_columns();
 		$this->_column_headers = array($columns, $hidden, $sortable);
 
