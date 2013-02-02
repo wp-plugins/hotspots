@@ -26,7 +26,7 @@ Tested using Google Chrome v23, Firefox v10 and Internet Explorer v9. This plugi
 1. Activate the plugin through the 'Plugins' menu in WordPress
 1. Go to the options page (Settings > HotSpots)
 1. Turn on the Save Mouse Clicks option to start recording mouse clicks and also the Draw HotSpots Enable option.
-1. To view the heat map of mouse clicks, go to the Mouse Clicks section at the bottom of the Settings page. Then click View site for a URL with a selected window size and a new window will open and draw the hot spots. You can also manually add query parameter drawHotSpots=true to the URL of your page (i.e. www.mywebsite.com?drawHotSpots=true or www.mywebsite.com?cat=1&drawHotSpots=true).
+1. To view the heat map of mouse clicks, go to the URL's section at the bottom of the Settings page. Then click View site for a URL with a selected window size and a new window will open and draw the hot spots. You can also manually add query parameter drawHotSpots=true to the URL of your page (i.e. www.mywebsite.com?drawHotSpots=true or www.mywebsite.com?cat=1&drawHotSpots=true).
 
 == Frequently Asked Questions ==
 
@@ -41,6 +41,16 @@ Tested using Google Chrome v23, Firefox v10 and Internet Explorer v9. This plugi
 4. HotSpots plugin settings page also allows you to open pages on your website and draw the hotspots for different avaialable window sizes.
 
 == Changelog ==
+
+= 2.0.5 =
+* Fixed this:: in tables.php for older versions of PHP
+
+= 2.0.4 =
+* Fixed some double colon scope issues for older versions of PHP
+* Added pagination to URL table
+
+= 2.0.3 =
+* Fixed register activate hook for PHP versions <= 5.2
 
 = 2.0.2 =
 * Fixed accessing class constants

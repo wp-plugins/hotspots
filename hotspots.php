@@ -1,9 +1,9 @@
 <?php 
 /*
- Plugin Name: HotSpots
+Plugin Name: HotSpots
 Plugin URI: http://wordpress.org/extend/plugins/hotspots/
 Description: HotSpots is a plugin which draws a heat map of mouse clicks overlayed on your webpage allowing you to improve usability by analysing user behaviour.
-Version: 2.0.2
+Version: 2.0.5
 Author: Daniel Powney
 Auhtor URI: www.danielpowney.com
 License: GPL2
@@ -76,43 +76,45 @@ class HotSpots {
 		}
 
 		// Register plugin
-		register_activation_hook(__FILE__, function() {
-			global $wpdb;
-			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-				
-			// Create database tables if they does not exist
-			$sql1 = "CREATE TABLE ".HotSpots::TABLE_PREFIX.HotSpots::HOTSPOTS_TBL_NAME." (
-			".HotSpots::ID_COLUMN." int(11) NOT NULL AUTO_INCREMENT,
-			".HotSpots::X_COLUMN." int(11) NOT NULL,
-			".HotSpots::Y_COLUMN." int(11) NOT NULL,
-			".HotSpots::URL_COLUMN." varchar(255),
-			".HotSpots::WIDTH_COLUMN." int(11),
-			PRIMARY KEY (id)
-			) ENGINE=InnoDB AUTO_INCREMENT=1;";
-			dbDelta($sql1);
-
-			$sql2 = "CREATE TABLE ".HotSpots::TABLE_PREFIX.FilterTable::FILTER_TBL_NAME." (
-			".FilterTable::ID_COLUMN." int(11) NOT NULL AUTO_INCREMENT,
-			".FilterTable::URL_COLUMN." varchar(255),
-			PRIMARY KEY (id)
-			) ENGINE=InnoDB AUTO_INCREMENT=1;";
-			dbDelta($sql2);
-				
-			// Add options
-			add_option(HotSpots::SAVE_MOUSE_CLICKS_OPTION, HotSpots::DEFAULT_SAVE_MOUSE_CLICKS, '', 'yes');
-			add_option(HotSpots::DRAW_HOTSPOTS_ENABLED_OPTION, HotSpots::DEFAULT_DRAW_HOTSPOTS_ENABLED, '', 'yes');
-			add_option(HotSpots::DEBUG_OPTION, HotSpots::DEFAULT_DEBUG, '', 'yes');
-			add_option(HotSpots::HOT_VALUE_OPTION, HotSpots::DEFAULT_HOT_VALUE, '', 'yes');
-			add_option(HotSpots::SPOT_OPACITY_OPTION, HotSpots::DEFAULT_SPOT_OPACITY, '', 'yes');
-			add_option(HotSpots::SPOT_RADIUS_OPTION, HotSpots::DEFAULT_SPOT_RADIUS, '', 'yes');
-			add_option(HotSpots::IS_RESPONSIVE_OPTION, HotSpots::DEFAULT_IS_RESPONSIVE, '', 'yes');
-			add_option(HotSpots::HOME_PAGE_ONLY_OPTION, HotSpots::DEFAULT_HOME_PAGE_ONLY, '', 'yes');
-		});
+		register_activation_hook(__FILE__, array($this, 'activatePlugin'));
 
 		// Setup AJAX calls
-		$this::addAjaxActions();
+		$this->addAjaxActions();
 	}
 
+	function activatePlugin() {
+		global $wpdb;
+		require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+	
+		// Create database tables if they does not exist
+		$sql1 = "CREATE TABLE ".HotSpots::TABLE_PREFIX.HotSpots::HOTSPOTS_TBL_NAME." (
+		".HotSpots::ID_COLUMN." int(11) NOT NULL AUTO_INCREMENT,
+		".HotSpots::X_COLUMN." int(11) NOT NULL,
+		".HotSpots::Y_COLUMN." int(11) NOT NULL,
+		".HotSpots::URL_COLUMN." varchar(255),
+		".HotSpots::WIDTH_COLUMN." int(11),
+		PRIMARY KEY (id)
+		) ENGINE=InnoDB AUTO_INCREMENT=1;";
+		dbDelta($sql1);
+	
+		$sql2 = "CREATE TABLE ".HotSpots::TABLE_PREFIX.FilterTable::FILTER_TBL_NAME." (
+		".FilterTable::ID_COLUMN." int(11) NOT NULL AUTO_INCREMENT,
+		".FilterTable::URL_COLUMN." varchar(255),
+		PRIMARY KEY (id)
+		) ENGINE=InnoDB AUTO_INCREMENT=1;";
+		dbDelta($sql2);
+	
+		// Add options
+		add_option(HotSpots::SAVE_MOUSE_CLICKS_OPTION, HotSpots::DEFAULT_SAVE_MOUSE_CLICKS, '', 'yes');
+		add_option(HotSpots::DRAW_HOTSPOTS_ENABLED_OPTION, HotSpots::DEFAULT_DRAW_HOTSPOTS_ENABLED, '', 'yes');
+		add_option(HotSpots::DEBUG_OPTION, HotSpots::DEFAULT_DEBUG, '', 'yes');
+		add_option(HotSpots::HOT_VALUE_OPTION, HotSpots::DEFAULT_HOT_VALUE, '', 'yes');
+		add_option(HotSpots::SPOT_OPACITY_OPTION, HotSpots::DEFAULT_SPOT_OPACITY, '', 'yes');
+		add_option(HotSpots::SPOT_RADIUS_OPTION, HotSpots::DEFAULT_SPOT_RADIUS, '', 'yes');
+		add_option(HotSpots::IS_RESPONSIVE_OPTION, HotSpots::DEFAULT_IS_RESPONSIVE, '', 'yes');
+		add_option(HotSpots::HOME_PAGE_ONLY_OPTION, HotSpots::DEFAULT_HOME_PAGE_ONLY, '', 'yes');
+	}
+	
 	/**
 	 * Register AJAX call actions
 	 *
@@ -144,7 +146,7 @@ class HotSpots {
 		if (wp_verify_nonce($ajaxNonce, HotSpots::ID.'-nonce')) {
 			$x = isset($_POST['x']) ? $_POST['x'] : '';
 			$y = isset($_POST['y']) ? $_POST['y'] : '';
-			$url = isset($_POST['url']) ? $this::removeQueryStringParams(addslashes($_POST['url']), HotSpots::$ignoreQueryParams) : '';
+			$url = isset($_POST['url']) ? $this->removeQueryStringParams(addslashes($_POST['url']), HotSpots::$ignoreQueryParams) : '';
 			$width = isset($_POST['width']) ? intval($_POST['width']) : '';
 			$rowsAffected = $wpdb->insert( HotSpots::TABLE_PREFIX . HotSpots::HOTSPOTS_TBL_NAME, array( HotSpots::X_COLUMN => $x, HotSpots::Y_COLUMN => $y, HotSpots::URL_COLUMN => $url, HotSpots::WIDTH_COLUMN => $width ) );
 			$id = $wpdb->insert_id;
@@ -163,7 +165,7 @@ class HotSpots {
 				}
 
 				$rows = $wpdb->get_results($query);
-				$heatValue = $this::calculateHeatValue($x, $y, $id, $rows);
+				$heatValue = $this->calculateHeatValue($x, $y, $id, $rows);
 				$response = array('id' => $id, 'heatValue' => $heatValue);
 			} else {
 				$response = array('id' => $id);
@@ -185,7 +187,7 @@ class HotSpots {
 		$ajaxNonce = $_POST['nonce'];
 		$rows = null;
 		if (wp_verify_nonce($ajaxNonce, HotSpots::ID .'-nonce')) {
-			$url = isset($_POST['url']) ? $this::removeQueryStringParams(addslashes($_POST['url']), HotSpots::$ignoreQueryParams) : '';
+			$url = isset($_POST['url']) ? $this->removeQueryStringParams(addslashes($_POST['url']), HotSpots::$ignoreQueryParams) : '';
 			$query = "SELECT id, ".HotSpots::X_COLUMN.", ".HotSpots::Y_COLUMN.", ".HotSpots::URL_COLUMN.", ".HotSpots::WIDTH_COLUMN." FROM ".HotSpots::TABLE_PREFIX.HotSpots::HOTSPOTS_TBL_NAME." WHERE ".HotSpots::URL_COLUMN." = '" . $url . "'";
 
 			$isResponsive = get_option(HotSpots::IS_RESPONSIVE_OPTION);
@@ -208,7 +210,7 @@ class HotSpots {
 				$y = $row->y;
 				$url = $row->url;
 				$width = $row->screenWidth;
-				$heatValue = $this::calculateHeatValue($x, $y, $id, $rows);
+				$heatValue = $this->calculateHeatValue($x, $y, $id, $rows);
 				$mouseClicks[$index++] = array('id' => $id, 'x' => $x, 'y' => $y, 'width' => $width, 'url' => $url, 'heatValue' => $heatValue);
 			}
 		}
@@ -547,7 +549,7 @@ class HotSpots {
 				</ul>
 			</form>
 
-			<h2>Mouse Clicks</h2>
+			<h2>URL's</h2>
 			<?php 
 			$stats = new StatsTable();
 			$stats->prepare_items();

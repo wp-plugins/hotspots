@@ -67,7 +67,24 @@ class StatsTable extends WP_List_Table {
 	
 		// get table data
 		$query = 'SELECT '. HotSpots::URL_COLUMN . ', COUNT(*) AS count, uuid() AS id FROM '.HotSpots::TABLE_PREFIX.HotSpots::HOTSPOTS_TBL_NAME.' WHERE 1 GROUP BY '.HotSpots::URL_COLUMN;
-		$this->items = $wpdb->get_results($query, ARRAY_A);
+		
+		
+		// pagination
+		$itemsCount = $wpdb->query($query); //return the total number of affected rows
+		$itemsPerPage = 10;
+		$pageNum = !empty($_GET["paged"]) ? mysql_real_escape_string($_GET["paged"]) : '';
+		if (empty($pageNum) || !is_numeric($pageNum) || $pageNum<=0 ) {
+			$pageNum = 1;
+		}
+		$totalPages = ceil($itemsCount/$itemsPerPage);
+		// adjust the query to take pagination into account
+		if (!empty($pageNum) && !empty($itemsPerPage)) {
+			$offset=($pageNum-1)*$itemsPerPage;
+			$query .= ' LIMIT ' .(int)$offset. ',' .(int)$itemsPerPage;
+		}
+		$this->set_pagination_args( array( "total_items" => $itemsCount, "total_pages" => $totalPages, "per_page" => $itemsPerPage ) );
+		
+		$this->items =  $wpdb->get_results($query, ARRAY_A);
 	}
 	
 	/**
@@ -206,7 +223,7 @@ class FilterTable extends WP_List_Table {
 
 		// Register the columns
 		$columns = $this->get_columns();
-		$hidden = array($this::ID_COLUMN );
+		$hidden = array(FilterTable::ID_COLUMN );
 		$sortable = $this->get_sortable_columns();
 		$this->_column_headers = array($columns, $hidden, $sortable);
 
