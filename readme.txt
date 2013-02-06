@@ -34,13 +34,16 @@ Tested using Google Chrome v23, Firefox v10 and Internet Explorer v9. This plugi
 
 1. Heat map of mouse clicks on a WordPress website. As you can see, the navigation menu bar and top search input are highly used but the second search input is rarely used.
 
-2. Heat map of mouse clicks on a responsive WordPress website (i.e. mobile phone screen size).
+2. Heat map of mouse clicks on a responsive WordPress website
 
 3. HotSpots plugin settings page options for enabling features and configuring the heat map.
 
 4. HotSpots plugin settings page also allows you to open pages on your website and draw the hotspots for different avaialable window sizes.
 
 == Changelog ==
+
+= 2.0.6 =
+* Fixed bug recording mouse clicks in front-end when not logged in
 
 = 2.0.5 =
 * Fixed this:: in tables.php for older versions of PHP
