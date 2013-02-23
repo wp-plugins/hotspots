@@ -13,7 +13,7 @@ table.filterurls tbody th.check-column, table.filterurl tbody th.check-column  {
 
 
 
-table.widefat .column-url {
+table.heatmap, table.heatMaps .column-url {
 	width: 30%;
 }
 
