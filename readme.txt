@@ -8,25 +8,24 @@ Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-HotSpots is a plugin which draws a heat map of mouse clicks overlayed on your webpage allowing you to improve usability by analysing user behaviour.
+HotSpots is a plugin which draws a heat map of mouse clicks and touch screen taps overlayed on your webpage allowing you to analyse user behaviour.
 
 == Description ==
 
-HotSpots is a plugin which draws a heat map of mouse clicks overlayed on your webpage allowing you to improve usability by analysing user behaviour. This can give insight into which buttons or links are popular and easy to use including the effecfiveness of advertising placement. Each page on your website has it's own heat map. Different heat maps are drawn when you resize the window to cater for responsive design.
+HotSpots is a plugin which draws a heat map of mouse clicks and touch screen taps overlayed on your webpage allowing you to improve usability by analysing user behaviour. This can give insight into which buttons or links are popular and easy to use including the effecfiveness of advertising placement. Google Analytics can show you what page a visitor went to, but HotSpots will show you which link a visitor clicked to get there. Each page on your website has it's own heat map. Different heat maps are drawn when you resize the window to cater for responsive design.
 
-The hot spots are shown as a heat map with a colour range from green (cold), to orange (warm) and red (hot). Each mouse click is represented as a coloured spot or circle. The colour of the spot is calculated based on how many other spots it is touching within it's radius (i.e if a spot is touching another spot, then it has a heat value of 1. If it is touching two spots, then it has a heat value of 2 and so on).
+Each mouse click and touch screen tap is represented as a coloured circle or spot. The spots create a heat map with a colour range from green (cold), orange (warm) and red (hot). The colour of the spot is calculated based on how many other spots it is touching within it's radius (i.e if a spot is touching another spot, then it has a heat value of 1. If it is touching two spots, then it has a heat value of 2 and so on). You can manage how many mouse clicks or touch screen taps are necessary to be hot, the size and also the opacity of the spots.
 
 The drawing of the heap map is done using HTML5 canvas. AJAX is used to send information about mouse clicks to the server in the background.
 
-Tested using Google Chrome v23, Firefox v10 and Internet Explorer v9. This plugin should not be used where performance is critical as an additional server request is made for each mouse click. Websites must be HTML5 compliant to view the heat map and browsers need to support HTML5 canvas.
-	
+Tested using Google Chrome v23, Firefox v10, Internet Explorer v9, iPhone 4 and Android 2.3.3. This plugin should not be used where performance is critical as an additional server request is made for each mouse click. Websites must be HTML5 compliant to view the heat map and browsers need to support HTML5 canvas.
+
 == Installation ==
 
 1. Download plugin to plugins directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
 1. Go to the options page (Settings > HotSpots)
-1. Turn on the Save Mouse Clicks option to start recording mouse clicks and also the Draw HotSpots Enable option.
-1. To view the heat map of mouse clicks, go to the URL's section at the bottom of the Settings page. Then click View site for a URL with a selected window size and a new window will open and draw the hot spots. You can also manually add query parameter drawHotSpots=true to the URL of your page (i.e. www.mywebsite.com?drawHotSpots=true or www.mywebsite.com?cat=1&drawHotSpots=true).
+1. To view the heat map of mouse clicks or touch screen taps, go to the Heat Maps section and then click View Heat Map for a URL with a selected window width. You can also manually add query parameter drawHeatMap=true to the URL of your page (i.e. www.mywebsite.com?drawHeatMap=true or www.mywebsite.com?cat=1&drawHeatMap=true).
 
 == Frequently Asked Questions ==
 
@@ -34,13 +33,26 @@ Tested using Google Chrome v23, Firefox v10 and Internet Explorer v9. This plugi
 
 1. Heat map of mouse clicks on a WordPress website. As you can see, the navigation menu bar and top search input are highly used but the second search input is rarely used.
 
-2. Heat map of mouse clicks on a responsive WordPress website
+2. Heat map of mouse clicks and touch screen taps on a responsive WordPress website
 
-3. HotSpots plugin settings page options for enabling features and configuring the heat map.
+3. HotSpots plugin Settings page options for enabling features and configuring the heat map.
 
-4. HotSpots plugin settings page also allows you to open pages on your website and draw the hotspots for different avaialable window sizes.
+4. HotSpots plugin Settings page allows you to open pages on your website and draw the hotspots for different avaialable window sizes.
+
+5. HotSpots plugin Settings page allows you to apply URL filters 
 
 == Changelog ==
+
+= 2.1 =
+* Added touch screen tap support
+* Added whitelist and blacklist URL filters
+* Removed isResponsive option
+* Changed form submit for clearing database
+* Removed only enable for home page option as this is now replaced by URL filters
+* Changed default drawing heat map option to true when plugin is activiated
+* Chaned query param from drawHotSpots to drawHeatMap
+* Removed select window width view heat maps and replaced with manual window, zoom level and device pixel resizing to draw different heat maps. This has changed due browser incompatibilities and behavioural differences.
+* Added information panel with current width, zoom level and device pixel ratios when viewing heat maps
 
 = 2.0.6 =
 * Fixed bug recording mouse clicks in front-end when not logged in
@@ -48,7 +60,7 @@ Tested using Google Chrome v23, Firefox v10 and Internet Explorer v9. This plugi
 = 2.0.5 =
 * Fixed this:: in tables.php for older versions of PHP
 
-= 2.0.4 =
+= 2.0.4 
 * Fixed some double colon scope issues for older versions of PHP
 * Added pagination to URL table
 

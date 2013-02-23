@@ -4,23 +4,25 @@ if(!class_exists('WP_List_Table')){
 }
 
 /**
- * A table of statistics
+ * A table for viewing information about heat maps including URL's widths, 
+ * zoom levels and device pixel ratios.
+ * 
  * @author dpowney
  *
  */
-class StatsTable extends WP_List_Table {
+class HeatMapTable extends WP_List_Table {
 	
 	const 
-	SINGULAR_LABEL 					= "Stat",
-	PLURAL_LABEL 					= 'Stats';
+	SINGULAR_LABEL 					= "Heat Map",
+	PLURAL_LABEL 					= 'Heat Maps';
 	
 	/**
 	 * Constructor
 	 */
 	function __construct() {
 		parent::__construct( array(
-				'singular'=> StatsTable::SINGULAR_LABEL,
-				'plural' => StatsTable::PLURAL_LABEL,
+				'singular'=> HeatMapTable::SINGULAR_LABEL,
+				'plural' => HeatMapTable::PLURAL_LABEL,
 				'ajax'	=> false
 		) );
 	}
@@ -30,11 +32,10 @@ class StatsTable extends WP_List_Table {
 	*/
 	function extra_tablenav( $which ) {
 		if ( $which == "top" ){
-			echo '<p>The table below lists the URL\'s, count of mouse click (in brackets) and available window sizes. Click view site to open a new window of the URL with the selected window width.</p>';
+			//echo '<br />';
 		}
 		if ( $which == "bottom" ){
-			echo '<p class="note">Note: Google Chrome browser has some issues setting the width '
-			. 'of the window when opening a popup so it may not work.</p>';
+			echo '<p class="description">Heat maps are best viewed using actual screen resolutions, real devices or emulators.</p>';
 		}
 	}
 	
@@ -46,8 +47,8 @@ class StatsTable extends WP_List_Table {
 		return $columns= array(
 				'id' => __(''),
 				HotSpots::URL_COLUMN =>__('URL'),
-				'count' => __('Mouse Clicks Count'),
-				'select' => __('Window Size Widths'),
+				'count' => __('Count'),
+				'heatMapData' => __('Hest Map Data'),
 				'action' => __('Action')
 		);
 	}
@@ -61,17 +62,16 @@ class StatsTable extends WP_List_Table {
 	
 		// Register the columns
 		$columns = $this->get_columns();
-		$hidden = array('id', 'count');
+		$hidden = array('id');
 		$sortable = $this->get_sortable_columns();
 		$this->_column_headers = array($columns, $hidden, $sortable);
 	
 		// get table data
-		$query = 'SELECT '. HotSpots::URL_COLUMN . ', COUNT(*) AS count, uuid() AS id FROM '.HotSpots::TABLE_PREFIX.HotSpots::HOTSPOTS_TBL_NAME.' WHERE 1 GROUP BY '.HotSpots::URL_COLUMN;
-		
+		$query = 'SELECT '. HotSpots::URL_COLUMN . ', COUNT(*) AS count, uuid() AS id FROM '.HotSpots::TABLE_PREFIX.HotSpots::HOTSPOTS_TBL_NAME.' WHERE 1 GROUP BY '.HotSpots::URL_COLUMN . ' ORDER BY count DESC';
 		
 		// pagination
 		$itemsCount = $wpdb->query($query); //return the total number of affected rows
-		$itemsPerPage = 10;
+		$itemsPerPage = 5;
 		$pageNum = !empty($_GET["paged"]) ? mysql_real_escape_string($_GET["paged"]) : '';
 		if (empty($pageNum) || !is_numeric($pageNum) || $pageNum<=0 ) {
 			$pageNum = 1;
@@ -87,6 +87,40 @@ class StatsTable extends WP_List_Table {
 		$this->items =  $wpdb->get_results($query, ARRAY_A);
 	}
 	
+	
+	function highestCommonFactor($a,$b) {
+	    if ($b==0) return $a;
+	    return $this->highestCommonFactor($b, $a % $b);
+	}
+	
+	/**
+	 * Converts a decimal to a fraction that can be returned as a ratio
+	 * 
+	 * @param decimal i.e. 1.75
+	 */
+	function convertDecimalToRatio($decimal) {
+		
+		$decimal = strval($decimal);
+
+		$decimalArray = explode('.', $decimal);
+		
+		// if a whole number
+		if (count($decimalArray) !== 2) {
+			return $decimal . ':1';
+		} else {
+			$leftDecimalPart = $decimalArray[0]; // 1
+			$rightDecimalPart = $decimalArray[1]; // 75
+		
+			$numerator = $leftDecimalPart + $rightDecimalPart; // 175
+			$denominator = pow(10,strlen($rightDecimalPart)); // 100
+			$factor = $this->highestCommonFactor($numerator, $denominator); // 25
+			$denominator /= $factor;
+			$numerator /= $factor;
+			
+			return $numerator . ':' . $denominator;
+		}
+	}
+	
 	/**
 	 * Default column
 	 * @param unknown_type $item
@@ -97,8 +131,8 @@ class StatsTable extends WP_List_Table {
 		switch( $column_name ) {
 			case HotSpots::URL_COLUMN :
 			case 'count':
+			case 'heatMapData':
 			case 'action':
-			case 'select':
 			case 'id':
 				return $item[ $column_name ];
 			default:
@@ -112,10 +146,11 @@ class StatsTable extends WP_List_Table {
 	 * @return string
 	 */
 	function column_url($item){
-		echo stripslashes($item[HotSpots::URL_COLUMN]) . ' (' . $item['count'] . ')';
+		echo stripslashes($item[HotSpots::URL_COLUMN]);
 		$id = $item['id'];
 		$url = $item['url'];
 		echo '<input type="hidden" id="url_' . $id . '" name="url_' . $id . '" value="' . $url  .'"></input>';
+		
 	}
 	
 	/**
@@ -128,31 +163,59 @@ class StatsTable extends WP_List_Table {
 	}
 	
 	/**
-	 * 
-	 * @param unknown_type $item
-	 */
-	function column_select($item) {
-		global $wpdb;
-		$query = 'SELECT '. HotSpots::WIDTH_COLUMN . ', COUNT(*) AS count FROM '.HotSpots::TABLE_PREFIX.HotSpots::HOTSPOTS_TBL_NAME.' WHERE url = "'. $item[HotSpots::URL_COLUMN] . '" GROUP BY '.HotSpots::WIDTH_COLUMN;
-		$rows = $wpdb->get_results($query);
-		$url = $item[HotSpots::URL_COLUMN];
-		$id = $item['id'];
-		echo '<select id="width_' . $id . '" name="' . $id . '">';
-		foreach ($rows as $row) {
-			$width = $row->screenWidth;
-			$count = $row->count;
-			echo '<option value="' . $width . '">' . $width . 'px (' . $count . ')</option>';
-		}
-		echo '</select>';
-	}
-	
-	/**
 	 *
 	 * @param unknown_type $item
 	 */
 	function column_action($item) {
 		$id = $item['id'];
-		echo '<input id="action_' . $id .'"type="button" class="button viewBtn" value="View site" />';
+		echo '<input id="viewHeatMapBtn_' . $id .'" type="button" class="button viewHeatMapBtn" value="View Heat Map" />';
+	}
+	
+	/**
+	 * 
+	 * @param unknown_type $item
+	 */
+	function column_heatMapData($item) {
+		global $wpdb;
+		$widthQuery = 'SELECT '. HotSpots::WIDTH_COLUMN . ', COUNT(*) AS count FROM '.HotSpots::TABLE_PREFIX.HotSpots::HOTSPOTS_TBL_NAME.' WHERE url = "'. $item[HotSpots::URL_COLUMN] . '" GROUP BY '.HotSpots::WIDTH_COLUMN . ' ORDER BY count DESC';
+		$widthRows = $wpdb->get_results($widthQuery);
+		$url = $item[HotSpots::URL_COLUMN];
+		$id = $item['id'];
+		
+		
+		echo '<table class="widefat" cellspacing="0">';
+		
+		echo '<thead><tr><th class="manage-column column-width">Window Width</th><th class="manage-column column-zoomLevels">Zoom Level & Device Pixel Ratio</th></tr></thead>';
+		echo '<tbody>';
+		$rowCount = 0;
+		foreach ($widthRows as $widthRow) {
+			$width = $widthRow->screenWidth;
+			$widthCount = $widthRow->count;
+			
+			if (($rowCount++ % 2) == 0) {
+				echo '<tr class="alternate">';
+			} else {
+				echo '<tr>';
+			}
+					
+			echo '<td class="column-width">'. $width . 'px (' . $widthCount . ')</td>';
+			
+			echo '<td class="column-zoomLevels">';
+			$zoomLevelsRatio = 'SELECT '. HotSpots::ZOOM_LEVEL_COLUMN . ', ' . HotSpots::DEVICE_PIXEL_RATIO_COLUMN . ', COUNT(*) AS count FROM '.HotSpots::TABLE_PREFIX.HotSpots::HOTSPOTS_TBL_NAME.' WHERE url = "'. $item[HotSpots::URL_COLUMN] . '" AND screenWidth = "' . $width . '" GROUP BY '.HotSpots::ZOOM_LEVEL_COLUMN . ', ' . HotSpots::DEVICE_PIXEL_RATIO_COLUMN . ' ORDER BY count DESC';
+			$zoomLevelRows = $wpdb->get_results($zoomLevelsRatio);
+			foreach ($zoomLevelRows as $zoomLevelRow) {
+				$zoomLevel = $zoomLevelRow->zoomLevel;
+				$count = $zoomLevelRow->count;				
+				$devPixRatio = $this->convertDecimalToRatio($zoomLevelRow->devicePixelRatio);
+				
+				echo ($zoomLevel * 100). '% & ' . $devPixRatio . ' (' . $count . ')<br />';
+			}
+			echo '</td>';
+			
+			echo '</tr>';
+		}
+		echo '</tbody></table>';
+
 	}
 }
 
@@ -185,7 +248,7 @@ class FilterTable extends WP_List_Table {
 		parent::__construct( array(
 				'singular'=> FilterTable::SINGULAR_LABEL,
 				'plural' => FilterTable::PLURAL_LABEL,
-				'ajax'	=> true
+				'ajax'	=> false
 		) );
 	}
 
@@ -195,10 +258,10 @@ class FilterTable extends WP_List_Table {
 	 */
 	function extra_tablenav( $which ) {
 		if ( $which == "top" ){
-			// do nothing
+			//echo '<br />';
 		}
 		if ( $which == "bottom" ){
-			// do nothing
+			echo '<br />';
 		}
 	}
 
@@ -220,6 +283,9 @@ class FilterTable extends WP_List_Table {
 	 */
 	function prepare_items() {
 		global $wpdb;
+		
+		// Process any bulk actions first
+		$this->process_bulk_action();
 
 		// Register the columns
 		$columns = $this->get_columns();
@@ -229,6 +295,24 @@ class FilterTable extends WP_List_Table {
 
 		// get table data
 		$query = 'SELECT * FROM '.HotSpots::TABLE_PREFIX.FilterTable::FILTER_TBL_NAME;
+		
+		// pagination
+		$itemsCount = $wpdb->query($query); //return the total number of affected rows
+		$itemsPerPage = 10;
+		$pageNum = !empty($_GET["paged"]) ? mysql_real_escape_string($_GET["paged"]) : '';
+		if (empty($pageNum) || !is_numeric($pageNum) || $pageNum<=0 ) {
+			$pageNum = 1;
+		}
+		$totalPages = ceil($itemsCount/$itemsPerPage);
+		// adjust the query to take pagination into account
+		if (!empty($pageNum) && !empty($itemsPerPage)) {
+			$offset=($pageNum-1)*$itemsPerPage;
+			$query .= ' LIMIT ' .(int)$offset. ',' .(int)$itemsPerPage;
+		}
+		$this->set_pagination_args( array( "total_items" => $itemsCount, "total_pages" => $totalPages, "per_page" => $itemsPerPage ) );
+		
+		
+		
 		$this->items = $wpdb->get_results($query, ARRAY_A);
 	}
 
@@ -268,7 +352,6 @@ class FilterTable extends WP_List_Table {
 				'<input type="checkbox" name="'.FilterTable::DELETE_CHECKBOX.'" value="%s" />', $item[FilterTable::ID_COLUMN]
 		);
 	}
-
 	/**
 	 * (non-PHPdoc)
 	 * @see WP_List_Table::get_bulk_actions()
@@ -284,14 +367,14 @@ class FilterTable extends WP_List_Table {
 	 * Handles bulk actions
 	 */
 	function process_bulk_action() {
-		$action = $this->current_action();
-
-		if ($action === FilterTable::DELETE_BULK_ACTION_NAME) {
+		if ($this->current_action() === FilterTable::DELETE_BULK_ACTION_NAME) {
 			global $wpdb;
-				
-			foreach($_GET['delete'] as $id) {
-				$query = "DELETE FROM ". HotSpots::TABLE_PREFIX.FilterTable::FILTER_TBL_NAME . " WHERE " .  FilterTable::ID_COLUMN . " = " . $id;
 
+			$checked = ( is_array( $_REQUEST['delete'] ) ) ? $_REQUEST['delete'] : array( $_REQUEST['delete'] );
+			
+			foreach($checked as $id) {
+				$query = "DELETE FROM ". HotSpots::TABLE_PREFIX.FilterTable::FILTER_TBL_NAME . " WHERE " .  FilterTable::ID_COLUMN . " = " . $id;
+				$results = $wpdb->query($query);
 			}
 		}
 	}

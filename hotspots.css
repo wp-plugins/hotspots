@@ -1,0 +1,20 @@
+#infoPanel {
+	position: fixed;
+	right: 0px;
+	bottom: 0px;
+	padding: 5px;
+	padding-left: 10px;
+	padding-right: 10px;
+	background-color: Black;
+	font-family: Arial !important;
+	font-size: 1em !important;
+	text-align: right;
+	color: Gray;
+}
+
+div#infoDevPixRat, div#infoZoomLevel, div#infoWidth {
+	display: inline-block !important;
+	font-family: Arial !important;
+	font-size: 1em !important;
+	color: Gray;
+}

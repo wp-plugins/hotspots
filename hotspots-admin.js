@@ -1,36 +1,20 @@
-/**
- * Refresh database button
- */
-jQuery("#refreshBtn").live('click',function(e) {
-	e.preventDefault();
-	jQuery.post(hotSpotsData.ajaxUrl,  { action : "refreshDatabase", nonce : hotSpotsData.ajaxNonce }, function(response) {
-		var responseJSON = jQuery.parseJSON(response)
-		jQuery('#hotSpotsMessages').empty();
-		if (responseJSON.success === true) {
-			jQuery('#hotSpotsMessages').append('<div class="updated"><p>Database refresh completed.</p></div>');
-		} else {
-			jQuery('#hotSpotsMessages').append('<div class="error"><p>' + responseJSON.errors + '</p></div>');
-		}
-	});	
-});
-
 // View different URL widths
-jQuery("input.viewBtn").live('click', function(e) {
+jQuery("input.viewHeatMapBtn").live('click', function(e) {
 	e.preventDefault();
-	var btnId = this.id;
+	var btnId = this.id; 
+	// button id is in the format viewHeatMapBtn_<rowId>
 	var parts = btnId.split("_"); 
 	var rowId = parts[1];
-	var width = jQuery("#width_" + rowId + " option:selected").val();
+	// now we can lookup the url from a hidden input field given we have the rowId
 	var url = jQuery("#url_" + rowId).val();
-	// Pass width in URL as Chrome does not care
-	var queryParams = "drawHotSpots=true&width=" + width;
+	var queryParams = "drawHeatMap=true";
 	if (url.indexOf("?") >= 0) {
 		url += "&";
 	} else {
 		url += "?";
 	}
 	url += queryParams;
-	window.open(url, "_blank", 'width=' + width + ', scrollbars=yes, resizable=yes, location=yes, toolbar=yes');
+	window.open(url, "_blank", 'scrollbars=yes, resizable=yes, location=yes, toolbar=yes');
 });
 
 
@@ -43,8 +27,7 @@ jQuery("#saveChangesBtn").live('click',function(e) {
 	var hotValue = jQuery("#hotValue").val();
 	var spotOpacity = jQuery("#spotOpacity").val();
 	var spotRadius = jQuery("#spotRadius").val();
-	var isResponsive = jQuery("#isResponsive").is(':checked');
-	var homePageOnly = jQuery("#homePageOnly").is(':checked');
+	var applyFilters = jQuery("#applyFilters").is(':checked');
 	
 	var data = {
 		action : "saveChanges",
@@ -55,16 +38,15 @@ jQuery("#saveChangesBtn").live('click',function(e) {
 		hotValue : hotValue,
 		spotOpacity : spotOpacity,
 		spotRadius : spotRadius,
-		isResponsive : isResponsive,
-		homePageOnly : homePageOnly
+		applyFilters : applyFilters
 	};
 	jQuery.post(hotSpotsData.ajaxUrl,  data, function(response) {
-		var responseJSON = jQuery.parseJSON(response)
-		jQuery('#hotSpotsMessages').empty();
+		var responseJSON = jQuery.parseJSON(response);
+		jQuery('#messages').empty();
 		if (responseJSON.success === true) {
-			jQuery('#hotSpotsMessages').append('<div class="updated"><p>Changes saved successfully.</p></div>');
+			jQuery('#messages').append('<div class="updated"><p>Changes saved successfully.</p></div>');
 		} else {
-			jQuery('#hotSpotsMessages').append('<div class="error">' + responseJSON.errors + '</div>');
+			jQuery('#messages').append('<div class="error">' + responseJSON.errors + '</div>');
 		}
 	});	
 });
@@ -83,4 +65,28 @@ jQuery(document).ready(function() {
 	} else {
 		jQuery("#debug").attr('disabled','disabled');
 	}
+});
+
+// Set filter type option
+jQuery("input[name=filterType]:radio").live('click', function(e) {
+	var value = jQuery("input[name=filterType]:radio:checked").val();
+	var data =  { action : "setFilterType", nonce : hotSpotsData.ajaxNonce, filterType : value };
+	jQuery.post(hotSpotsData.ajaxUrl,  data, function(response) {
+		var responseJSON = jQuery.parseJSON(response);
+		if (responseJSON.success === false) {
+			jQuery('#messages').empty();
+			jQuery('#messages').append('<div class="error">' + responseJSON.errors + '</div>');
+		}
+	});
+});
+
+// Add URL filter submit
+jQuery("#addFilterBtn").live('click', function(e) {
+	jQuery("#addFilterSubmit").val("true");
+	jQuery("#clearDatabaseSubmit").val("false");
+});
+//Clear database button submit
+jQuery("#refreshBtn").live('click',function(e) {
+	jQuery("#clearDatabaseSubmit").val("true");
+	jQuery("#addFilterSubmit").val("false");
 });
