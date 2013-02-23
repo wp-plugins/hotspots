@@ -1,7 +1,7 @@
 === HotSpots ===
 Contributors: dpowney
 Donate link: http://www.danielpowney.com
-Tags: hotspot, hot, spot, mouse click, click, usability, heat map, advertising, advertise
+Tags: hotspot, hot, spot, mouse click, click, usability, heat map, advertising, advertise, tap, touch screen, zoom level, device pixel ratio, window, browser
 Requires at least: 3.0.1
 Tested up to: 3.5
 Stable tag: trunk
@@ -16,7 +16,7 @@ HotSpots is a plugin which draws a heat map of mouse clicks and touch screen tap
 
 Each mouse click and touch screen tap is represented as a coloured circle or spot. The spots create a heat map with a colour range from green (cold), orange (warm) and red (hot). The colour of the spot is calculated based on how many other spots it is touching within it's radius (i.e if a spot is touching another spot, then it has a heat value of 1. If it is touching two spots, then it has a heat value of 2 and so on). You can manage how many mouse clicks or touch screen taps are necessary to be hot, the size and also the opacity of the spots.
 
-The drawing of the heap map is done using HTML5 canvas. AJAX is used to send information about mouse clicks to the server in the background.
+The drawing of the heap map is done using HTML5 canvas. AJAX is used to send information about mouse clicks and touch screen taps to the server in the background.
 
 This plugin should not be used where performance is critical as an additional server request is made for each mouse click and touch screen tap. Websites must be HTML5 compliant to view the heat map and browsers need to support HTML5 canvas.
 
