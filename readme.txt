@@ -18,7 +18,7 @@ Each mouse click and touch screen tap is represented as a coloured circle or spo
 
 The drawing of the heap map is done using HTML5 canvas. AJAX is used to send information about mouse clicks to the server in the background.
 
-Tested using Google Chrome v23, Firefox v10, Internet Explorer v9, iPhone 4 and Android 2.3.3. This plugin should not be used where performance is critical as an additional server request is made for each mouse click. Websites must be HTML5 compliant to view the heat map and browsers need to support HTML5 canvas.
+This plugin should not be used where performance is critical as an additional server request is made for each mouse click and touch screen tap. Websites must be HTML5 compliant to view the heat map and browsers need to support HTML5 canvas.
 
 == Installation ==
 
