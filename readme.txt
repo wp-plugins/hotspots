@@ -37,7 +37,7 @@ Tested using Google Chrome v23, Firefox v10, Internet Explorer v9, iPhone 4 and 
 
 3. HotSpots plugin Settings page options for enabling features and configuring the heat map.
 
-4. HotSpots plugin Settings page allows you to open pages on your website and draw the hotspots for different avaialable window sizes.
+4. HotSpots plugin Settings page allows you to open pages on your website and draw the heat maps for different window widths, zoom levels and device pixel ratios.
 
 5. HotSpots plugin Settings page allows you to apply URL filters 
 
