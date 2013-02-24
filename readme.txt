@@ -43,6 +43,9 @@ This plugin should not be used where performance is critical as an additional se
 
 == Changelog ==
 
+= 2.1.3 =
+* Added data migration from old database tables
+
 = 2.1.2 =
 * Removed custom database table prefix and changed to WordPress database table prefix
 

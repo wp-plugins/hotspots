@@ -3,7 +3,7 @@
 Plugin Name: HotSpots
 Plugin URI: http://wordpress.org/extend/plugins/hotspots/
 Description: HotSpots is a plugin which draws a heat map of mouse clicks and touch screen taps overlayed on your webpage allowing you to analyse user behaviour.
-Version: 2.1.2
+Version: 2.1.3
 Author: Daniel Powney
 Auhtor URI: www.danielpowney.com
 License: GPL2
@@ -33,7 +33,6 @@ class HotSpots {
 	DRAW_HOTSPOTS_QUERY_PARAM_NAME 	= 'drawHeatMap',
 
 	/* database */
-	TABLE_PREFIX 					= 'hsp_',
 	HOTSPOTS_TBL_NAME 				= 'hotspot',
 	ID_COLUMN						= "id",
 	X_COLUMN						= 'x',
@@ -125,6 +124,20 @@ class HotSpots {
 		PRIMARY KEY (id)
 		) ENGINE=InnoDB AUTO_INCREMENT=1;";
 		dbDelta($sql2);
+		
+		// Migrate old data if necessary
+		try {
+			if($wpdb->get_var('SHOW TABLES LIKE "hsp_hotspot"') == "hsp_hotspot") {
+				$wpdb->query("INSERT INTO ".$wpdb->prefix . HotSpots::HOTSPOTS_TBL_NAME." SELECT * FROM hsp_hotspot");
+				$wpdb->query("DROP TABLE IF_EXISTS hsp_hotspot");
+			}
+			if($wpdb->get_var('SHOW TABLES LIKE "hsp_filter"') == "hsp_filter") {
+				$wpdb->query("INSERT INTO " .$wpdb->prefix . FilterTable::FILTER_TBL_NAME ." SELECT * FROM hsp_filter");
+				$wpdb->query("DROP TABLE IF_EXISTS hsp_filter");
+			}
+		} catch(Exception $e) {
+			// do nothing
+		}
 	
 		// Add options
 		add_option(HotSpots::SAVE_MOUSE_CLICKS_OPTION, HotSpots::DEFAULT_SAVE_MOUSE_CLICKS, '', 'yes');
