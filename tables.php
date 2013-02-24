@@ -67,7 +67,7 @@ class HeatMapTable extends WP_List_Table {
 		$this->_column_headers = array($columns, $hidden, $sortable);
 	
 		// get table data
-		$query = 'SELECT '. HotSpots::URL_COLUMN . ', COUNT(*) AS count, uuid() AS id FROM '.HotSpots::TABLE_PREFIX.HotSpots::HOTSPOTS_TBL_NAME.' WHERE 1 GROUP BY '.HotSpots::URL_COLUMN . ' ORDER BY count DESC';
+		$query = 'SELECT '. HotSpots::URL_COLUMN . ', COUNT(*) AS count, uuid() AS id FROM '.$wpdb->prefix.HotSpots::HOTSPOTS_TBL_NAME.' WHERE 1 GROUP BY '.HotSpots::URL_COLUMN . ' ORDER BY count DESC';
 		
 		// pagination
 		$itemsCount = $wpdb->query($query); //return the total number of affected rows
@@ -162,7 +162,7 @@ class HeatMapTable extends WP_List_Table {
 		$totalCount = $item['count'] . ' ';
 		$url = $item['url'];
 		global $wpdb;
-		$query = 'SELECT * FROM '.HotSpots::TABLE_PREFIX.HotSpots::HOTSPOTS_TBL_NAME.' WHERE ' . HotSpots::URL_COLUMN . ' = "' . $url . ' " AND ' . HotSpots::IS_TOUCH_COLUMN . ' = 1';
+		$query = 'SELECT * FROM '.$wpdb->prefix.HotSpots::HOTSPOTS_TBL_NAME.' WHERE ' . HotSpots::URL_COLUMN . ' = "' . $url . ' " AND ' . HotSpots::IS_TOUCH_COLUMN . ' = 1';
 		$tapCount = $wpdb->query($query); //return the total number of affected rows
 		echo $totalCount . ' (' . ($totalCount - $tapCount) . ' mouse clicks & ' . $tapCount . ' touch screen taps)';
 	}	
@@ -182,7 +182,7 @@ class HeatMapTable extends WP_List_Table {
 	 */
 	function column_heatMapData($item) {
 		global $wpdb;
-		$widthQuery = 'SELECT '. HotSpots::WIDTH_COLUMN . ', COUNT(*) AS count FROM '.HotSpots::TABLE_PREFIX.HotSpots::HOTSPOTS_TBL_NAME.' WHERE url = "'. $item[HotSpots::URL_COLUMN] . '" GROUP BY '.HotSpots::WIDTH_COLUMN . ' ORDER BY count DESC';
+		$widthQuery = 'SELECT '. HotSpots::WIDTH_COLUMN . ', COUNT(*) AS count FROM '.$wpdb->prefix.HotSpots::HOTSPOTS_TBL_NAME.' WHERE url = "'. $item[HotSpots::URL_COLUMN] . '" GROUP BY '.HotSpots::WIDTH_COLUMN . ' ORDER BY count DESC';
 		$widthRows = $wpdb->get_results($widthQuery);
 		$url = $item[HotSpots::URL_COLUMN];
 		$id = $item['id'];
@@ -206,12 +206,12 @@ class HeatMapTable extends WP_List_Table {
 			echo '<td class="column-width">'. $width . 'px (' . $widthCount . ')</td>';
 			
 			
-			$usersQuery = 'SELECT COUNT(*) AS count FROM '.HotSpots::TABLE_PREFIX.HotSpots::HOTSPOTS_TBL_NAME.' WHERE url = "'. $item[HotSpots::URL_COLUMN] . '" AND screenWidth = "' . $width . '" GROUP BY '.HotSpots::IP_ADDRESS_COLUMN;
+			$usersQuery = 'SELECT COUNT(*) AS count FROM '.$wpdb->prefix.HotSpots::HOTSPOTS_TBL_NAME.' WHERE url = "'. $item[HotSpots::URL_COLUMN] . '" AND screenWidth = "' . $width . '" GROUP BY '.HotSpots::IP_ADDRESS_COLUMN;
 			$usersCount = $wpdb->query($usersQuery);
 			echo '<td class="column-users">' . $usersCount . '</td>';
 			
 			echo '<td class="column-browserDevice">';
-			$browserDeviceQuery = 'SELECT '. HotSpots::ZOOM_LEVEL_COLUMN . ', ' . HotSpots::DEVICE_PIXEL_RATIO_COLUMN . ', COUNT(*) AS count FROM '.HotSpots::TABLE_PREFIX.HotSpots::HOTSPOTS_TBL_NAME.' WHERE url = "'. $item[HotSpots::URL_COLUMN] . '" AND screenWidth = "' . $width . '" GROUP BY '.HotSpots::ZOOM_LEVEL_COLUMN . ', ' . HotSpots::DEVICE_PIXEL_RATIO_COLUMN . ' ORDER BY count DESC';
+			$browserDeviceQuery = 'SELECT '. HotSpots::ZOOM_LEVEL_COLUMN . ', ' . HotSpots::DEVICE_PIXEL_RATIO_COLUMN . ', COUNT(*) AS count FROM '.$wpdb->prefix.HotSpots::HOTSPOTS_TBL_NAME.' WHERE url = "'. $item[HotSpots::URL_COLUMN] . '" AND screenWidth = "' . $width . '" GROUP BY '.HotSpots::ZOOM_LEVEL_COLUMN . ', ' . HotSpots::DEVICE_PIXEL_RATIO_COLUMN . ' ORDER BY count DESC';
 			$browserDeviceRows = $wpdb->get_results($browserDeviceQuery);
 			foreach ($browserDeviceRows as $browserDeviceRow) {
 				$zoomLevel = $browserDeviceRow->zoomLevel;
@@ -305,7 +305,7 @@ class FilterTable extends WP_List_Table {
 		$this->_column_headers = array($columns, $hidden, $sortable);
 
 		// get table data
-		$query = 'SELECT * FROM '.HotSpots::TABLE_PREFIX.FilterTable::FILTER_TBL_NAME;
+		$query = 'SELECT * FROM '.$wpdb->prefix.FilterTable::FILTER_TBL_NAME;
 		
 		// pagination
 		$itemsCount = $wpdb->query($query); //return the total number of affected rows
@@ -384,7 +384,7 @@ class FilterTable extends WP_List_Table {
 			$checked = ( is_array( $_REQUEST['delete'] ) ) ? $_REQUEST['delete'] : array( $_REQUEST['delete'] );
 			
 			foreach($checked as $id) {
-				$query = "DELETE FROM ". HotSpots::TABLE_PREFIX.FilterTable::FILTER_TBL_NAME . " WHERE " .  FilterTable::ID_COLUMN . " = " . $id;
+				$query = "DELETE FROM ". $wpdb->prefix.FilterTable::FILTER_TBL_NAME . " WHERE " .  FilterTable::ID_COLUMN . " = " . $id;
 				$results = $wpdb->query($query);
 			}
 		}

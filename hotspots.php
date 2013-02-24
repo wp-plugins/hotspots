@@ -3,7 +3,7 @@
 Plugin Name: HotSpots
 Plugin URI: http://wordpress.org/extend/plugins/hotspots/
 Description: HotSpots is a plugin which draws a heat map of mouse clicks and touch screen taps overlayed on your webpage allowing you to analyse user behaviour.
-Version: 2.1.1
+Version: 2.1.2
 Author: Daniel Powney
 Auhtor URI: www.danielpowney.com
 License: GPL2
@@ -25,7 +25,7 @@ class HotSpots {
 
 	// constants
 	const
-	VERSION 						= '2.1',
+	VERSION 						= '2.1.2',
 	ID					 			= 'hotspots',
 
 	/* Front end */
@@ -105,7 +105,7 @@ class HotSpots {
 		require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 	
 		// Create database tables if they does not exist
-		$sql1 = "CREATE TABLE ".HotSpots::TABLE_PREFIX.HotSpots::HOTSPOTS_TBL_NAME." (
+		$sql1 = "CREATE TABLE " . $wpdb->prefix . HotSpots::HOTSPOTS_TBL_NAME . " (
 		".HotSpots::ID_COLUMN." int(11) NOT NULL AUTO_INCREMENT,
 		".HotSpots::X_COLUMN." int(11) NOT NULL,
 		".HotSpots::Y_COLUMN." int(11) NOT NULL,
@@ -119,7 +119,7 @@ class HotSpots {
 		) ENGINE=InnoDB AUTO_INCREMENT=1;";
 		dbDelta($sql1);
 	
-		$sql2 = "CREATE TABLE ".HotSpots::TABLE_PREFIX.FilterTable::FILTER_TBL_NAME." (
+		$sql2 = "CREATE TABLE ".$wpdb->prefix.FilterTable::FILTER_TBL_NAME." (
 		".FilterTable::ID_COLUMN." int(11) NOT NULL AUTO_INCREMENT,
 		".FilterTable::URL_COLUMN." varchar(255),
 		PRIMARY KEY (id)
@@ -181,7 +181,7 @@ class HotSpots {
 			$ipAddress = $this->getIPAddress();
 			$devicePixelRatio = isset($_POST['devicePixelRatio']) ? doubleval($_POST['devicePixelRatio']) : 1;
 			
-			$rowsAffected = $wpdb->insert( HotSpots::TABLE_PREFIX . HotSpots::HOTSPOTS_TBL_NAME, 
+			$rowsAffected = $wpdb->insert( $wpdb->prefix . HotSpots::HOTSPOTS_TBL_NAME, 
 					array( 	HotSpots::X_COLUMN => $x, 
 							HotSpots::Y_COLUMN => $y, 
 							HotSpots::URL_COLUMN => $url, 
@@ -199,7 +199,7 @@ class HotSpots {
 				// get all mouse clicks and touch screen touches and calculate heat value for added mouse click
 				$query = "SELECT " . HotSpots::ID_COLUMN . ", ".HotSpots::X_COLUMN.", ".HotSpots::Y_COLUMN.", "
 						. HotSpots::URL_COLUMN.", ".HotSpots::WIDTH_COLUMN." FROM "
-						. HotSpots::TABLE_PREFIX.HotSpots::HOTSPOTS_TBL_NAME." WHERE ".HotSpots::URL_COLUMN." = '" . $url . "'";
+						. $wpdb->prefix.HotSpots::HOTSPOTS_TBL_NAME." WHERE ".HotSpots::URL_COLUMN." = '" . $url . "'";
 
 				$range = 6; // allow a range of 6 pixels either side to be the same
 				$width = isset($_POST['width']) ? intval($_POST['width']) : 0;
@@ -236,7 +236,7 @@ class HotSpots {
 			
 			$query = "SELECT " . HotSpots::ID_COLUMN . ", ".HotSpots::X_COLUMN.", ".HotSpots::Y_COLUMN.", "
 						. HotSpots::URL_COLUMN.", ".HotSpots::WIDTH_COLUMN." FROM "
-						. HotSpots::TABLE_PREFIX.HotSpots::HOTSPOTS_TBL_NAME." WHERE ".HotSpots::URL_COLUMN." = '" . $url . "'";
+						. $wpdb->prefix.HotSpots::HOTSPOTS_TBL_NAME." WHERE ".HotSpots::URL_COLUMN." = '" . $url . "'";
 
 			$range = 6; // allow a range of 6 pixels either side to be the same
 			$width = isset($_POST['width']) ? intval($_POST['width']) : 0;
@@ -455,7 +455,7 @@ class HotSpots {
 			$currentURL = $this->removeQueryStringParams(addslashes($_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"]), HotSpots::$ignoreQueryParams);
 		
 			global $wpdb;
-			$query = "SELECT " .FilterTable::URL_COLUMN . " FROM " . HotSpots::TABLE_PREFIX.FilterTable::FILTER_TBL_NAME;
+			$query = "SELECT " .FilterTable::URL_COLUMN . " FROM " . $wpdb->prefix.FilterTable::FILTER_TBL_NAME;
 			$rows = $wpdb->get_results($query);
 			
 			if ($filterType == HotSpots::BLACKLIST_FILTER_TYPE) { // excludes
@@ -557,14 +557,14 @@ class HotSpots {
 				
 				try {
 					// first make sure URL has not already been added
-					$query = 'SELECT * FROM '.HotSpots::TABLE_PREFIX.FilterTable::FILTER_TBL_NAME . ' where '. FilterTable::URL_COLUMN .' = "' .$url . '"';
+					$query = 'SELECT * FROM '.$wpdb->prefix.FilterTable::FILTER_TBL_NAME . ' where '. FilterTable::URL_COLUMN .' = "' .$url . '"';
 					$count = $wpdb->query($query);
 						
 					if ($count > 0) {
 						$errors .= '<p>URL filter for ' . $url .' already exists.</p>';
 					} else {
 						$wpdb->flush();
-						$results = $wpdb->insert( HotSpots::TABLE_PREFIX.FilterTable::FILTER_TBL_NAME, array( 'url' => $url ) );
+						$results = $wpdb->insert( $wpdb->prefix.FilterTable::FILTER_TBL_NAME, array( 'url' => $url ) );
 						$success .= '<p>URL filter added successfully.</p>';
 					}
 				} catch (Exception $e) {
@@ -574,7 +574,7 @@ class HotSpots {
 		} else if (isset($_POST['clearDatabaseSubmit']) && $_POST['clearDatabaseSubmit'] === "true") {
 			// Clear database table
 			try {
-				$rows = $wpdb->get_results( "DELETE FROM ".HotSpots::TABLE_PREFIX.HotSpots::HOTSPOTS_TBL_NAME." WHERE 1" );
+				$rows = $wpdb->get_results( "DELETE FROM ".$wpdb->prefix.HotSpots::HOTSPOTS_TBL_NAME." WHERE 1" );
 				$success .= '<p>Database cleared successfully.</p>';
 			} catch (Exception $e) {
 				$errors .= '<p>An error has occured. ' . $e->getMessage() . '</p>';

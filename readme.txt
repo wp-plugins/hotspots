@@ -43,6 +43,9 @@ This plugin should not be used where performance is critical as an additional se
 
 == Changelog ==
 
+= 2.1.2 =
+* Removed custom database table prefix and changed to WordPress database table prefix
+
 = 2.1.1 =
 * Added users count for widths and split of mouse clicks and touch screen taps count to heat maps table in Settings page
 
