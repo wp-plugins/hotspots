@@ -1,7 +1,7 @@
 === HotSpots ===
 Contributors: dpowney
 Donate link: http://www.danielpowney.com
-Tags: hotspot, hot, spot, mouse click, click, usability, heat map, advertising, advertise, tap, touch screen, zoom level, device pixel ratio, window, browser
+Tags: mouse click, tap, touch, click, usability, heat map, tracker, analytics
 Requires at least: 3.0.1
 Tested up to: 3.5
 Stable tag: trunk
