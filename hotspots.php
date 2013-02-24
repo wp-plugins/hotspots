@@ -3,7 +3,7 @@
 Plugin Name: HotSpots
 Plugin URI: http://wordpress.org/extend/plugins/hotspots/
 Description: HotSpots is a plugin which draws a heat map of mouse clicks and touch screen taps overlayed on your webpage allowing you to analyse user behaviour.
-Version: 2.1
+Version: 2.1.1
 Author: Daniel Powney
 Auhtor URI: www.danielpowney.com
 License: GPL2

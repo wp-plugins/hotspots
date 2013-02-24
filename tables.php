@@ -159,8 +159,13 @@ class HeatMapTable extends WP_List_Table {
 	 */
 	function column_count($item) {
 		// get widths for url, and create a select
-		echo $item['count'];
-	}
+		$totalCount = $item['count'] . ' ';
+		$url = $item['url'];
+		global $wpdb;
+		$query = 'SELECT * FROM '.HotSpots::TABLE_PREFIX.HotSpots::HOTSPOTS_TBL_NAME.' WHERE ' . HotSpots::URL_COLUMN . ' = "' . $url . ' " AND ' . HotSpots::IS_TOUCH_COLUMN . ' = 1';
+		$tapCount = $wpdb->query($query); //return the total number of affected rows
+		echo $totalCount . ' (' . ($totalCount - $tapCount) . ' mouse clicks & ' . $tapCount . ' touch screen taps)';
+	}	
 	
 	/**
 	 *
@@ -185,7 +190,7 @@ class HeatMapTable extends WP_List_Table {
 		
 		echo '<table class="widefat" cellspacing="0">';
 		
-		echo '<thead><tr><th class="manage-column column-width">Window Width</th><th class="manage-column column-zoomLevels">Zoom Level & Device Pixel Ratio</th></tr></thead>';
+		echo '<thead><tr><th class="manage-column column-width">Window Width</th><th class="manage-column column-users">Users</th><th class="manage-column column-browserDevice">Zoom Level & Device Pixel Ratio</th></tr></thead>';
 		echo '<tbody>';
 		$rowCount = 0;
 		foreach ($widthRows as $widthRow) {
@@ -200,13 +205,18 @@ class HeatMapTable extends WP_List_Table {
 					
 			echo '<td class="column-width">'. $width . 'px (' . $widthCount . ')</td>';
 			
-			echo '<td class="column-zoomLevels">';
-			$zoomLevelsRatio = 'SELECT '. HotSpots::ZOOM_LEVEL_COLUMN . ', ' . HotSpots::DEVICE_PIXEL_RATIO_COLUMN . ', COUNT(*) AS count FROM '.HotSpots::TABLE_PREFIX.HotSpots::HOTSPOTS_TBL_NAME.' WHERE url = "'. $item[HotSpots::URL_COLUMN] . '" AND screenWidth = "' . $width . '" GROUP BY '.HotSpots::ZOOM_LEVEL_COLUMN . ', ' . HotSpots::DEVICE_PIXEL_RATIO_COLUMN . ' ORDER BY count DESC';
-			$zoomLevelRows = $wpdb->get_results($zoomLevelsRatio);
-			foreach ($zoomLevelRows as $zoomLevelRow) {
-				$zoomLevel = $zoomLevelRow->zoomLevel;
-				$count = $zoomLevelRow->count;				
-				$devPixRatio = $this->convertDecimalToRatio($zoomLevelRow->devicePixelRatio);
+			
+			$usersQuery = 'SELECT COUNT(*) AS count FROM '.HotSpots::TABLE_PREFIX.HotSpots::HOTSPOTS_TBL_NAME.' WHERE url = "'. $item[HotSpots::URL_COLUMN] . '" AND screenWidth = "' . $width . '" GROUP BY '.HotSpots::IP_ADDRESS_COLUMN;
+			$usersCount = $wpdb->query($usersQuery);
+			echo '<td class="column-users">' . $usersCount . '</td>';
+			
+			echo '<td class="column-browserDevice">';
+			$browserDeviceQuery = 'SELECT '. HotSpots::ZOOM_LEVEL_COLUMN . ', ' . HotSpots::DEVICE_PIXEL_RATIO_COLUMN . ', COUNT(*) AS count FROM '.HotSpots::TABLE_PREFIX.HotSpots::HOTSPOTS_TBL_NAME.' WHERE url = "'. $item[HotSpots::URL_COLUMN] . '" AND screenWidth = "' . $width . '" GROUP BY '.HotSpots::ZOOM_LEVEL_COLUMN . ', ' . HotSpots::DEVICE_PIXEL_RATIO_COLUMN . ' ORDER BY count DESC';
+			$browserDeviceRows = $wpdb->get_results($browserDeviceQuery);
+			foreach ($browserDeviceRows as $browserDeviceRow) {
+				$zoomLevel = $browserDeviceRow->zoomLevel;
+				$count = $browserDeviceRow->count;				
+				$devPixRatio = $this->convertDecimalToRatio($browserDeviceRow->devicePixelRatio);
 				
 				echo ($zoomLevel * 100). '% & ' . $devPixRatio . ' (' . $count . ')<br />';
 			}
@@ -215,6 +225,7 @@ class HeatMapTable extends WP_List_Table {
 			echo '</tr>';
 		}
 		echo '</tbody></table>';
+			
 
 	}
 }
