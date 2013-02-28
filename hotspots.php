@@ -2,8 +2,8 @@
 /*
 Plugin Name: HotSpots
 Plugin URI: http://wordpress.org/extend/plugins/hotspots/
-Description: HotSpots is a plugin which draws a heat map of mouse clicks and touch screen taps overlayed on your webpage allowing you to analyse user behaviour.
-Version: 2.1.3
+Description: View a heat map of mouse clicks and touch screen taps overlayed on your webpage allowing you to improve usability by analysing user behaviour.
+Version: 2.1.4
 Author: Daniel Powney
 Auhtor URI: www.danielpowney.com
 License: GPL2
@@ -11,9 +11,7 @@ License: GPL2
 ?>
 <?php
 
-
 require dirname(__FILE__).DIRECTORY_SEPARATOR .'tables.php';
-
 
 /**
  * HotSpots class
@@ -25,7 +23,8 @@ class HotSpots {
 
 	// constants
 	const
-	VERSION 						= '2.1.2',
+	VERSION 						= '2.1.3',
+	DB_VERSION						= '2.1.2',
 	ID					 			= 'hotspots',
 
 	/* Front end */
@@ -53,6 +52,7 @@ class HotSpots {
 	SPOT_RADIUS_OPTION 				= 'spotRadius',
 	FILTER_TYPE_OPTION				= "filterType",
 	APPLY_FILTERS_OPTION			= "applyFilters",
+	DB_VERSION_OPTION				= "dbVersion",
 	
 	/* defaults*/
 	DEFAULT_SAVE_MOUSE_CLICKS 		= true,
@@ -68,7 +68,7 @@ class HotSpots {
 	BLACKLIST_FILTER_TYPE			= "blacklist";
 	
 	// URL query params which are ignored by the plugin
-	public static $ignoreQueryParams = array('drawHeatMap', 'width');
+	public static $ignoreQueryParams = array('drawHeatMap');
 
 	
 	/**
@@ -86,8 +86,13 @@ class HotSpots {
 			add_action('wp_enqueue_scripts', array($this, 'assets'));
 		}
 
-		// Register plugin
+		// Activation hook
 		register_activation_hook(__FILE__, array($this, 'activatePlugin'));
+		
+		// Uninstall hook
+		register_uninstall_hook(__FILE__, array($this, 'uninstallPlugin'));
+		
+		// No deactivate hook needed
 
 		// Setup AJAX calls
 		$this->addAjaxActions();
@@ -95,12 +100,35 @@ class HotSpots {
 
 	
 	/**
+	 * Uninstall plugin
+	 * 
+	 * @since 2.1.4
+	 */
+	function uninstallPlugin() {
+		// Delete options
+		delete_option(HotSpots::SAVE_MOUSE_CLICKS_OPTION);
+		delete_option(HotSpots::DRAW_HOTSPOTS_ENABLED_OPTION);
+		delete_option(HotSpots::DEBUG_OPTION);
+		delete_option(HotSpots::HOT_VALUE_OPTION);
+		delete_option(HotSpots::SPOT_OPACITY_OPTION);
+		delete_option(HotSpots::SPOT_RADIUS_OPTION);
+		delete_option(HotSpots::FILTER_TYPE_OPTION);
+		delete_option(HotSpots::APPLY_FILTERS_OPTION);
+		delete_option(HotSpots::DB_VERSION_OPTION);
+		
+		// Drop tables
+		global $wpdb;
+		$wpdb->query("DROP TABLE IF_EXISTS " . $wpdb->prefix . HotSpots::HOTSPOTS_TBL_NAME);
+		$wpdb->query("DROP TABLE IF_EXISTS " . $wpdb->prefix . FilterTable::FILTER_TBL_NAME);
+	}
+	
+	/**
 	 * Activates the plugin by setting up DB tables and adding options
 	 * 
 	 * @since 2.0
 	 */
 	function activatePlugin() {
-		global $wpdb;
+		global $wpdb;	
 		require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 	
 		// Create database tables if they does not exist
@@ -110,10 +138,10 @@ class HotSpots {
 		".HotSpots::Y_COLUMN." int(11) NOT NULL,
 		".HotSpots::URL_COLUMN." varchar(255),
 		".HotSpots::WIDTH_COLUMN." int(11),
-		".HotSpots::IS_TOUCH_COLUMN." tinyint(1),
+		".HotSpots::IS_TOUCH_COLUMN." tinyint(1) DEFAULT 0,
 		".HotSpots::IP_ADDRESS_COLUMN." varchar(255),
-		".HotSpots::ZOOM_LEVEL_COLUMN." double precision,
-		".HotSpots::DEVICE_PIXEL_RATIO_COLUMN." double precision,
+		".HotSpots::ZOOM_LEVEL_COLUMN." double precision DEFAULT 1,
+		".HotSpots::DEVICE_PIXEL_RATIO_COLUMN." double precision DEFAULT 1,
 		PRIMARY KEY (".HotSpots::ID_COLUMN.")
 		) ENGINE=InnoDB AUTO_INCREMENT=1;";
 		dbDelta($sql1);
@@ -126,18 +154,20 @@ class HotSpots {
 		dbDelta($sql2);
 		
 		// Migrate old data if necessary
+		$wpdb->flush();
+		$wpdb->show_errors();
+		
 		try {
 			if($wpdb->get_var('SHOW TABLES LIKE "hsp_hotspot"') == "hsp_hotspot") {
-				$wpdb->query("INSERT INTO ".$wpdb->prefix . HotSpots::HOTSPOTS_TBL_NAME." SELECT * FROM hsp_hotspot");
-				$wpdb->query("DROP TABLE IF_EXISTS hsp_hotspot");
+				$wpdb->query('INSERT INTO "sal_hotspot" VALUES ("1" "1", "1", "url", "50", "0", "0", "1", "1")');
+				//$wpdb->query('INSERT INTO "' . $wpdb->prefix . HotSpots::HOTSPOTS_TBL_NAME . '" SELECT "x", "y", "url", "screenWidth", "isTouch", "ipAddress", "zoomLevel", "devicePixelRatio" FROM "hsp_hotspot")');
+				//$wpdb->query('DROP TABLE IF_EXISTS hsp_hotspot');
 			}
-			if($wpdb->get_var('SHOW TABLES LIKE "hsp_filter"') == "hsp_filter") {
-				$wpdb->query("INSERT INTO " .$wpdb->prefix . FilterTable::FILTER_TBL_NAME ." SELECT * FROM hsp_filter");
-				$wpdb->query("DROP TABLE IF_EXISTS hsp_filter");
+			if($wpdb->get_var('SHOW TABLES LIKE hsp_filter') == "hsp_filter") {
+				//$wpdb->query('INSERT INTO "' . $wpdb->prefix . FilterTable::FILTER_TBL_NAME . '" SELECT "url" FROM "hsp_filter")');
+				//$wpdb->query('DROP TABLE IF_EXISTS hsp_filter');
 			}
-		} catch(Exception $e) {
-			// do nothing
-		}
+		} catch(Exception $e) {	}
 	
 		// Add options
 		add_option(HotSpots::SAVE_MOUSE_CLICKS_OPTION, HotSpots::DEFAULT_SAVE_MOUSE_CLICKS, '', 'yes');
@@ -148,6 +178,9 @@ class HotSpots {
 		add_option(HotSpots::SPOT_RADIUS_OPTION, HotSpots::DEFAULT_SPOT_RADIUS, '', 'yes');
 		add_option(HotSpots::FILTER_TYPE_OPTION, HotSpots::WHITELIST_FILTER_TYPE, '', 'yes');
 		add_option(HotSpots::APPLY_FILTERS_OPTION, HotSpots::DEFAULT_APPLY_FILTERS, '', 'yes');
+		// add a DB version so we know which DB structure was previously used
+		add_option(HotSpots::DB_VERSION_OPTION, HotSpots::DB_VERSION, '', 'yes');
+		
 	}
 	
 	
@@ -629,6 +662,8 @@ class HotSpots {
 			
 			<form method="post" action="" id="optionsForm">
 			
+				<!-- TODO wp_nonce_field and check_admin_referer -->
+			
 				<!-- hidden inputs for checking form submit -->
 				<input type="hidden" name="addFilterSubmit" id="addFilterSubmit" value="false" />
 				<input type="hidden" name="clearDatabaseSubmit" id="clearDatabaseSubmit" value="false" />
@@ -772,5 +807,4 @@ class HotSpots {
 }
 
 $hotSpots = new HotSpots();
-
 ?>
