@@ -53,6 +53,9 @@ Device pixel ratios is a comparison between a device's pixel density to the styl
 
 == Changelog ==
 
+= 2.1.4 =
+* Fixed bug recording mouse clicks
+
 = 2.1.3 =
 * Added data migration from old database tables
 
