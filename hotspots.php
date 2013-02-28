@@ -3,7 +3,7 @@
 Plugin Name: HotSpots
 Plugin URI: http://wordpress.org/extend/plugins/hotspots/
 Description: View a heat map of mouse clicks and touch screen taps overlayed on your webpage allowing you to improve usability by analysing user behaviour.
-Version: 2.1.4
+Version: 2.1.3
 Author: Daniel Powney
 Auhtor URI: www.danielpowney.com
 License: GPL2
@@ -90,7 +90,7 @@ class HotSpots {
 		register_activation_hook(__FILE__, array($this, 'activatePlugin'));
 		
 		// Uninstall hook
-		register_uninstall_hook(__FILE__, array($this, 'uninstallPlugin'));
+		//register_uninstall_hook(__FILE__, array($this, 'uninstallPlugin'));
 		
 		// No deactivate hook needed
 
@@ -103,7 +103,7 @@ class HotSpots {
 	 * Uninstall plugin
 	 * 
 	 * @since 2.1.4
-	 */
+	 *
 	function uninstallPlugin() {
 		// Delete options
 		delete_option(HotSpots::SAVE_MOUSE_CLICKS_OPTION);
@@ -120,7 +120,7 @@ class HotSpots {
 		global $wpdb;
 		$wpdb->query("DROP TABLE IF_EXISTS " . $wpdb->prefix . HotSpots::HOTSPOTS_TBL_NAME);
 		$wpdb->query("DROP TABLE IF_EXISTS " . $wpdb->prefix . FilterTable::FILTER_TBL_NAME);
-	}
+	}*/
 	
 	/**
 	 * Activates the plugin by setting up DB tables and adding options
