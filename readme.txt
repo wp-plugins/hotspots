@@ -23,8 +23,6 @@ Google Analytics can show you what page a visitor went to, but HotSpots will sho
 * It's free and there's no sign up or registration required! All data is stored on your own WordPress database
 
 = Notes =
-The drawing of the heap map is done using HTML5 canvas. AJAX is used to send information about mouse clicks and touch screen taps to the server in the background.
-
 This plugin should not be used where performance is critical as an additional server request is made for each mouse click and touch screen tap. Websites must be HTML5 compliant to view the heat map and browsers need to support HTML5 canvas.
 
 == Installation ==
