@@ -23,7 +23,7 @@ Google Analytics can show you what page a visitor went to, but HotSpots will sho
 * It's free and there's no sign up or registration required! All data is stored on your own WordPress database
 
 = Notes =
-This plugin should not be used where performance is critical as an additional server request is made for each mouse click and touch screen tap. Websites must be HTML5 compliant to view the heat map and browsers need to support HTML5 canvas.
+This plugin should not be used where performance is critical as an additional server request is made for each mouse click and touch screen tap. To be able to view the heat maps, your WordPress theme must be HTML5 compliant and you need to use an Internet browser which supports HTML5 canvas.
 
 == Installation ==
 
