@@ -11,7 +11,14 @@ License: GPL2
 ?>
 <?php
 
+
 require dirname(__FILE__).DIRECTORY_SEPARATOR .'tables.php';
+
+// TODO separate plugin admin code
+//if (is_admin()) {
+//	include('admin.php');
+//}
+
 
 /**
  * HotSpots class
@@ -90,7 +97,7 @@ class HotSpots {
 		register_activation_hook(__FILE__, array($this, 'activatePlugin'));
 		
 		// Uninstall hook
-		//register_uninstall_hook(__FILE__, array($this, 'uninstallPlugin'));
+		register_uninstall_hook(__FILE__, array($this, 'uninstallPlugin'));
 		
 		// No deactivate hook needed
 
@@ -103,7 +110,7 @@ class HotSpots {
 	 * Uninstall plugin
 	 * 
 	 * @since 2.1.4
-	 *
+	 */
 	function uninstallPlugin() {
 		// Delete options
 		delete_option(HotSpots::SAVE_MOUSE_CLICKS_OPTION);
@@ -120,7 +127,7 @@ class HotSpots {
 		global $wpdb;
 		$wpdb->query("DROP TABLE IF_EXISTS " . $wpdb->prefix . HotSpots::HOTSPOTS_TBL_NAME);
 		$wpdb->query("DROP TABLE IF_EXISTS " . $wpdb->prefix . FilterTable::FILTER_TBL_NAME);
-	}*/
+	}
 	
 	/**
 	 * Activates the plugin by setting up DB tables and adding options
@@ -131,17 +138,17 @@ class HotSpots {
 		global $wpdb;	
 		require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 	
-		// Create database tables if they does not exist
+		// Create database tables if they doe not exist
 		$sql1 = "CREATE TABLE " . $wpdb->prefix . HotSpots::HOTSPOTS_TBL_NAME . " (
 		".HotSpots::ID_COLUMN." int(11) NOT NULL AUTO_INCREMENT,
 		".HotSpots::X_COLUMN." int(11) NOT NULL,
 		".HotSpots::Y_COLUMN." int(11) NOT NULL,
 		".HotSpots::URL_COLUMN." varchar(255),
 		".HotSpots::WIDTH_COLUMN." int(11),
-		".HotSpots::IS_TOUCH_COLUMN." tinyint(1) DEFAULT 0,
+		".HotSpots::IS_TOUCH_COLUMN." tinyint(1),
 		".HotSpots::IP_ADDRESS_COLUMN." varchar(255),
-		".HotSpots::ZOOM_LEVEL_COLUMN." double precision DEFAULT 1,
-		".HotSpots::DEVICE_PIXEL_RATIO_COLUMN." double precision DEFAULT 1,
+		".HotSpots::ZOOM_LEVEL_COLUMN." double precision,
+		".HotSpots::DEVICE_PIXEL_RATIO_COLUMN." double precision,
 		PRIMARY KEY (".HotSpots::ID_COLUMN.")
 		) ENGINE=InnoDB AUTO_INCREMENT=1;";
 		dbDelta($sql1);
@@ -154,20 +161,18 @@ class HotSpots {
 		dbDelta($sql2);
 		
 		// Migrate old data if necessary
-		$wpdb->flush();
-		$wpdb->show_errors();
-		
 		try {
 			if($wpdb->get_var('SHOW TABLES LIKE "hsp_hotspot"') == "hsp_hotspot") {
-				$wpdb->query('INSERT INTO "sal_hotspot" VALUES ("1" "1", "1", "url", "50", "0", "0", "1", "1")');
-				//$wpdb->query('INSERT INTO "' . $wpdb->prefix . HotSpots::HOTSPOTS_TBL_NAME . '" SELECT "x", "y", "url", "screenWidth", "isTouch", "ipAddress", "zoomLevel", "devicePixelRatio" FROM "hsp_hotspot")');
-				//$wpdb->query('DROP TABLE IF_EXISTS hsp_hotspot');
+				$wpdb->query("INSERT INTO ".$wpdb->prefix . HotSpots::HOTSPOTS_TBL_NAME." SELECT * FROM hsp_hotspot");
+				$wpdb->query("DROP TABLE IF_EXISTS hsp_hotspot");
 			}
-			if($wpdb->get_var('SHOW TABLES LIKE hsp_filter') == "hsp_filter") {
-				//$wpdb->query('INSERT INTO "' . $wpdb->prefix . FilterTable::FILTER_TBL_NAME . '" SELECT "url" FROM "hsp_filter")');
-				//$wpdb->query('DROP TABLE IF_EXISTS hsp_filter');
+			if($wpdb->get_var('SHOW TABLES LIKE "hsp_filter"') == "hsp_filter") {
+				$wpdb->query("INSERT INTO " .$wpdb->prefix . FilterTable::FILTER_TBL_NAME ." SELECT * FROM hsp_filter");
+				$wpdb->query("DROP TABLE IF_EXISTS hsp_filter");
 			}
-		} catch(Exception $e) {	}
+		} catch(Exception $e) {
+			// do nothing
+		}
 	
 		// Add options
 		add_option(HotSpots::SAVE_MOUSE_CLICKS_OPTION, HotSpots::DEFAULT_SAVE_MOUSE_CLICKS, '', 'yes');
@@ -178,6 +183,7 @@ class HotSpots {
 		add_option(HotSpots::SPOT_RADIUS_OPTION, HotSpots::DEFAULT_SPOT_RADIUS, '', 'yes');
 		add_option(HotSpots::FILTER_TYPE_OPTION, HotSpots::WHITELIST_FILTER_TYPE, '', 'yes');
 		add_option(HotSpots::APPLY_FILTERS_OPTION, HotSpots::DEFAULT_APPLY_FILTERS, '', 'yes');
+		
 		// add a DB version so we know which DB structure was previously used
 		add_option(HotSpots::DB_VERSION_OPTION, HotSpots::DB_VERSION, '', 'yes');
 		
@@ -807,4 +813,5 @@ class HotSpots {
 }
 
 $hotSpots = new HotSpots();
+
 ?>
