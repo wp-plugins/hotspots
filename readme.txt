@@ -12,7 +12,7 @@ View a heat map of mouse clicks and touch screen taps overlayed on your webpage 
 
 == Description ==
 
-HotSpots is a plugin which draws a heat map of mouse clicks and touch screen taps overlayed on your webpage allowing you to improve usability by analysing user behaviour. This can give insight into which buttons or links are popular and easy to use including the effectiveness of advertising placement. Google Analytics can show you what page a visitor went to, but HotSpots will show you which link a visitor clicked to get there. 
+Google Analytics can show you what page a visitor went to, but HotSpots will show you which link a visitor clicked to get there. This can also give insight into which buttons or links are popular and easy to use including the effectiveness of advertising placement. 
 
 = Features =
 * Saves mouse click and touch screen tap information
