@@ -35,10 +35,10 @@ This plugin should not be used where performance is critical as an additional se
 1. To view the heat map of mouse clicks or touch screen taps, go to the Heat Maps section and then click View Heat Map for an available URL in the table. You can also manually add query parameter drawHeatMap=true to the URL of your page (i.e. www.mywebsite.com?drawHeatMap=true or www.mywebsite.com?cat=1&drawHeatMap=true).
 
 == Frequently Asked Questions ==
-<strong>I cannot see the heat map when adding URL query parameter drawHeatMap=true.</strong>
-You cannot view the heat maps if your theme is not HTML5 compliant and you need to use an Internet browser which supports HTML5 canvas. Most modern browsers support HTML5 canvas now. Make sure the <em>Enable drawing heat map</em> option is turned on. If you see a box with the current browser window width, zoom level and device pixel information at the bottom right corner of your webpage, then there is no matching heat map data. You may need to resize the window, modify the zoom levels and device pixel ratios to match the heat map data collected. You can view the heat map data on the plugin options page (left menu Settings -> HotSpots). 
+**I cannot see the heat map when adding URL query parameter drawHeatMap=true.**
+You cannot view the heat maps if your theme is not HTML5 compliant and you need to use an Internet browser which supports HTML5 canvas. Most modern browsers support HTML5 canvas now. Make sure the *Enable drawing heat map* option is turned on. If you see a box with the current browser window width, zoom level and device pixel information at the bottom right corner of your webpage, then there is no matching heat map data. You may need to resize the window, modify the zoom levels and device pixel ratios to match the heat map data collected. You can view the heat map data on the plugin options page (left menu Settings -> HotSpots). 
  
-<strong>What is device pixel ratio?</strong> 
+**What is device pixel ratio?** 
 Device pixel ratios is a comparison between a device's pixel density to the style of the website using CSS. A screen has a limited number of pixels it can display, and a limited space over which to display them. Therefore a higher device pixel ratio means a higher quality display.
 
 == Screenshots ==
