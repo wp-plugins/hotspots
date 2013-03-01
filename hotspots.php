@@ -3,7 +3,7 @@
 Plugin Name: HotSpots
 Plugin URI: http://wordpress.org/extend/plugins/hotspots/
 Description: View a heat map of mouse clicks and touch screen taps overlayed on your webpage allowing you to improve usability by analysing user behaviour.
-Version: 2.1.4
+Version: 2.1.5
 Author: Daniel Powney
 Auhtor URI: www.danielpowney.com
 License: GPL2
@@ -145,10 +145,10 @@ class HotSpots {
 		".HotSpots::Y_COLUMN." int(11) NOT NULL,
 		".HotSpots::URL_COLUMN." varchar(255),
 		".HotSpots::WIDTH_COLUMN." int(11),
-		".HotSpots::IS_TOUCH_COLUMN." tinyint(1),
+		".HotSpots::IS_TOUCH_COLUMN." tinyint(1) DEFAULT 0,
 		".HotSpots::IP_ADDRESS_COLUMN." varchar(255),
-		".HotSpots::ZOOM_LEVEL_COLUMN." double precision,
-		".HotSpots::DEVICE_PIXEL_RATIO_COLUMN." double precision,
+		".HotSpots::ZOOM_LEVEL_COLUMN." double precision DEFAULT 1,
+		".HotSpots::DEVICE_PIXEL_RATIO_COLUMN." double precision DEFAULT 1,
 		PRIMARY KEY (".HotSpots::ID_COLUMN.")
 		) ENGINE=InnoDB AUTO_INCREMENT=1;";
 		dbDelta($sql1);
@@ -159,16 +159,31 @@ class HotSpots {
 		PRIMARY KEY (id)
 		) ENGINE=InnoDB AUTO_INCREMENT=1;";
 		dbDelta($sql2);
-		
+
 		// Migrate old data if necessary
 		try {
 			if($wpdb->get_var('SHOW TABLES LIKE "hsp_hotspot"') == "hsp_hotspot") {
-				$wpdb->query("INSERT INTO ".$wpdb->prefix . HotSpots::HOTSPOTS_TBL_NAME." SELECT * FROM hsp_hotspot");
-				$wpdb->query("DROP TABLE IF_EXISTS hsp_hotspot");
+				// copy structure so we can do a direct copy to the new table
+				$sql3 = "CREATE TABLE hsp_hotspot (
+				".HotSpots::ID_COLUMN." int(11) NOT NULL AUTO_INCREMENT,
+				".HotSpots::X_COLUMN." int(11) NOT NULL,
+				".HotSpots::Y_COLUMN." int(11) NOT NULL,
+				".HotSpots::URL_COLUMN." varchar(255),
+				".HotSpots::WIDTH_COLUMN." int(11),
+				".HotSpots::IS_TOUCH_COLUMN." tinyint(1) DEFAULT 0,
+				".HotSpots::IP_ADDRESS_COLUMN." varchar(255),
+				".HotSpots::ZOOM_LEVEL_COLUMN." double precision DEFAULT 1,
+				".HotSpots::DEVICE_PIXEL_RATIO_COLUMN." double precision DEFAULT 1,
+				PRIMARY KEY (".HotSpots::ID_COLUMN.")
+				) ENGINE=InnoDB AUTO_INCREMENT=1;";
+				dbDelta($sql3);
+				
+				$wpdb->query('INSERT INTO '.$wpdb->prefix . HotSpots::HOTSPOTS_TBL_NAME.' SELECT "", x, y, url, screenWidth, isTouch, ipAddress, zoomLevel, devicePixelRatio FROM hsp_hotspot');
+				$wpdb->query('DROP TABLE IF EXISTS hsp_hotspot');
 			}
 			if($wpdb->get_var('SHOW TABLES LIKE "hsp_filter"') == "hsp_filter") {
-				$wpdb->query("INSERT INTO " .$wpdb->prefix . FilterTable::FILTER_TBL_NAME ." SELECT * FROM hsp_filter");
-				$wpdb->query("DROP TABLE IF_EXISTS hsp_filter");
+				$wpdb->query('INSERT INTO ' .$wpdb->prefix . FilterTable::FILTER_TBL_NAME .' SELECT "", url FROM hsp_filter');
+				$wpdb->query('DROP TABLE IF EXISTS hsp_filter');
 			}
 		} catch(Exception $e) {
 			// do nothing

@@ -52,6 +52,9 @@ Device pixel ratios is a comparison between a device's pixel density to the styl
 5. HotSpots plugin Settings page allows you to apply URL filters
 
 == Changelog ==
+= 2.1.5 =
+* Fixed data migration issues
+* Added column defaults to hotspot table
 
 = 2.1.4 =
 * Fixed bug recording mouse clicks
@@ -82,7 +85,7 @@ Device pixel ratios is a comparison between a device's pixel density to the styl
 = 2.0.5 =
 * Fixed this:: in tables.php for older versions of PHP
 
-= 2.0.4 
+= 2.0.4 =
 * Fixed some double colon scope issues for older versions of PHP
 * Added pagination to URL table
 
