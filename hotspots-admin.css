@@ -1,10 +1,10 @@
 #optionsForm label.smallWidth {
-	width: 120px;
-	min-width: 120px;
+	width: 140px;
+	min-width: 140px;
 	display: inline-block;
 }
-#optionsForm input[type="radio"] + label {
-	margin-right: 40px;
+#optionsForm input[type="radio"] + label, #optionsForm input[type="checkbox"] + label {
+	margin-right: 25px;
 }
 
 table.filterurls tbody th.check-column, table.filterurl tbody th.check-column  {

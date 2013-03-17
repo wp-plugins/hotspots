@@ -2,7 +2,7 @@
 var MAX_COLOUR = 255;
 var MIN_COLOUR = 0;
 var debug = false; // default is false
-var saveMouseClickAndTaps = false; // default is false
+var saveClickOrTapEnabled = false; // default is false
 var spotRadius = 6;
 var hot = 20; // default is 20
 var warm = hot / 2; // default is 10
@@ -27,7 +27,7 @@ jQuery(window).load(function() {
 	}
 
 	// setup saving mouse clicks and touch screen taps if option is enabled
-	if (saveMouseClickAndTaps) {
+	if (saveClickOrTapEnabled) {
 		setupSaving();
 	}
 });
@@ -61,7 +61,7 @@ function setupSaving() {
 				posY = event.pageY;
 			}
 			
-			addMouseClickOrTap(posX, posY, false);
+			saveClickOrTap(posX, posY, false);
 		});
 	} else { // touch screens, we only care about taps
 
@@ -100,7 +100,7 @@ function setupSaving() {
 						var currentY = touch.pageY;
 						if ((touchData.previousX === currentX)
 								&& (touchData.previousY === currentY)) {
-							addMouseClickOrTap(currentX, currentY, true);
+							saveClickOrTap(currentX, currentY, true);
 						}
 					}
 					touchData.started = null;
@@ -136,11 +136,7 @@ function setupInfoPanel() {
  * pixel ration data
  */
 function refreshInfoPanel() {
-	var width = getInnerWidth() + getRemainingScrollWidth();
-	// do not add vertical scrollbar width for Firefox
-	if (hasVerticalScrollbar() && !jQuery.browser.mozilla) {
-		width -= getVerticalScrollbarWidth();
-	}
+	var width = getWidth();
 	
 	jQuery("#infoWidth").html(width);		
 	var zoomLevel = detectZoom.zoom();
@@ -197,20 +193,20 @@ function setupDrawing() {
 function initOptions() {
 
 	// set all options
-	drawHeatMapEnabled = (hotSpotsData.drawHotSpotsEnabled) == "1" ? true
+	drawHeatMapEnabled = (hotSpotsData.drawHeatMapEnabled) == "1" ? true
 			: false;
 	debug = (hotSpotsData.debug) == "1" ? true : false;
-	saveMouseClickAndTaps = (hotSpotsData.saveMouseClicks) == "1" ? true : false;
+	saveClickOrTapEnabled = (hotSpotsData.saveClickOrTapEnabled) == "1" ? true : false;
 	spotRadius = parseInt(hotSpotsData.spotRadius);
 	hot = parseInt(hotSpotsData.hotValue);
 	warm = hot / 2;
 	opacity = hotSpotsData.spotOpacity;
 
 	// Check for drawHeatMap query param
-	var drawHotSpotsQueryParam = urlHelper.getUrlParamByName(
+	var drawHeatMapQueryParam = urlHelper.getUrlParamByName(
 			window.location.href, 'drawHeatMap') === "true" ? true : false;
-	if (drawHotSpotsQueryParam == false) {
-		// cannot enable drawing hotspots without the query param set to true
+	if (drawHeatMapQueryParam == false) {
+		// cannot enable drawing heat map without the query param set to true
 		drawHeatMapEnabled = false;
 	}
 
@@ -221,7 +217,7 @@ function initOptions() {
  * Adds mouse click or touch screen tap coordinates to the server
  * 
  */
-function addMouseClickOrTap(posX, posY, isTouch) {
+function saveClickOrTap(posX, posY, isTap) {
 
 	// remove hash tags from URL
 	var url = window.location.href;
@@ -230,24 +226,20 @@ function addMouseClickOrTap(posX, posY, isTouch) {
 		url = url.substring(0, hashIndex);
 	}
 
-	var width = getInnerWidth() + getRemainingScrollWidth();
-	// do not add vertical scrollbar width for Firefox
-	if (hasVerticalScrollbar() && !jQuery.browser.mozilla) {
-		width -= getVerticalScrollbarWidth();
-	}
+	var width = getWidth();
 	
 	if (jQuery('#wpadminbar').length > 0) {
 		posY -= jQuery('#wpadminbar').height();
 	}
 	
 	var data = {
-		action : "add_mouse_click",
+		action : "save_click_or_tap",
 		nonce : hotSpotsData.ajaxNonce,
 		x : posX,
-		"y" : posY,
+		y : posY,
 		url : url,
 		width : width,
-		isTouch : isTouch,
+		isTap : isTap,
 		zoomLevel : detectZoom.zoom(),
 		devicePixelRatio : detectZoom.device()
 	};
@@ -256,7 +248,7 @@ function addMouseClickOrTap(posX, posY, isTouch) {
 		var jsonResponse = jQuery.parseJSON(response);
 		if (drawHeatMapEnabled === true && debug === true) {
 			var heatValue = jsonResponse.heatValue;
-			drawMouseClickOrTap(posX, posY, heatValue);
+			drawClickOrTap(posX, posY, heatValue);
 		}
 	});
 }
@@ -276,14 +268,10 @@ function drawHeatMap() {
 		url = url.substring(0, hashIndex);
 	}
 	
-	var width = getInnerWidth() + getRemainingScrollWidth();
-	// do not add vertical scrollbar width for Firefox
-	if (hasVerticalScrollbar() && !jQuery.browser.mozilla) {
-		width -= getVerticalScrollbarWidth();
-	}
+	var width = getWidth();
 	
 	var data = {
-		action : "get_mouse_clicks",
+		action : "retrieve_clicks_and_taps",
 		nonce : hotSpotsData.ajaxNonce,
 		url : url,
 		width : width,
@@ -294,10 +282,10 @@ function drawHeatMap() {
 		var jsonResponse = jQuery.parseJSON(response);
 
 		for ( var index in jsonResponse) {
-			var mouseClickOrTapData = jsonResponse[index];
+			var clickOrTapData = jsonResponse[index];
 			// draw the mouse click or touch screen tap on the canvas
-			drawMouseClickOrTap(mouseClickOrTapData.x, mouseClickOrTapData.y, 
-					mouseClickOrTapData.heatValue);
+			drawClickOrTap(clickOrTapData.x, clickOrTapData.y, 
+					clickOrTapData.heatValue);
 		}
 	});
 }
@@ -311,7 +299,7 @@ function drawHeatMap() {
  * @param heatValue
  * @returns
  */
-function drawMouseClickOrTap(posX, posY, heatValue) {
+function drawClickOrTap(posX, posY, heatValue) {
 	var canvas = jQuery("#canvas").get(0);
 	var context = canvas.getContext("2d");
 	context.beginPath();
@@ -403,11 +391,12 @@ function initCanvas() {
 
 
 /**
- * Returns the inner width of the window including scrollbars.
+ * Returns the inner width of the window, then subtracts vertical 
+ * scrollbar width and adds any remaining horizontal scroll.
  * 
- * @returns inner width of the browser window
+ * @returns width of web page
  */
-function getInnerWidth() {
+function getWidth() {
 	var width = 0;
 	//if ("ontouchstart" in window) { // Mobiles
 	//	// FIXME iOS does not flip dimensions when orientation is changed
@@ -422,6 +411,15 @@ function getInnerWidth() {
 		width = document.documentElement.clientWidth;
 	} else if (document.body) {
 		width = document.body.clientWidth;
+	}
+	
+	// Exclude vertical scrollbar width and add any remaining horizontal scroll
+	if (width > 0) {
+		width += getRemainingScrollWidth();
+		// do not add vertical scrollbar width for Firefox??????/
+		if (hasVerticalScrollbar()) { // && !jQuery.browser.mozilla) {
+			width -= getVerticalScrollbarWidth();
+		}
 	}
 	return width;
 }

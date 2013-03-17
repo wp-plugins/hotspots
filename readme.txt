@@ -41,17 +41,27 @@ Device pixel ratios is a comparison between a device's pixel density to the styl
 
 == Screenshots ==
 
-1. Heat map of mouse clicks on a WordPress website. As you can see, the navigation menu bar and top search input are highly used but the second search input is rarely used.
+1. Heat map of clicks and taps on a WordPress website. As you can see, the navigation menu bar and top search input are highly used but the second search input is rarely used.
 
-2. Heat map of mouse clicks and touch screen taps on a responsive WordPress website
+2. Heat map of clicks and taps on a responsive WordPress website.
 
-3. HotSpots plugin Settings page options for enabling features and configuring the heat map.
+3. HotSpots plugin Settings page options for configuring and enabling features.
 
-4. HotSpots plugin Settings page allows you to open pages on your website and draw the heat maps for different window widths, zoom levels and device pixel ratios.
+4. HotSpots plugin Settings page options continued. You can configure the opacity, radius and hot colour of the circles or spots.
 
-5. HotSpots plugin Settings page allows you to apply URL filters
+5. HotSpots plugin Settings page allows you to open pages on your website and draw the heat maps for different widths, browser zoom levels and device pixel ratios.
+
+6. HotSpots plugin Settings page allows you to apply URL filters.
 
 == Changelog ==
+
+= 2.2 =
+* Added ignore zoom level and device pixel ratio options for drawing heat map
+* Improved coding style as per WordPress coding convention guidelines
+* Added created date column in the hotspots database table when saving clicks and taps
+* Added maximum number of clicks and taps saved per URL option
+* Added URL normalization
+
 = 2.1.5 =
 * Fixed data migration issues
 * Added column defaults to hotspot table

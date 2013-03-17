@@ -28,9 +28,12 @@ jQuery("#saveChangesBtn").live('click',function(e) {
 	var spotOpacity = jQuery("#spotOpacity").val();
 	var spotRadius = jQuery("#spotRadius").val();
 	var applyFilters = jQuery("#applyFilters").is(':checked');
+	var ignoreZoomLevel = jQuery("#ignoreZoomLevel").is(':checked');
+	var ignoreDevicePixelRatio = jQuery("#ignoreDevicePixelRatio").is(':checked');
+	var maxClicksAndTapsPerURL = jQuery("#maxClicksAndTapsPerURL").val();
 	
 	var data = {
-		action : "saveChanges",
+		action : "save_changes",
 		nonce : hotSpotsData.ajaxNonce,
 		drawHotSpotsEnabled : drawHotSpotsEnabled,
 		saveMouseClicks : saveMouseClicks,
@@ -38,7 +41,10 @@ jQuery("#saveChangesBtn").live('click',function(e) {
 		hotValue : hotValue,
 		spotOpacity : spotOpacity,
 		spotRadius : spotRadius,
-		applyFilters : applyFilters
+		applyFilters : applyFilters,
+		ignoreZoomLevel : ignoreZoomLevel,
+		ignoreDevicePixelRatio : ignoreDevicePixelRatio,
+		maxClicksAndTapsPerURL : maxClicksAndTapsPerURL
 	};
 	jQuery.post(hotSpotsData.ajaxUrl,  data, function(response) {
 		var responseJSON = jQuery.parseJSON(response);
@@ -70,7 +76,7 @@ jQuery(document).ready(function() {
 // Set filter type option
 jQuery("input[name=filterType]:radio").live('click', function(e) {
 	var value = jQuery("input[name=filterType]:radio:checked").val();
-	var data =  { action : "setFilterType", nonce : hotSpotsData.ajaxNonce, filterType : value };
+	var data =  { action : "set_URL_filter_type", nonce : hotSpotsData.ajaxNonce, filterType : value };
 	jQuery.post(hotSpotsData.ajaxUrl,  data, function(response) {
 		var responseJSON = jQuery.parseJSON(response);
 		if (responseJSON.success === false) {
