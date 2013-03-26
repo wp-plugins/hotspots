@@ -55,6 +55,9 @@ Device pixel ratios is a comparison between a device's pixel density to the styl
 
 == Changelog ==
 
+= 2.2.1 =
+* Allow detect zoom JavaScript function to be at top as some plugins such as W3 Total Cache minify JS and override the location of the JavaScript.
+
 = 2.2 =
 * Added ignore zoom level and device pixel ratio options for drawing heat map
 * Improved coding style as per WordPress coding convention guidelines
