@@ -3,7 +3,7 @@
 Plugin Name: HotSpots
 Plugin URI: http://wordpress.org/extend/plugins/hotspots/
 Description: View a heat map of mouse clicks and touch screen taps overlayed on your webpage allowing you to improve usability by analysing user behaviour.
-Version: 2.2.1
+Version: 2.2.2
 Author: Daniel Powney
 Auhtor URI: www.danielpowney.com
 License: GPL2
@@ -257,7 +257,7 @@ class HotSpots {
 				// check if the current url is in the whitelist
 				$found = false;
 				foreach ( $rows as $row ) {
-					$url = $row->url;
+					$url = $this->normalize_url( $row->url );
 						
 					// If it's not in the whitelist, we disable the options
 					if ( $url == $current_URL ) {

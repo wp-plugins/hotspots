@@ -55,6 +55,9 @@ Device pixel ratios is a comparison between a device's pixel density to the styl
 
 == Changelog ==
 
+= 2.2.2 =
+* Fixed whitelist to work with normalized URLs
+
 = 2.2.1 =
 * Allow detect zoom JavaScript function to be at top as some plugins such as W3 Total Cache minify JS and override the location of the JavaScript.
 
