@@ -55,6 +55,9 @@ Device pixel ratios is a comparison between a device's pixel density to the styl
 
 == Changelog ==
 
+= 2.2.3 =
+* Added normalizing of URL's in DB tables on activation
+
 = 2.2.2 =
 * Fixed whitelist to work with normalized URLs
 

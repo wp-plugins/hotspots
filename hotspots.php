@@ -3,7 +3,7 @@
 Plugin Name: HotSpots
 Plugin URI: http://wordpress.org/extend/plugins/hotspots/
 Description: View a heat map of mouse clicks and touch screen taps overlayed on your webpage allowing you to improve usability by analysing user behaviour.
-Version: 2.2.2
+Version: 2.2.3
 Author: Daniel Powney
 Auhtor URI: www.danielpowney.com
 License: GPL2
@@ -134,7 +134,7 @@ class HotSpots {
 				PRIMARY KEY (id)
 				) ENGINE=InnoDB AUTO_INCREMENT=1;";
 		dbDelta( $sql2 );
-	
+		
 		// Add options
 		add_option( HotSpots::SAVE_MOUSE_CLICKS_OPTION, HotSpots::DEFAULT_SAVE_MOUSE_CLICKS, '', 'yes' );
 		add_option( HotSpots::DRAW_HOTSPOTS_ENABLED_OPTION, HotSpots::DEFAULT_DRAW_HOTSPOTS_ENABLED, '', 'yes' );
@@ -158,6 +158,19 @@ class HotSpots {
 		}
 		
 		add_option( HotSpots::DB_VERSION_OPTION, HotSpots::DB_VERSION, '', 'yes' );
+		
+		// Do a quick clean of the URLs
+		$select_all_query = 'SELECT * FROM ' . $wpdb->prefix . HotSpots::HOTSPOTS_TBL_NAME;
+		$all_rows = $wpdb->get_results($select_all_query);
+		foreach ($all_rows as $row) {
+			$current_id = $row->id;
+			$old_url = $row->url;
+			$new_url = $this->normalize_url($old_url);
+			if ($old_url != $new_url) {
+				$update_query = 'UPDATE ' .  $wpdb->prefix . HotSpots::HOTSPOTS_TBL_NAME . ' SET url = "' . $new_url . '" WHERE id = ' . $current_id;
+				$result = $wpdb->query($update_query);
+			}
+		}
 		
 	}
 	
