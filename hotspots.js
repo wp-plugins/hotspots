@@ -8,6 +8,7 @@ var hot = 20; // default is 20
 var warm = hot / 2; // default is 10
 var opacity = 0.2; // default is 0.2
 var drawHeatMapEnabled = false; // default is false
+var zIndex = 1000;
 
 
 /**
@@ -15,7 +16,7 @@ var drawHeatMapEnabled = false; // default is false
  * 
  */
 jQuery(window).load(function() {
-
+	
 	// initialise the plugin options
 	initOptions();
 
@@ -122,6 +123,10 @@ function setupInfoPanel() {
 			"Device Pixel Ratio: <div id='infoDevPixRat' />" +
 			"</div>").appendTo("body");
 
+	// Add 1 to zIndex so it shows on top of the canvas
+	jQuery("#infoPanel").css("z-index", zIndex + 1);
+	jQuery("#infoPanel *").css("z-index", zIndex + 1);
+	
 	refreshInfoPanel();
 	
 	// Update information on window resize
@@ -357,7 +362,7 @@ function initCanvas() {
 	canvasContainer.style.top = "0px";
 	canvasContainer.style.width = "100%";
 	canvasContainer.style.height = "100%";
-	canvasContainer.style.zIndex = "1000";
+	canvasContainer.style.zIndex = zIndex;
 
 	// create the canvas
 	var canvas = document.createElement("canvas");
@@ -381,10 +386,11 @@ function initCanvas() {
 			});
 		}
 		// check z-index to ensure heat map is overlayed on top of any element
-		var zIndex = jQuery(this).css("z-index");
-		if (zIndex > 1000) {
+		var tempZIndex = jQuery(this).css("z-index");
+		if (tempZIndex > zIndex) {
+			zIndex = tempZIndex + 1;
 			var canvasContainer = jQuery("#canvasContainer");
-			canvasContainer.css("z-index", zIndex + 1);
+			canvasContainer.css("z-index", zIndex);
 		}
 	});
 }

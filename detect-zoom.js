@@ -1,7 +1,7 @@
 /* Detect-zoom
  * -----------
  * Cross Browser Zoom and Pixel Ratio Detector
- * Version 1.0.1 | Feb 15 2013
+ * Version 1.0.4 | Apr 1 2013
  * dual-licensed under the WTFPL and MIT license
  * Maintained by https://github/tombigel
  * Original developer https://github.com/yonran
@@ -112,7 +112,7 @@ jQuery(document).ready(function() {
 	
 	        var div = document.createElement('div');
 	        div.innerHTML = "1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>0";
-	        div.setAttribute('style', important('font: 100px/1em sans-serif; -webkit-text-size-adjust: none; height: auto; width: 1em; padding: 0; overflow: visible;'));
+	        div.setAttribute('style', important('font: 100px/1em sans-serif; -webkit-text-size-adjust: none; text-size-adjust: none; height: auto; width: 1em; padding: 0; overflow: visible;'));
 	
 	        // The container exists so that the div will be laid out in its own flow
 	        // while not impacting the layout, viewport size, or display of the
@@ -178,7 +178,7 @@ jQuery(document).ready(function() {
 	     * @private
 	     */
 	    var opera11 = function () {
-	        var zoom = window.outerWidth / window.innerWidth;
+	        var zoom = window.top.outerWidth / window.top.innerWidth;
 	        zoom = Math.round(zoom * 100) / 100;
 	        return {
 	            zoom: zoom,
@@ -250,15 +250,15 @@ jQuery(document).ready(function() {
 	            func = ie8;
 	        }
 	        // IE10+ / Touch
-	        if (window.navigator.msMaxTouchPoints) {
+	        else if (window.navigator.msMaxTouchPoints) {
 	            func = ie10;
 	        }
 	        //Mobile Webkit
-	        else if ('ontouchstart' in window && typeof document.body.style.webkitTextSizeAdjust === 'string') {
+	        else if ('orientation' in window && typeof document.body.style.webkitMarquee === 'string') {
 	            func = webkitMobile;
 	        }
 	        //WebKit
-	        else if (typeof document.body.style.webkitTextSizeAdjust === 'string') {
+	        else if (typeof document.body.style.webkitMarquee === 'string') {
 	            func = webkit;
 	        }
 	        //Opera

@@ -55,6 +55,10 @@ Device pixel ratios is a comparison between a device's pixel density to the styl
 
 == Changelog ==
 
+= 2.2.4 = 
+* Overlayed information panel always on top
+* Updated detect-zoom.js to version 1.0.4
+
 = 2.2.3 =
 * Added normalizing of URL's in DB tables on activation
 
