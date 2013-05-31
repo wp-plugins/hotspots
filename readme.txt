@@ -45,15 +45,15 @@ You cannot view the heat maps if your theme is not HTML5 compliant and you need 
 
 If you're using a caching plugin such as W3TC then empty all page cache. Also empty your browser cache to ensure the latest JavaScript files are loaded.
 
-** What is device pixel ratio? **
+**What is device pixel ratio?**
 
 The device pixel ratio is the ratio between logical pixels and physical pixels (for websites that is the display device pixel density compared with CSS pixels). For instance, the iPhone 4 and iPhone 4S reports a device pixel ratio of 2, because the physical linear resolution is double the logical resolution (physical resolution: 960 x 640 and logical resolution: 480 x 320). A higher device pixel ratio means a higher quality display (effectively more dots per inch on the display screen).
 
-** How do I view the heat maps for different devices **
+**How do I view the heat maps for different devices**
 
 If you have heat map data with various device pixel ratios, then you can use the actual device or find a device emulator to view the the heat maps. There are also options to ignore the device pixel ratio, ignore the zoom level and to ignore the width, but these options will not provide accurate heat map results.
 
-** Do I have to resize the window to the exact width? **
+**Do I have to resize the window to the exact width?**
 
 No. There is an option to allow up to 20 pixels each side of your target width to display the heat map. This amount can be changed and is defaulted to 6 pixels.
 
