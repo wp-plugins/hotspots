@@ -21,10 +21,8 @@ jQuery(window).load(function() {
 	initOptions();
 
 	// setup and draw hot spots if option is enabled
-	if (drawHeatMapEnabled) {
+	if (drawHeatMapEnabled) {		
 		setupDrawing();
-		
-		setupInfoPanel();
 	}
 
 	// setup saving mouse clicks and touch screen taps if option is enabled
@@ -129,9 +127,33 @@ function setupInfoPanel() {
 	
 	refreshInfoPanel();
 	
+	// get query params
+	var url = window.location.href;
+	var widthQueryParam = urlHelper.getUrlParamByName(url, "width");
+	var devicePixelRatioQueryParam = urlHelper.getUrlParamByName(url, "devicePixelRatio");
+	var zoomLevelQueryParam = urlHelper.getUrlParamByName(url, "zoomLevel");
+	// current data
+	var width = getWidth();
+	var zoomLevel = detectZoom.zoom();
+	var devicePixelRatio =  detectZoom.device();
+	
+	var message = "";
+	if (widthQueryParam !== undefined && widthQueryParam !== "" && width != widthQueryParam) {
+		message += "<p style='color: Orange;'>Resize browser window width to " + widthQueryParam + ".</p>";
+	}
+	if (devicePixelRatioQueryParam != undefined && devicePixelRatioQueryParam !== "" && devicePixelRatio != devicePixelRatioQueryParam) {
+		message += "<p style='color: Orange;'>Modify device pixel ratio to " + devicePixelRatioQueryParam + ".</p>";
+	}
+	if (zoomLevelQueryParam != undefined && zoomLevelQueryParam !== "" && zoomLevel != zoomLevelQueryParam) {
+		message += "<p style='color: Orange;'>Modify browser zoom level to " + zoomLevelQueryParam + ".</p>";
+	}
+	if (message.length > 0)
+		jQuery(message).appendTo("#infoPanel");
+	
 	// Update information on window resize
 	jQuery(window).resize(function() {
 		refreshInfoPanel();
+		
 	});
 }
 
@@ -148,6 +170,7 @@ function refreshInfoPanel() {
 	var devicePixelRatio = detectZoom.device();
 	jQuery("#infoZoomLevel").html(zoomLevel * 100 + "%");
 	jQuery("#infoDevPixRat").html(convertDecimalToRatio(devicePixelRatio));
+	
 }
 
 
@@ -179,13 +202,17 @@ function setupDrawing() {
 
 		// remove canvas element and create it again to refresh
 		jQuery("#canvasContainer").remove();
-
+		jQuery("#infoPanel").remove();
+		setupInfoPanel();
+		
 		initCanvas();
 
 		// redraw the heat map
 		drawHeatMap();
 	});
-
+	
+	setupInfoPanel();
+	
 	// Now draw the hot spots
 	drawHeatMap();
 }
@@ -198,14 +225,14 @@ function setupDrawing() {
 function initOptions() {
 
 	// set all options
-	drawHeatMapEnabled = (hotSpotsData.drawHeatMapEnabled) == "1" ? true
+	drawHeatMapEnabled = (configData.drawHeatMapEnabled) == "1" ? true
 			: false;
-	debug = (hotSpotsData.debug) == "1" ? true : false;
-	saveClickOrTapEnabled = (hotSpotsData.saveClickOrTapEnabled) == "1" ? true : false;
-	spotRadius = parseInt(hotSpotsData.spotRadius);
-	hot = parseInt(hotSpotsData.hotValue);
+	debug = (configData.debug) == "1" ? true : false;
+	saveClickOrTapEnabled = (configData.saveClickOrTapEnabled) == "1" ? true : false;
+	spotRadius = parseInt(configData.spotRadius);
+	hot = parseInt(configData.hotValue);
 	warm = hot / 2;
-	opacity = hotSpotsData.spotOpacity;
+	opacity = configData.spotOpacity;
 
 	// Check for drawHeatMap query param
 	var drawHeatMapQueryParam = urlHelper.getUrlParamByName(
@@ -239,7 +266,7 @@ function saveClickOrTap(posX, posY, isTap) {
 	
 	var data = {
 		action : "save_click_or_tap",
-		nonce : hotSpotsData.ajaxNonce,
+		nonce : configData.ajaxNonce,
 		x : posX,
 		y : posY,
 		url : url,
@@ -249,7 +276,7 @@ function saveClickOrTap(posX, posY, isTap) {
 		devicePixelRatio : detectZoom.device()
 	};
 
-	jQuery.post(hotSpotsData.ajaxUrl, data, function(response) {
+	jQuery.post(configData.ajaxUrl, data, function(response) {
 		var jsonResponse = jQuery.parseJSON(response);
 		if (drawHeatMapEnabled === true && debug === true) {
 			var heatValue = jsonResponse.heatValue;
@@ -275,15 +302,18 @@ function drawHeatMap() {
 	
 	var width = getWidth();
 	
+	var clickTapId = urlHelper.getUrlParamByName(url, "clickTapId");
+	
 	var data = {
 		action : "retrieve_clicks_and_taps",
-		nonce : hotSpotsData.ajaxNonce,
+		nonce : configData.ajaxNonce,
 		url : url,
 		width : width,
 		zoomLevel : detectZoom.zoom(),
-		devicePixelRatio : detectZoom.device()
+		devicePixelRatio : detectZoom.device(),
+		clickTapId : (clickTapId !== undefined && clickTapId !== "") ? clickTapId : null
 	};
-	jQuery.post(hotSpotsData.ajaxUrl, data, function(response) {
+	jQuery.post(configData.ajaxUrl, data, function(response) {
 		var jsonResponse = jQuery.parseJSON(response);
 
 		for ( var index in jsonResponse) {
