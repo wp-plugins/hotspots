@@ -1,4 +1,4 @@
-=== TrafficPrints ===
+=== Hotspots User Tracker ===
 Contributors: dpowney
 Donate link: http://www.danielpowney.com
 Tags: mouse click, tap, touch, click, usability, heat map, tracker, analytics, tracking
