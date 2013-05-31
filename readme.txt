@@ -33,7 +33,7 @@ This plugin should not be used where performance is critical as an additional se
 1. Download the plugin and put it in the plugins directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
 1. Go to the plugin menu page in the admin panel
-1. To view the heat maps, go to the Heat Maps tab or add URL query parameter drawHeatMap=true (i.e. [http://www.danielpowney.com?drawHeatMap=true] http://www.danielpowney.com?drawHeatMap=true "")) to the URL
+1. To view the heat maps, go to the Heat Maps tab or add URL query parameter drawHeatMap=true (i.e. http://www.danielpowney.com?drawHeatMap=true) to the URL
 
 == Frequently Asked Questions ==
 
