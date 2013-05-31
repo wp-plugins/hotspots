@@ -24,7 +24,7 @@ View a heat map of mouse clicks and touch screen taps overlayed on your webpage 
 * You can apply URL filters to enable or disable the plugin for specific pages on your website (this can be useful for performance reasons)
 
 = Demo =
-Here's a demo of the heat map of mouse clicks and touch screen taps overlayed on the Home page of a website for 1600px width, [click here] (http://danielpowney.com/?drawHeatMap=true&width=1600&devicePixelRatio=1&zoomLevel=1 "").
+Here's a demo of the heat map of mouse clicks and touch screen taps overlayed on the Home page of a website for 1600px width, go to http://danielpowney.com/?drawHeatMap=true&width=1600&devicePixelRatio=1&zoomLevel=1
 
 = Notes =
 This plugin should not be used where performance is critical as an additional server request is made for each mouse click and touch screen tap. To be able to view the heat maps, your WordPress theme must be HTML5 compliant and you need to use an Internet browser which supports HTML5 canvas.
