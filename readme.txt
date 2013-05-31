@@ -55,6 +55,9 @@ Device pixel ratios is a comparison between a device's pixel density to the styl
 
 == Changelog ==
 
+= 2.2.5 =
+* Ignore hash # in URL when retrieving URL query params in JS
+
 = 2.2.4 = 
 * Overlayed information panel always on top
 * Updated detect-zoom.js to version 1.0.4

@@ -538,6 +538,13 @@ var urlHelper = new function() {
 	 * @returns params
 	 */
 	this.getUrlParams = function(url) {
+		
+		// ignore hash # in URL when retrieving params
+	    var hashIndex = url.indexOf('#');
+	    if (hashIndex > 0) {
+	    	url = url.substring(0, hashIndex);
+	    }
+		
 		var params = [], hash;
 		if (url.indexOf("?") !== -1) {
 			var hashes = url.slice(url.indexOf('?') + 1).split('&');
