@@ -3,7 +3,7 @@
 Plugin Name: Hotspots User Tracker
 Plugin URI: http://wordpress.org/extend/plugins/hotspots/
 Description: View a heat map of mouse clicks and touch screen taps overlayed on your webpage allowing you to improve usability by analysing user behaviour.
-Version: 3.0
+Version: 3.0.1
 Author: Daniel Powney
 Auhtor URI: www.danielpowney.com
 License: GPL2
@@ -114,14 +114,14 @@ if ( $previous_plugin_version != HUT_Common::PLUGIN_VERSION ) {
 			if ($renamed_hotspots_tbl) {
 				$wpdb->query('INSERT INTO ' . $wpdb->prefix . HUT_Common::CLICK_TAP_TBL_NAME . ' SELECT "", x, y, url, screenWidth, isTouch, ipAddress, zoomLevel, devicePixelRatio, createdDate, ""  FROM ' . $old_hotspots_tbl_name);
 				// we wont drop in case something goes wrong
-				// $wpdb->query('DROP TABLE IF EXISTS ' . $old_tbl_name);
+				// $wpdb->query('DROP TABLE IF EXISTS ' . $old_hotspots_tbl_name);
 			}
 		
 			$old_url_filter_tbl_name = $wpdb->prefix . 'filter';
 			if ($wpdb->get_var('SHOW TABLES LIKE "' . $old_url_filter_tbl_name . '"') == $old_url_filter_tbl_name) {
 				$wpdb->query('INSERT INTO ' .$wpdb->prefix . HUT_URL_Filter_Table::URL_FILTER_TBL_NAME . ' SELECT "", url FROM ' . $old_url_filter_tbl_name);
 				// we wont drop in case something goes wrong
-				// $wpdb->query('DROP TABLE IF EXISTS ' . $old_tbl_name);
+				// $wpdb->query('DROP TABLE IF EXISTS ' . $old_url_filter_tbl_name);
 			}
 		} catch (Exception $e) {
 			die('An error occured during data migrating of the plugin database tables! Try dropping the old database tables to skip the data migration.');
