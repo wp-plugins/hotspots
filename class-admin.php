@@ -1048,29 +1048,20 @@ class HUT_Heat_Map_Table extends WP_List_Table {
 			echo '<tr class="' . $row_class . '">';
 			echo '<td class="column-width" rowspan="' . $row_span . '">'. $width . 'px</td>';
 			
-			$index = 0;
 			foreach ($browser_device_rows as $browser_device_row) {
 				$zoom_level = $browser_device_row->zoom_level;
 				$count = $browser_device_row->count;
 				$device_pixel_ratio = $browser_device_row->device_pixel_ratio;
 				
-				if ($index > 0)
-					echo '<tr class="' . $row_class . '">';
-				
-				$td_style = '';
-				if ($row_span > 1)
-					$td_style = 'border-left: 1px solid #dfdfdf;';
-				
-				echo '<td style="' . $td_style . '">' . ($zoom_level * 100). '%</td><td>' . HUT_Common::convert_decimalto_ratio($device_pixel_ratio) . '</td>';
-				echo '<td style="' . $td_style . '">' . $count . '</td>';
-				echo '<td style="' . $td_style . '">';
-				echo '<input id="' . $id . $index .'" type="button" class="button view-heat-map-button" value="View Heat Map" />';
-				echo '<input type="hidden" id="url_' . $id . $index . '" name="url_' . $id . $index . '" value="' . $url  .'"></input>';
-				echo '<input type="hidden" id="data_' . $id . $index . '" name="data_' . $id . $index . '" value="_' . $width . '_' . $device_pixel_ratio . '_' . $zoom_level . '"></input>';
+				echo '<td>' . ($zoom_level * 100). '%</td><td>' . HUT_Common::convert_decimalto_ratio($device_pixel_ratio) . '</td>';
+				echo '<td>' . $count . '</td>';
+				echo '<td>';
+				echo '<input id="' . $id . $row_count .'" type="button" class="button view-heat-map-button" value="View Heat Map" />';
+				echo '<input type="hidden" id="url_' . $id . $row_count . '" name="url_' . $id . $row_count . '" value="' . $url  .'"></input>';
+				echo '<input type="hidden" id="data_' . $id . $row_count . '" name="data_' . $id . $row_count . '" value="_' . $width . '_' . $device_pixel_ratio . '_' . $zoom_level . '"></input>';
 				echo '</td>';
 				
 				echo '</tr>';
-				$index++;
 			}
 		}
 		echo '</tbody></table>';

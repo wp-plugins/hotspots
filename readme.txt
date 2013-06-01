@@ -74,6 +74,9 @@ You can try ignoring the device pixel ratio and ignore the zoom level options, t
 
 == Changelog ==
 
+= 3.0.1 =
+* Fix to show target information for different widths, device pixel ratios and zoom levels per URL when clicking the View Heat Map button
+
 = 3.0 =
 * Major release and refactoring of plugin code
 * DB tables and columns renamed
