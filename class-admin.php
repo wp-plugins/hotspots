@@ -423,22 +423,15 @@ class HUT_Admin {
 	 * @since 2.0	
 	 */
 	public function add_admin_menus() {
-		add_menu_page( __( 'Hotspots User Tracker', HUT_Common::PLUGIN_ID ), __( 'Hotspots User Tracker', HUT_Common::PLUGIN_ID ), 'manage_options', HUT_Common::MENU_PAGE_SLUG, array( &$this, 'plugin_options_page' ), null, null );
+		add_menu_page( __( 'Hotspots User Tracker', HUT_Common::PLUGIN_ID ), __( 'Hotspots User Tracker', HUT_Common::PLUGIN_ID ), 'manage_options', HUT_Common::MENU_PAGE_SLUG, array( &$this, 'plugin_options_page' ), plugins_url( 'hotspots.ico', __FILE__ ), null );
 	}
 	
 	function plugin_options_page() {
 		?>
 	    <div class="wrap">
 			<div class="icon32" id="icon-tools"></div><h2>Hotspots User Tracker</h2>
-			
-			<?php 
-	        //simple check to find out if activate/deactivate is required
-	        //if (file_exists( dirname(__FILE__) . DIRECTORY_SEPARATOR . 'hotspots.php'))
-	        //	echo '<div class="error"><p>You need to deactivate and then re-activate the plugin to complete the plugin uprade.</p></div>';
-			?>
 			<p>View a heat map of mouse clicks and touch screen taps overlayed on your webpage allowing you to improve usability by analysing user behaviour.</p>
 	    
-	    	
 	        <?php
 	        $this->plugin_options_tabs(); 
 	        ?>
