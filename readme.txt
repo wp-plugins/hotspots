@@ -74,6 +74,9 @@ You can try ignoring the device pixel ratio and ignore the zoom level options, t
 
 == Changelog ==
 
+= 3.0.2 =
+* Fixed drawing heat map where clickTapId=null in AJAX request
+
 = 3.0.1 =
 * Fix to show target information for different widths, device pixel ratios and zoom levels per URL when clicking the View Heat Map button
 * Added icon to plugin menu

@@ -756,7 +756,7 @@ class HUT_Admin {
 				$query .= ' AND ' . HUT_Common::DEVICE_PIXEL_RATIO_COLUMN . ' = ' . $device_pixel_ratio;
 			}
 	
-			if ( isset($_POST['clickTapId']) && $_POST['clickTapId'] !== null && $_POST['clickTapId'] !== "") {
+			if ( isset($_POST['clickTapId']) && $_POST['clickTapId'] !== null && $_POST['clickTapId'] !== "" && $_POST['clickTapId'] !== "null") {
 				$click_tap_id = intval( $_POST['clickTapId'] );
 				$query .= ' AND ' . HUT_Common::ID_COLUMN . ' = ' . $click_tap_id;
 			}
