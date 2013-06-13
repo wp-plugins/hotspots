@@ -44,3 +44,10 @@ jQuery("#clear-database").live('click',function(e) {
 jQuery("#add-URL-filter").live('click', function(e) {
 	jQuery("#add-URL-filter-flag").val("true");
 });
+
+// Add date pickers
+jQuery(document).ready(function() {	
+	jQuery('.date-field').datepicker({
+        dateFormat : 'yy-mm-dd'
+    });
+});

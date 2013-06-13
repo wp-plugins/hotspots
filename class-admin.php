@@ -14,7 +14,6 @@ class HUT_Admin {
 	private $general_settings = array();
 	private $advanced_settings = array();
 	private $url_filter_settings = array();
-
 	
 	/**
 	 * Constructor
@@ -63,6 +62,7 @@ class HUT_Admin {
 		'.HUT_Common::DEVICE_PIXEL_RATIO_COLUMN.' double precision DEFAULT 1,
 		'.HUT_Common::CREATED_DATE_COLUMN.' DATETIME,
 		'.HUT_Common::SESSION_ID_COLUMN.' varchar(255),
+		'.HUT_Common::ROLE_COLUMN.' varchar(255) DEFAULT "",
 		PRIMARY KEY  ('.HUT_Common::ID_COLUMN.')
 		) ENGINE=InnoDB AUTO_INCREMENT=1;';
 		dbDelta( $create_click_tap_tbl_query );
@@ -107,7 +107,9 @@ class HUT_Admin {
 		$this->general_settings = array_merge( array(
 				HUT_Common::SAVE_CLICK_TAP_OPTION => true,
 				HUT_Common::DRAW_HEAT_MAP_ENABLED_OPTION => true,
-				HUT_Common::DEBUG_OPTION => false
+				HUT_Common::DEBUG_OPTION => false,
+				HUT_Common::SCHEDULED_START_DATE_OPTION => '',
+				HUT_Common::SCHEDULED_END_DATE_OPTION => '',
 		), $this->general_settings );
 	
 		$this->advanced_settings = array_merge( array(
@@ -118,7 +120,8 @@ class HUT_Admin {
 				HUT_Common::IGNORE_DEVICE_PIXEL_RATIO_OPTION => false,
 				HUT_Common::IGNORE_WIDTH_OPTION => false,
 				HUT_Common::URL_DB_LIMIT_OPTION => '',
-				HUT_Common::WIDTH_ALLOWANCE_OPTION => 6
+				HUT_Common::WIDTH_ALLOWANCE_OPTION => 6,
+				HUT_Common::HIDE_ROLES_OPTION => null
 		), $this->advanced_settings );
 		
 		$this->url_filter_settings = array_merge( array(
@@ -142,6 +145,8 @@ class HUT_Admin {
 		add_settings_field( HUT_Common::SAVE_CLICK_TAP_OPTION, 'Save mouse clicks and touch screen taps', array( &$this, 'field_save_click_tap' ), HUT_Common::GENERAL_SETTINGS_KEY, 'section_general' );
 		add_settings_field( HUT_Common::DRAW_HEAT_MAP_ENABLED_OPTION, 'Enable drawing heat map', array( &$this, 'field_draw_heat_map_enabled' ), HUT_Common::GENERAL_SETTINGS_KEY, 'section_general' );
 		add_settings_field( HUT_Common::DEBUG_OPTION, 'Debug', array( &$this, 'field_debug' ), HUT_Common::GENERAL_SETTINGS_KEY, 'section_general' );
+		add_settings_field( HUT_Common::SCHEDULED_START_DATE_OPTION, 'Scheduled start date & time', array( &$this, 'field_scheduled_start_date' ), HUT_Common::GENERAL_SETTINGS_KEY, 'section_general' );
+		add_settings_field( HUT_Common::SCHEDULED_END_DATE_OPTION, 'Scheduled end date & time', array( &$this, 'field_scheduled_end_date' ), HUT_Common::GENERAL_SETTINGS_KEY, 'section_general' );
 	}
 	/**
 	 * General settings description
@@ -159,6 +164,46 @@ class HUT_Admin {
 		<p class="description">Turn on to start recording mouse click and touch screen tap information on your website.</p>
 		<?php
 	}
+	function field_scheduled_start_date() {
+		// from server or to user - get_date_from_gmt
+		// from user or to server  	get_gmt_from_date
+		$scheduled_start_date = $this->general_settings[HUT_Common::SCHEDULED_START_DATE_OPTION];
+		$scheduled_start_time_part = '00:00';
+		$scheduled_start_date_part = '';
+		if (isset($scheduled_start_date) && ! empty ($scheduled_start_date)) {
+			$date_parts = preg_split("/\s/", get_date_from_gmt($scheduled_start_date));
+			if (count($date_parts) == 2) {
+				$scheduled_start_date_part = $date_parts[0];
+				$time_parts = preg_split("/:/", $date_parts[1]);
+				if (count($time_parts) >= 2)
+					$scheduled_start_time_part = $time_parts[0] . ':' . $time_parts[1];
+			}
+		}
+	?>
+		<input type="text" class="date-field" name="<?php echo HUT_Common::GENERAL_SETTINGS_KEY; ?>[<?php echo HUT_Common::SCHEDULED_START_DATE_OPTION; ?>]" value="<?php echo $scheduled_start_date_part; ?>" />&nbsp;(yyyy-MM-dd)&nbsp;<input type="text" class="time-field" name="scheduled_start_time_part" value="<?php echo $scheduled_start_time_part; ?>" />&nbsp;(HH:mm - 24 hour format)
+		<p class="description">Schedule a start date and time to save mouse clicks and touch screen taps. Leave date input empty to turn off. If turned on, the save mouse clicks and touch screen taps option is ignored until the scheduled start date passes. This option must be enabled for the scheduling to work. The timezone can be configured from the WordPress Settings -> General.</p>
+	<?php
+	}
+	function field_scheduled_end_date() {
+		// from server or to user - get_date_from_gmt
+		// from user or to server  	get_gmt_from_date
+		$scheduled_end_date = $this->general_settings[HUT_Common::SCHEDULED_END_DATE_OPTION];
+		$scheduled_end_time_part = '23:59';
+		$scheduled_end_date_part = '';
+		if (isset($scheduled_end_date) && ! empty ($scheduled_end_date)) {
+			$date_parts = preg_split("/\s/", get_date_from_gmt($scheduled_end_date));
+			if (count($date_parts) == 2) {
+				$scheduled_end_date_part = $date_parts[0];
+				$time_parts = preg_split("/:/", $date_parts[1]);
+				if (count($time_parts) >= 2)
+					$scheduled_end_time_part = $time_parts[0] . ':' . $time_parts[1];
+			}
+		}
+	?>
+		<input type="text" class="date-field" name="<?php echo HUT_Common::GENERAL_SETTINGS_KEY; ?>[<?php echo HUT_Common::SCHEDULED_END_DATE_OPTION; ?>]" value="<?php echo $scheduled_end_date_part ?>" />&nbsp;(yyyy-MM-dd)&nbsp;<input type="text" class="time-field" name="scheduled_end_time_part" value="<?php echo $scheduled_end_time_part; ?>" />&nbsp;(HH:mm - 24 hour format)
+		<p class="description">Schedule an end date and time to save mouse clicks and touch screen taps. Leave date input empty to turn off. If turned on, the save mouse clicks and touch screen taps option is ignored once the scheduled end date passes. This option must be enabled for the scheduling to work. The timezone can be configured from the WordPress Settings -> General.</p>
+		<?php
+	}
 	function field_draw_heat_map_enabled() {
 		?>
 		<input type="checkbox" name="<?php echo HUT_Common::GENERAL_SETTINGS_KEY; ?>[<?php echo HUT_Common::DRAW_HEAT_MAP_ENABLED_OPTION; ?>]" value="true" <?php checked(true, $this->general_settings[HUT_Common::DRAW_HEAT_MAP_ENABLED_OPTION], true ); ?>/>
@@ -170,7 +215,8 @@ class HUT_Admin {
 		<input type="checkbox" name="<?php echo HUT_Common::GENERAL_SETTINGS_KEY; ?>[<?php echo HUT_Common::DEBUG_OPTION; ?>]" value="true" <?php checked(true, $this->general_settings[HUT_Common::DEBUG_OPTION], true); ?>/>
 		<p class="description">Turn on to debug and draw hot spots on every	mouse click and touch screen tap. This option is useful for testing that that the mouse clicks and touch screen taps are being recorded and that the plugin is working as expected.</p>
 		<?php 
-	}
+	}	
+		
 	/**
 	 * Sanitize and validate General settings
 	 * 
@@ -197,6 +243,80 @@ class HUT_Admin {
 		else 
 			$input[HUT_Common::DEBUG_OPTION] = false;
 		
+		// from server or to user - get_date_from_gmt
+		// from user or to server  	get_gmt_from_date
+		
+		$schedule_start_date = null;
+		if (isset( $input[HUT_Common::SCHEDULED_START_DATE_OPTION]) && strlen($input[HUT_Common::SCHEDULED_START_DATE_OPTION]) > 0) {
+			if (HUT_Common::check_date_format($input[HUT_Common::SCHEDULED_START_DATE_OPTION]) == false) {
+				add_settings_error( HUT_Common::GENERAL_SETTINGS_KEY, 'schedule_start_date_error', 'Scheduled start date invalid format', 'error');
+				$input[HUT_Common::SCHEDULED_START_DATE_OPTION] = '';
+			} else {
+				list($year, $month, $day) = explode('-', $input[HUT_Common::SCHEDULED_START_DATE_OPTION]);// default yyyy-mm-dd format
+				
+				// add time part
+				$scheduled_start_time_part = $_POST['scheduled_start_time_part'];
+				$hour = 0;
+				$minute = 0;
+				if ( ! preg_match("/([01]?[0-9]|2[0-3]):([0-5][0-9])/", $scheduled_start_time_part)) {
+					add_settings_error( HUT_Common::GENERAL_SETTINGS_KEY, 'scheduled_start_time_part_invalid_format_error', 'Invalid scheduled start time format. Time must be in 24 hour format HH:mm (i.e. 12:30).' , 'error');
+					// Default to 0, 0, 0
+				} else {
+					// set time parts
+					list($hour, $minute) = explode(':', $scheduled_start_time_part);
+				}
+				
+				$schedule_start_date = get_gmt_from_date( date("Y-m-d H:i:s", gmmktime($hour, $minute, 0, $month, $day, $year) ) );
+				$today = get_gmt_from_date( get_date_from_gmt( date("Y-m-d H:i:s") ) );
+				
+				if (strtotime($schedule_start_date) <= strtotime($today)) {
+					add_settings_error( HUT_Common::GENERAL_SETTINGS_KEY, 'schedule_start_date_past_error', 'Scheduled start date must be in the future', 'error');
+					$input[HUT_Common::SCHEDULED_START_DATE_OPTION] = '';
+				}
+				
+				$input[HUT_Common::SCHEDULED_START_DATE_OPTION] = $schedule_start_date;
+			}
+		} else {
+			$input[HUT_Common::SCHEDULED_START_DATE_OPTION] = "";
+		}
+		
+		if (isset( $input[HUT_Common::SCHEDULED_END_DATE_OPTION]) && strlen($input[HUT_Common::SCHEDULED_END_DATE_OPTION]) > 0) {
+			if (HUT_Common::check_date_format($input[HUT_Common::SCHEDULED_END_DATE_OPTION]) == false) {
+				add_settings_error( HUT_Common::GENERAL_SETTINGS_KEY, 'schedule_end_date_error', 'Scheduled end date invalid format', 'error');
+				$input[HUT_Common::SCHEDULED_START_DATE_OPTION] = '';
+			} else {
+				list($year, $month, $day) = explode('-', $input[HUT_Common::SCHEDULED_END_DATE_OPTION]);// default yyyy-mm-dd format
+				
+				// add time part
+				$scheduled_end_time_part = $_POST['scheduled_end_time_part'];
+				$hour = 23;
+				$minute = 59;
+				if ( ! preg_match("/([01]?[0-9]|2[0-3]):([0-5][0-9])/", $scheduled_end_time_part)) {
+					add_settings_error( HUT_Common::GENERAL_SETTINGS_KEY, 'scheduled_end_time_part_invalid_format_error', 'Invalid scheduled end time format. Time must be in 24 hour format HH:mm (i.e. 12:30).' , 'error');
+					// Default to 0, 0, 0
+				} else {
+					// set time parts
+					list($hour, $minute) = explode(':', $scheduled_end_time_part);
+				}
+				
+				
+				$schedule_end_date = get_gmt_from_date(date("Y-m-d H:i:s", gmmktime($hour, $minute, 0, $month, $day, $year) ) );
+				$today = get_gmt_from_date( get_date_from_gmt( date("Y-m-d H:i:s") ) );
+		
+				if (strtotime($schedule_end_date) <= strtotime($today)) {
+					add_settings_error( HUT_Common::GENERAL_SETTINGS_KEY, 'schedule_end_date_past_error', 'Scheduled end date must be in the future', 'error');
+					$input[HUT_Common::SCHEDULED_END_DATE_OPTION] = '';
+				} else if ($schedule_start_date != null && strtotime($schedule_end_date) <= strtotime($schedule_start_date)) {
+					add_settings_error( HUT_Common::GENERAL_SETTINGS_KEY, 'schedule_end_date_after_start_date_error', 'Scheduled end date must be after the scheduled start date', 'error');
+					$input[HUT_Common::SCHEDULED_END_DATE_OPTION] = '';
+				}
+				
+				$input[HUT_Common::SCHEDULED_END_DATE_OPTION] = $schedule_end_date;
+			}
+		} else {
+			$input[HUT_Common::SCHEDULED_END_DATE_OPTION] = "";
+		}
+		
 		return $input;
 	}
 
@@ -218,6 +338,8 @@ class HUT_Admin {
 		add_settings_field( HUT_Common::IGNORE_DEVICE_PIXEL_RATIO_OPTION, 'Ignore device pixel ratio', array( &$this, 'field_ignore_device_pixel_ratio' ), HUT_Common::ADVANCED_SETTINGS_KEY, 'section_advanced' );
 		add_settings_field( HUT_Common::URL_DB_LIMIT_OPTION, 'URL database limit', array( &$this, 'field_url_db_limit' ), HUT_Common::ADVANCED_SETTINGS_KEY, 'section_advanced' );
 		add_settings_field( HUT_Common::WIDTH_ALLOWANCE_OPTION, 'Width allowance', array( &$this, 'field_width_allowance' ), HUT_Common::ADVANCED_SETTINGS_KEY, 'section_advanced' );
+		add_settings_field( HUT_Common::HIDE_ROLES_OPTION, 'Hide roles', array( &$this, 'field_hide_roles' ), HUT_Common::ADVANCED_SETTINGS_KEY, 'section_advanced' );
+
 	}
 	/**
 	 * Advanced settings description
@@ -275,11 +397,34 @@ class HUT_Admin {
 		<?php
 	}
 	function field_width_allowance() {
-		?>
-			<input type="text" name="<?php echo HUT_Common::ADVANCED_SETTINGS_KEY; ?>[<?php echo HUT_Common::WIDTH_ALLOWANCE_OPTION; ?>]" value="<?php echo esc_attr( $this->advanced_settings[HUT_Common::WIDTH_ALLOWANCE_OPTION] ); ?>" />&nbsp;pixels (between 0 and 20)
-			<p class="description">An allowance to the width when drawing the heat map. This saves time when adjusting the width to draw a heat map as the width does not need to be exact (i.e if the width allowance is 6 pixels and the heat map width is 1600 pixels, then all clicks and taps within width of 1594 pixels to 1606 pixels will also be drawn on the heat map). Note: the larger the width allowance, the less accurate the placement of the clicks and taps on the heat map will likely be.</p>
-			<?php
+	?>
+		<input type="text" name="<?php echo HUT_Common::ADVANCED_SETTINGS_KEY; ?>[<?php echo HUT_Common::WIDTH_ALLOWANCE_OPTION; ?>]" value="<?php echo esc_attr( $this->advanced_settings[HUT_Common::WIDTH_ALLOWANCE_OPTION] ); ?>" />&nbsp;pixels (between 0 and 20)
+		<p class="description">An allowance to the width when drawing the heat map. This saves time when adjusting the width to draw a heat map as the width does not need to be exact (i.e if the width allowance is 6 pixels and the heat map width is 1600 pixels, then all clicks and taps within width of 1594 pixels to 1606 pixels will also be drawn on the heat map). Note: the larger the width allowance, the less accurate the placement of the clicks and taps on the heat map will likely be.</p>
+		<?php
+	}
+	function field_hide_roles() {
+		global $wp_roles;
+		if ( ! isset( $wp_roles) )
+			$wp_roles = new WP_Roles();
+	
+		$roles = $wp_roles->get_names();
+		
+		$hide_roles = $this->advanced_settings[HUT_Common::HIDE_ROLES_OPTION];
+		echo '<p>';
+		foreach ($roles as $role_value => $role_name) { ?>
+			<input type="checkbox" name="<?php echo HUT_Common::ADVANCED_SETTINGS_KEY; ?>[<?php echo HUT_Common::HIDE_ROLES_OPTION; ?>][]" value="<?php echo $role_value ?>" <?php
+			if (is_array($hide_roles)) {
+					if (in_array($role_value, $hide_roles)) {
+						echo 'checked="checked"';
+					}
+			} else {
+				checked(true, $this->advanced_settings[HUT_Common::HIDE_ROLES_OPTION], true );
+			}
+			echo ' />&nbsp;<label class="hut_role">' . $role_name . '</label>';
 		}
+		echo '</p>';
+		echo '<p class="description">You can hide mouse clicks and touch screen taps of users from specific roles from being displayed on the heat maps.</p>';
+	}
 	/**
 	 * Sanitize and validate Advanced settings
 	 * 
@@ -432,6 +577,7 @@ class HUT_Admin {
 			<div class="icon32" id="icon-tools"></div><h2>Hotspots User Tracker</h2>
 			<p>View a heat map of mouse clicks and touch screen taps overlayed on your webpage allowing you to improve usability by analysing user behaviour.</p>
 	    
+	    	
 	        <?php
 	        $this->plugin_options_tabs(); 
 	        ?>
@@ -650,6 +796,10 @@ class HUT_Admin {
 			wp_enqueue_style( HUT_Common::PLUGIN_ID.'-admin-style', plugins_url( 'css/admin.css', __FILE__ ) );
 			wp_enqueue_script( HUT_Common::PLUGIN_ID.'-admin-script', plugins_url( 'js/admin.js', __FILE__ ), array( 'jquery' ) );
 			wp_localize_script( HUT_Common::PLUGIN_ID.'-admin-script', HUT_Common::CONFIG_DATA, $config_array );
+			
+			wp_enqueue_script('jquery-ui-datepicker');
+			wp_enqueue_script('jquery-ui-timepicker');
+			wp_enqueue_style('jquery-style', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/smoothness/jquery-ui.css');
 		}
 	}
 	
@@ -760,6 +910,13 @@ class HUT_Admin {
 				$click_tap_id = intval( $_POST['clickTapId'] );
 				$query .= ' AND ' . HUT_Common::ID_COLUMN . ' = ' . $click_tap_id;
 			}
+			
+			$hide_roles = $this->advanced_settings[ HUT_Common::HIDE_ROLES_OPTION];
+			if (count($hide_roles) > 0) {
+				foreach ($hide_roles as $role)
+					$query .= ' AND ' . HUT_Common::ROLE_COLUMN . ' != "' . $role . '"';
+			}
+			
 			$rows = $wpdb->get_results($query);
 	
 			$index = 0;
@@ -829,6 +986,10 @@ class HUT_Admin {
 			$device_pixel_ratio = 1;
 			if ( isset($_POST['devicePixelRatio']) )
 				$device_pixel_ratio = doubleval( $_POST['devicePixelRatio'] );
+			
+			$role = null;
+			if ( isset($_POST['role']) && $_POST['role'] != "null" && strlen(trim($_POST['role'])) > 0 )
+				$role = $_POST['role'];
 	
 			$rowsAffected = $wpdb->insert( $wpdb->prefix . HUT_Common::CLICK_TAP_TBL_NAME,
 					array(
@@ -841,7 +1002,8 @@ class HUT_Admin {
 							HUT_Common::IP_ADDRESS_COLUMN => $ip_address,
 							HUT_Common::DEVICE_PIXEL_RATIO_COLUMN => $device_pixel_ratio,
 							HUT_Common::CREATED_DATE_COLUMN => current_time('mysql'),
-							HUT_Common::SESSION_ID_COLUMN => session_id()
+							HUT_Common::SESSION_ID_COLUMN => session_id(),
+							HUT_Common::ROLE_COLUMN => $role
 					)
 			);
 			$id = $wpdb->insert_id;
@@ -1046,7 +1208,11 @@ class HUT_Heat_Map_Table extends WP_List_Table {
 				$count = $browser_device_row->count;
 				$device_pixel_ratio = $browser_device_row->device_pixel_ratio;
 				
-				echo '<td>' . ($zoom_level * 100). '%</td><td>' . HUT_Common::convert_decimalto_ratio($device_pixel_ratio) . '</td>';
+				$td_style = '';
+				if ($row_span > 1)
+					$td_style = 'border-left: 1px solid #dfdfdf;';
+				
+				echo '<td style="' . $td_style . '">' . ($zoom_level * 100). '%</td><td>' . HUT_Common::convert_decimalto_ratio($device_pixel_ratio) . '</td>';
 				echo '<td>' . $count . '</td>';
 				echo '<td>';
 				echo '<input id="' . $id . $row_count .'" type="button" class="button view-heat-map-button" value="View Heat Map" />';

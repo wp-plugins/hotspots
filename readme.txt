@@ -22,6 +22,8 @@ View a heat map of mouse clicks and touch screen taps overlayed on your webpage 
 * Different heat maps are drawn when you resize the window, modify zoom levels and device pixel ratios to cater for responsive design
 * You can configure how many mouse clicks or touch screen taps are necessary to be hot, the size and also the opacity of the circle
 * You can apply URL filters to enable or disable the plugin for specific pages on your website (this can be useful for performance reasons)
+* Hide mouse clicks and touch screen taps from specific user roles when drawing heat maps
+* Schedule a start date/time and an end date/time for saving mouse clicks and touch screen taps
 
 = Demo =
 Here's a demo of the heat map of mouse clicks and touch screen taps overlayed on the Home page of a website for 1600px width, go to http://danielpowney.com/?drawHeatMap=true&width=1600&devicePixelRatio=1&zoomLevel=1. Make sure you resize width to 1600px (there's always an information panel at the bottom right of the page to help you).
@@ -73,6 +75,12 @@ You can try ignoring the device pixel ratio and ignore the zoom level options, t
 5. General options tab.
 
 == Changelog ==
+
+= 3.1.0 =
+* Added scheduled start and end dates functionality for saving mouse clicks and touch screen taps
+* Small td left border added on the heat map data table for rows of the same width data
+* Added loading dialog while drawing heat map
+* Added hide specific user roles functionality for drawing heat maps
 
 = 3.0.2 =
 * Fixed drawing heat map where clickTapId=null in AJAX request

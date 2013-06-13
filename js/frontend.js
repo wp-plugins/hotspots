@@ -9,6 +9,7 @@ var warm = hot / 2; // default is 10
 var opacity = 0.2; // default is 0.2
 var drawHeatMapEnabled = false; // default is false
 var zIndex = 1000;
+var role = null;
 
 
 /**
@@ -20,6 +21,11 @@ jQuery(window).load(function() {
 	// initialise the plugin options
 	initOptions();
 
+	jQuery("<div id='loadingDialog' title=\"Loading...\">" +
+			"<p>Loading heat map...</p>" +
+			"</div>").appendTo("body");
+	jQuery("#loadingDialog").dialog( { autoOpen: false });
+	
 	// setup and draw hot spots if option is enabled
 	if (drawHeatMapEnabled) {		
 		setupDrawing();
@@ -30,6 +36,34 @@ jQuery(window).load(function() {
 		setupSaving();
 	}
 });
+
+
+/**
+ * Initialises the plugin options
+ * 
+ */
+function initOptions() {
+
+	// set all options
+	drawHeatMapEnabled = (configData.drawHeatMapEnabled) == "1" ? true
+			: false;
+	debug = (configData.debug) == "1" ? true : false;
+	saveClickOrTapEnabled = (configData.saveClickOrTapEnabled) == "1" ? true : false;
+	spotRadius = parseInt(configData.spotRadius);
+	hot = parseInt(configData.hotValue);
+	warm = hot / 2;
+	opacity = configData.spotOpacity;
+
+	// Check for drawHeatMap query param
+	var drawHeatMapQueryParam = urlHelper.getUrlParamByName(
+			window.location.href, 'drawHeatMap') === "true" ? true : false;
+	if (drawHeatMapQueryParam == false) {
+		// cannot enable drawing heat map without the query param set to true
+		drawHeatMapEnabled = false;
+	}
+	role = configData.role;
+
+}
 
 
 /**
@@ -219,33 +253,6 @@ function setupDrawing() {
 
 
 /**
- * Initialises the plugin options
- * 
- */
-function initOptions() {
-
-	// set all options
-	drawHeatMapEnabled = (configData.drawHeatMapEnabled) == "1" ? true
-			: false;
-	debug = (configData.debug) == "1" ? true : false;
-	saveClickOrTapEnabled = (configData.saveClickOrTapEnabled) == "1" ? true : false;
-	spotRadius = parseInt(configData.spotRadius);
-	hot = parseInt(configData.hotValue);
-	warm = hot / 2;
-	opacity = configData.spotOpacity;
-
-	// Check for drawHeatMap query param
-	var drawHeatMapQueryParam = urlHelper.getUrlParamByName(
-			window.location.href, 'drawHeatMap') === "true" ? true : false;
-	if (drawHeatMapQueryParam == false) {
-		// cannot enable drawing heat map without the query param set to true
-		drawHeatMapEnabled = false;
-	}
-
-}
-
-
-/**
  * Adds mouse click or touch screen tap coordinates to the server
  * 
  */
@@ -273,7 +280,8 @@ function saveClickOrTap(posX, posY, isTap) {
 		width : width,
 		isTap : isTap,
 		zoomLevel : detectZoom.zoom(),
-		devicePixelRatio : detectZoom.device()
+		devicePixelRatio : detectZoom.device(),
+		role : role
 	};
 
 	jQuery.post(configData.ajaxUrl, data, function(response) {
@@ -291,7 +299,8 @@ function saveClickOrTap(posX, posY, isTap) {
  * taps given a URL, width, zoom level and device pixel ratio.
  * 
  */
-function drawHeatMap() {
+function drawHeatMap() {	
+	jQuery("#loadingDialog").dialog('open');
 
 	// remove hash tags from URL
 	var url = window.location.href;
@@ -322,6 +331,8 @@ function drawHeatMap() {
 			drawClickOrTap(clickOrTapData.x, clickOrTapData.y, 
 					clickOrTapData.heatValue);
 		}
+		
+		jQuery("#loadingDialog").dialog('close');
 	});
 }
 

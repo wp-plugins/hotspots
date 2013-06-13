@@ -9,3 +9,7 @@ table.widefat .column-heatMaps {
 table.widefat .column-count {
 	width: 10%;
 }
+
+input[type="checkbox"] + label {
+	margin-right: 20px;
+}

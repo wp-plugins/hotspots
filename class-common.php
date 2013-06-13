@@ -14,7 +14,7 @@ class HUT_Common {
 	CONFIG_DATA 						= 'configData',
 	
 	// database
-	PLUGIN_VERSION						= '1.0',
+	PLUGIN_VERSION						= '3.1.0',
 	CLICK_TAP_TBL_NAME 					= 'hut_click_tap',
 	ID_COLUMN							= 'id',
 	X_COLUMN							= 'x',
@@ -27,6 +27,7 @@ class HUT_Common {
 	DEVICE_PIXEL_RATIO_COLUMN			= 'device_pixel_ratio',
 	CREATED_DATE_COLUMN					= 'created_date',
 	SESSION_ID_COLUMN					= 'session_id',
+	ROLE_COLUMN							= 'role',
 	
 	// Options
 	SAVE_CLICK_TAP_OPTION 				= 'save_click_tap',
@@ -43,6 +44,10 @@ class HUT_Common {
 	IGNORE_WIDTH_OPTION					= 'ignore_width',
 	URL_DB_LIMIT_OPTION					= 'url_db_limit',
 	WIDTH_ALLOWANCE_OPTION				= 'width_allowance',
+	SCHEDULED_START_DATE_OPTION			= 'schedule_start_date',
+	SCHEDULED_END_DATE_OPTION			= 'schedule_end_date',
+	SCHEDULED_SAVE_CLICK_TAP			= 'schedule_save_click_tap',
+	HIDE_ROLES_OPTION					= 'hide_roles',
 	
 	// Settings
 	GENERAL_SETTINGS_KEY 				= 'hut_general_settings',
