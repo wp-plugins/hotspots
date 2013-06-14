@@ -60,7 +60,9 @@ class HUT_Common {
 	URL_FILTERS_TAB 					= 'hut_url_filters_tab',
 	HEAT_MAPS_TAB 						= 'hut_heat_maps_tab',
 	
-	MENU_PAGE_SLUG						= 'hut_menu_page';
+	MENU_PAGE_SLUG						= 'hut_menu_page',
+	
+	NO_ROLE_VALUE						= "none";
 	
 	// URL query params which are ignored by the plugin
 	public static $ignore_query_params = array( 'drawHeatMap', 'KEY', 'XDEBUG_SESSION_START', 'clickTapId', 'width', 'devicePixelRatio', 'zoomLevel' );

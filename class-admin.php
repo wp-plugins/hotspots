@@ -408,8 +408,11 @@ class HUT_Admin {
 			$wp_roles = new WP_Roles();
 	
 		$roles = $wp_roles->get_names();
+		// add None to the array of role non logged in users or visitors who do not have a role
+		$roles[HUT_Common::NO_ROLE_VALUE] = "None";
 		
 		$hide_roles = $this->advanced_settings[HUT_Common::HIDE_ROLES_OPTION];
+		
 		echo '<p>';
 		foreach ($roles as $role_value => $role_name) { ?>
 			<input type="checkbox" name="<?php echo HUT_Common::ADVANCED_SETTINGS_KEY; ?>[<?php echo HUT_Common::HIDE_ROLES_OPTION; ?>][]" value="<?php echo $role_value ?>" <?php
@@ -420,10 +423,11 @@ class HUT_Admin {
 			} else {
 				checked(true, $this->advanced_settings[HUT_Common::HIDE_ROLES_OPTION], true );
 			}
-			echo ' />&nbsp;<label class="hut_role">' . $role_name . '</label>';
+			echo ' />&nbsp;<label class="hut_role">' . $role_name . '</label>'; 
 		}
+		
 		echo '</p>';
-		echo '<p class="description">You can hide mouse clicks and touch screen taps of users from specific roles from being displayed on the heat maps.</p>';
+		echo '<p class="description">You can hide mouse clicks and touch screen taps of users from specific roles from being displayed on the heat maps. None is for all non logged in users or visitors who do not have a role.</p>';
 	}
 	/**
 	 * Sanitize and validate Advanced settings
@@ -577,7 +581,6 @@ class HUT_Admin {
 			<div class="icon32" id="icon-tools"></div><h2>Hotspots User Tracker</h2>
 			<p>View a heat map of mouse clicks and touch screen taps overlayed on your webpage allowing you to improve usability by analysing user behaviour.</p>
 	    
-	    	
 	        <?php
 	        $this->plugin_options_tabs(); 
 	        ?>
@@ -913,8 +916,12 @@ class HUT_Admin {
 			
 			$hide_roles = $this->advanced_settings[ HUT_Common::HIDE_ROLES_OPTION];
 			if (count($hide_roles) > 0) {
-				foreach ($hide_roles as $role)
-					$query .= ' AND ' . HUT_Common::ROLE_COLUMN . ' != "' . $role . '"';
+				foreach ($hide_roles as $role) {
+					if ($role == HUT_Common::NO_ROLE_VALUE)
+						$query .= ' AND ' . HUT_Common::ROLE_COLUMN . ' != ""';
+					else
+						$query .= ' AND ' . HUT_Common::ROLE_COLUMN . ' != "' . $role . '"';
+				}
 			}
 			
 			$rows = $wpdb->get_results($query);

@@ -76,6 +76,9 @@ You can try ignoring the device pixel ratio and ignore the zoom level options, t
 
 == Changelog ==
 
+= 3.1.1 =
+* Added None to hide roles option for non logged in users or visitors who do not have a role
+
 = 3.1.0 =
 * Added scheduled start and end dates functionality for saving mouse clicks and touch screen taps
 * Small td left border added on the heat map data table for rows of the same width data
