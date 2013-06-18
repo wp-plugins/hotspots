@@ -64,15 +64,17 @@ No. There is an option to allow up to 20 pixels each side of your target width t
 You can try ignoring the device pixel ratio and ignore the zoom level options, then do a browser zoom out to increase the website width. However, the heat map may not be entirely accurate if you do this. For heat map data with a device pixel ratio of 1:1 and a zoom level of 100%, viewing larger website widths using this method works OK.
 
 == Screenshots ==
-1. Heat map of clicks and taps on a WordPress website. As you can see, the navigation menu bar and top search input are highly used but the second search input is rarely used.
+1. Heat map of mouse clicks and touch screen taps on a WordPress website with width 1200 pixels on a desktop PC.
 
-2. Heat map of clicks and taps on a responsive WordPress website for mobiles.
+2. Heat map of mouse clicks and touch screen taps on a responsive WordPress website on a mobile device with width 320 pixels.
 
-3. Heat Maps tab. There's different heat maps for each width, device pixel ratio (device pixels compared to website pixels) and zoom level.
+3. General options tab. 
 
-4. Advanced options tab. You can customise the display of the heat maps and refresh the database.
+4. Heat Maps tab. There's different heat maps for each width, device pixel ratio (device pixels compared to website pixels) and zoom level.
 
-5. General options tab.
+5. Advanced options tab.
+
+6. Advanced options tab continued.
 
 == Changelog ==
 
