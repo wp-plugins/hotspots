@@ -35,8 +35,10 @@ class HUT_Frontend {
 		wp_enqueue_style('jquery-style', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/smoothness/jquery-ui.css');
 			
 		
-		$advanced_settings = get_option(HUT_Common::ADVANCED_SETTINGS_KEY);
+		$heat_map_settings = get_option(HUT_Common::HEAT_MAP_SETTINGS_KEY);
 		$general_settings = get_option(HUT_Common::GENERAL_SETTINGS_KEY);
+		$database_settings = get_option(HUT_Common::DATABASE_SETTINGS_KEY);
+		$schedule_settings = get_option(HUT_Common::SCHEDULE_SETTINGS_KEY);
 		$url_filter_settings = get_option(HUT_Common::URL_FILTERS_SETTINGS_KEY);
 		
 		$draw_heat_map_enabled = $general_settings[ HUT_Common::DRAW_HEAT_MAP_ENABLED_OPTION ];
@@ -45,12 +47,13 @@ class HUT_Frontend {
 		/**
 		 * Check if there's a scheduled start date or end date which overrides save clicks and taps option
 		 */
+		$schedule_check = 1;
 		// from server or to user - get_date_from_gmt
 		// from user or to server  	get_gmt_from_date
 		$today = strtotime( get_gmt_from_date( get_date_from_gmt( date("Y-m-d H:i:s") ) ) );		
 		
 		// scheduled start date
-		$scheduled_start_date = $general_settings[ HUT_Common::SCHEDULED_START_DATE_OPTION ];
+		$scheduled_start_date = $schedule_settings[ HUT_Common::SCHEDULED_START_DATE_OPTION ];
 		if ( isset($scheduled_start_date) && ! empty( $scheduled_start_date ) ) {
 			
 			$scheduled_start_date_parts = explode(' ', get_date_from_gmt( $scheduled_start_date) );
@@ -60,14 +63,15 @@ class HUT_Frontend {
 				
 				$scheduled_start_date = strtotime(get_gmt_from_date(date("Y-m-d H:i:s",  gmmktime($hour, $minute, $seconds, $month, $day, $year) ) ) );
 				if ($today < $scheduled_start_date) {
-					$save_click_or_tap_enabled = 0;
+					$schedule_check = 0;
+					//$save_click_or_tap_enabled = 0;
 				}
 			} 
 			// else no scheduled start date or invalid date/time format
 		}
 		
 		// scheduled end date
-		$scheduled_end_date = $general_settings[ HUT_Common::SCHEDULED_END_DATE_OPTION ];
+		$scheduled_end_date = $schedule_settings[ HUT_Common::SCHEDULED_END_DATE_OPTION ];
 		if ( $scheduled_start_date != 0 && isset($scheduled_end_date) && ! empty($scheduled_end_date) ) {
 			
 			$scheduled_end_date_parts = explode(' ', get_date_from_gmt( $scheduled_end_date) );
@@ -77,7 +81,8 @@ class HUT_Frontend {
 			
 				$scheduled_end_date = strtotime(get_gmt_from_date(date("Y-m-d H:i:s",  gmmktime($hour, $minute, $seconds, $month, $day, $year) ) ) );
 				if ($today > $scheduled_end_date) {
-					$save_click_or_tap_enabled = 'after';
+					$schedule_check = 0;
+					//$save_click_or_tap_enabled = 0;
 				}
 			}
 			// else no scheduled end date or invalid date/time format
@@ -88,6 +93,7 @@ class HUT_Frontend {
 
 		// Check options if applying filters
 		$apply_URL_filters = $url_filter_settings[ HUT_Common::APPLY_URL_FILTERS_OPTION ];
+		$url_excluded = 0;
 		// Also check if at least one of the options is true to improve performance
 		if ( $apply_URL_filters == true && ( $draw_heat_map_enabled == true || $save_click_or_tap_enabled == true ) ) {
 			// check if enabled
@@ -103,7 +109,8 @@ class HUT_Frontend {
 					
 					// If it's in the blacklist, we disable the options
 					if ( $url == $current_URL ) {
-						$save_click_or_tap_enabled = 0;
+						$url_excluded = 1;
+						//$save_click_or_tap_enabled = 0;
 						break;
 					}
 				}
@@ -121,20 +128,23 @@ class HUT_Frontend {
 				}
 				
 				if ( $found == false ) {
-					$save_click_or_tap_enabled = 0;
+					$url_excluded = 1;
+					//$save_click_or_tap_enabled = 0;
 				}
 			}
 		}
 
 		// check URL db limit option
-		$url_db_limit = $advanced_settings[ HUT_Common::URL_DB_LIMIT_OPTION ];
+		$url_db_limit = $database_settings[ HUT_Common::URL_DB_LIMIT_OPTION ];
+		$url_db_limit_reached = 0;
 		if ( $save_click_or_tap_enabled == true && $url_db_limit != '' ) {
 			global $wpdb;
 			$query = 'SELECT * FROM '. $wpdb->prefix.HUT_Common::CLICK_TAP_TBL_NAME . ' WHERE ' . HUT_Common::URL_COLUMN . ' = "' . $current_URL . '"';
 			$wpdb->query( $query );
 			$count = $wpdb->num_rows;
 			if ( $count >= $url_db_limit ) {
-				$save_click_or_tap_enabled = 0;
+				$url_db_limit_reached = 1;
+				//$save_click_or_tap_enabled = 0;
 			}
 		}
 		
@@ -149,11 +159,14 @@ class HUT_Frontend {
 				'drawHeatMapEnabled' => $draw_heat_map_enabled,
 				'saveClickOrTapEnabled' => $save_click_or_tap_enabled,
 				'debug' => $general_settings[ HUT_Common::DEBUG_OPTION ],
-				'hotValue' => $advanced_settings[HUT_Common::HOT_VALUE_OPTION],
-				'spotOpacity' =>  $advanced_settings[ HUT_Common::SPOT_OPACITY_OPTION ],
-				'spotRadius' =>  $advanced_settings[ HUT_Common::SPOT_RADIUS_OPTION ],
+				'hotValue' => $heat_map_settings[HUT_Common::HOT_VALUE_OPTION],
+				'spotOpacity' =>  $heat_map_settings[ HUT_Common::SPOT_OPACITY_OPTION ],
+				'spotRadius' =>  $heat_map_settings[ HUT_Common::SPOT_RADIUS_OPTION ],
 				'filterType' => $url_filter_settings[ HUT_Common::FILTER_TYPE_OPTION ],
 				'role' => $role,
+				'urlExcluded' => $url_excluded,
+				'scheduleCheck' => $schedule_check,
+				'urlDBLimitReached' => $url_db_limit_reached
 		);
 		wp_localize_script( HUT_Common::PLUGIN_ID . '-frontend-script', HUT_Common::CONFIG_DATA, $config_array );
 	}

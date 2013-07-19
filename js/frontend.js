@@ -48,7 +48,14 @@ function initOptions() {
 	drawHeatMapEnabled = (configData.drawHeatMapEnabled) == "1" ? true
 			: false;
 	debug = (configData.debug) == "1" ? true : false;
+	
+	var urlDBLimitReached = (configData.urlDBLimitReached) == "1" ? true : false;
+	var urlExcluded = (configData.urlExcluded) == "1" ? true : false;
+	var scheduleCheck = (configData.scheduleCheck) == "1" ? true : false;
 	saveClickOrTapEnabled = (configData.saveClickOrTapEnabled) == "1" ? true : false;
+	if (urlDBLimitReached == true || scheduleCheck == false || urlExcluded == true)
+		saveClickOrTapEnabled = false;
+	
 	spotRadius = parseInt(configData.spotRadius);
 	hot = parseInt(configData.hotValue);
 	warm = hot / 2;

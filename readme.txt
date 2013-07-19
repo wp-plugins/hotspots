@@ -1,6 +1,6 @@
 === Hotspots User Tracker ===
 Contributors: dpowney
-Donate link: http://www.danielpowney.com
+Donate link: http://www.danielpowney.com/donate
 Tags: mouse click, tap, touch, click, usability, heat map, tracker, analytics, tracking
 Requires at least: 3.0.1
 Tested up to: 3.5
@@ -12,7 +12,7 @@ Hotspots User Tracker draws a heat map of mouse clicks overlayed on your webpage
 
 == Description ==
 
-View a heat map of mouse clicks and touch screen taps overlayed on your webpage allowing you to improve usability by analysing user behaviour. Google Analytics can show you what page a visitor went to, but Hotspots User Tracker will show you which link a visitor clicked to get there. This can also give insight into which buttons or links are popular and easy to use including the effectiveness of advertising placement. 
+View a heat map of mouse clicks and touch screen taps overlayed on your webpage allowing you to improve usability by analysing user behaviour. Google Analytics can show you what page and links a visitor went to but it cannot tell you exactly where they clicked in a responsive design such as on smaller screen sizes. Hotspots User Tracker shows you exactly where user's have clicked or tapped. This can also give insight into which buttons or links are popular and easy to use including the effectiveness of advertising placement.
 
 = Features =
 * Saves mouse click and touch screen tap information
@@ -30,6 +30,7 @@ Here's a demo of the heat map of mouse clicks and touch screen taps overlayed on
 
 = Notes =
 This plugin should not be used where performance is critical as an additional server request is made for each mouse click and touch screen tap. To be able to view the heat maps, your WordPress theme must be HTML5 compliant and you need to use an Internet browser which supports HTML5 canvas.
+
 == Installation ==
 
 1. Download the plugin and put it in the plugins directory
@@ -64,19 +65,24 @@ No. There is an option to allow up to 20 pixels each side of your target width t
 You can try ignoring the device pixel ratio and ignore the zoom level options, then do a browser zoom out to increase the website width. However, the heat map may not be entirely accurate if you do this. For heat map data with a device pixel ratio of 1:1 and a zoom level of 100%, viewing larger website widths using this method works OK.
 
 == Screenshots ==
-1. Heat map of mouse clicks and touch screen taps on a WordPress website with width 1200 pixels on a desktop PC.
+1. Heat map of clicks and taps on a WordPress website. As you can see, the navigation menu bar and top search input are highly used but the second search input is rarely used.
 
-2. Heat map of mouse clicks and touch screen taps on a responsive WordPress website on a mobile device with width 320 pixels.
+2. Heat map of clicks and taps on a responsive WordPress website for mobiles.
 
-3. General options tab. 
+3. Heat Maps tab. There's different heat maps for each width, device pixel ratio (device pixels compared to website pixels) and zoom level.
 
-4. Heat Maps tab. There's different heat maps for each width, device pixel ratio (device pixels compared to website pixels) and zoom level.
+4. Advanced options tab. You can customise the display of the heat maps and refresh the database.
 
-5. Advanced options tab.
-
-6. Advanced options tab continued.
+5. General options tab.
 
 == Changelog ==
+
+= 3.2 =
+* Added user agent parsing to record the Internet Browser, Operating System and the Device
+* Added filter options to heat maps table
+* Separated settings into more tabs
+* Changed icon
+* Added submenu links for plugin options
 
 = 3.1.1 =
 * Added None to hide roles option for non logged in users or visitors who do not have a role

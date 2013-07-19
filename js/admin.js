@@ -4,7 +4,7 @@ jQuery(".view-heat-map-button").live('click', function(e) {
 	var btnId = this.id; 
 	
 	// now we can lookup the url from a hidden input field given we have the rowId
-	var url = jQuery("#url_" + btnId).val();
+	var url = jQuery("#" + btnId + "-url").val();
 	
 	var queryParams = "drawHeatMap=true";
 	if (url.indexOf("?") >= 0) {
@@ -14,24 +14,21 @@ jQuery(".view-heat-map-button").live('click', function(e) {
 	}
 	url += queryParams;
 	
-	var data = jQuery("#data_" + btnId).val();
-	if (data !== undefined) {
-		var parts = data.split("_"); 
-		var click_tap_id = parts[0];
-		var width = parts[1];
-		var devicePixelRatio = parts[2];
-		var zoomLevel = parts[3];
-		if (click_tap_id !== "")
-			url += "&clickTapId=" + click_tap_id;
-		if (width !== "")
-			url += "&width=" + width;
-		if (devicePixelRatio !== "")
-			url += "&devicePixelRatio=" + devicePixelRatio;
-		if (zoomLevel !== "")
-			url +="&zoomLevel=" + zoomLevel;
-	}
+	var devicePixelRatio = jQuery("#" + btnId + "-device_pixel_ratio").val();
+	var zoomLevel = jQuery("#" + btnId + "-zoom_level").val();
+	var width = jQuery("#" + btnId + "-width").val();
 	
-	
+	// TODO
+	//var clickTapId = jQuery("#" + btnId + "-click_tap_id").val();	
+	// FIXME if (click_tap_id !== "")
+	//	url += "&clickTapId=" + click_tap_id;
+		
+	if (width)
+		url += "&width=" + width;
+	if (devicePixelRatio)
+		url += "&devicePixelRatio=" + devicePixelRatio;
+	if (zoomLevel)
+		url +="&zoomLevel=" + zoomLevel;
 	window.open(url, "_blank", 'scrollbars=yes, resizable=yes, location=yes, toolbar=yes');
 });
 

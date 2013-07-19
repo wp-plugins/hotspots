@@ -14,7 +14,7 @@ class HUT_Common {
 	CONFIG_DATA 						= 'configData',
 	
 	// database
-	PLUGIN_VERSION						= '3.1.0',
+	PLUGIN_VERSION						= '3.2.0',
 	CLICK_TAP_TBL_NAME 					= 'hut_click_tap',
 	ID_COLUMN							= 'id',
 	X_COLUMN							= 'x',
@@ -28,6 +28,7 @@ class HUT_Common {
 	CREATED_DATE_COLUMN					= 'created_date',
 	SESSION_ID_COLUMN					= 'session_id',
 	ROLE_COLUMN							= 'role',
+	USER_LOGIN							= 'user_login',
 	
 	// Options
 	SAVE_CLICK_TAP_OPTION 				= 'save_click_tap',
@@ -53,11 +54,16 @@ class HUT_Common {
 	GENERAL_SETTINGS_KEY 				= 'hut_general_settings',
 	ADVANCED_SETTINGS_KEY				= 'hut_advanced_settings',
 	URL_FILTERS_SETTINGS_KEY 			= 'hut_url_filters_settings',
-	HEAT_MAPS_SETTINGS_KEY 				= 'hut_heat_maps_settings_key',
+	HEAT_MAP_SETTINGS_KEY 				= 'hut_heat_map_settings_key',
+	SCHEDULE_SETTINGS_KEY				= 'hut_schedule_settings_key',
+	DATABASE_SETTINGS_KEY				= 'hut_database_settings_key',
 	
+	// Tabs
 	GENERAL_SETTINGS_TAB 				= 'hut_general_settings_tab',
-	ADVANCED_SETTINGS_TAB				= 'hut_advanced_settings_tab',
-	URL_FILTERS_TAB 					= 'hut_url_filters_tab',
+	HEAT_MAP_SETTINGS_TAB				= 'hut_heat_map_settings_tab',
+	SCHEDULE_SETTINGS_TAB				= 'hut_schedule_settings_tab',
+	DATABASE_SETTINGS_TAB				= 'hut_database_settings_tab',
+	URL_FILTER_SETTINGS_TAB 			= 'hut_url_filter_settings_tab',
 	HEAT_MAPS_TAB 						= 'hut_heat_maps_tab',
 	
 	MENU_PAGE_SLUG						= 'hut_menu_page',

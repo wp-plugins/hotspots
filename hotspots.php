@@ -3,7 +3,7 @@
 Plugin Name: Hotspots User Tracker
 Plugin URI: http://wordpress.org/extend/plugins/hotspots/
 Description: View a heat map of mouse clicks and touch screen taps overlayed on your webpage allowing you to improve usability by analysing user behaviour.
-Version: 3.1.1
+Version: 3.2
 Author: Daniel Powney
 Auhtor URI: www.danielpowney.com
 License: GPL2
@@ -15,7 +15,6 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'class-admin.php';
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'class-frontend.php';
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'class-common.php';
 
-// maybe one day there'll be a pro version, not now
 //if (file_exists( dirname(__FILE__) . DIRECTORY_SEPARATOR . 'class-admin-pro.php' ) )
 //	require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'class-admin-pro.php';
 //if (file_exists( dirname(__FILE__) . DIRECTORY_SEPARATOR . 'class-frontend-pro.php' ) )
@@ -159,6 +158,37 @@ if ( $previous_plugin_version != HUT_Common::PLUGIN_VERSION ) {
 		}
 	}
 	
+	
+	if ($previous_plugin_version == '3.1.0') {
+		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+		try {
+			// Database table modifications
+			$create_click_tap_tbl_query = 'CREATE TABLE '.$wpdb->prefix.HUT_Common::CLICK_TAP_TBL_NAME.' (
+			'.HUT_Common::ID_COLUMN.' int(11) NOT NULL AUTO_INCREMENT,
+			'.HUT_Common::X_COLUMN.' int(11) NOT NULL,
+			'.HUT_Common::Y_COLUMN.' int(11) NOT NULL,
+			'.HUT_Common::URL_COLUMN.' varchar(255),
+			'.HUT_Common::WIDTH_COLUMN.' int(11),
+			'.HUT_Common::IS_TAP_COLUMN.' tinyint(1) DEFAULT 0,
+			'.HUT_Common::IP_ADDRESS_COLUMN.' varchar(255),
+			'.HUT_Common::ZOOM_LEVEL_COLUMN.' double precision DEFAULT 1,
+			'.HUT_Common::DEVICE_PIXEL_RATIO_COLUMN.' double precision DEFAULT 1,
+			'.HUT_Common::CREATED_DATE_COLUMN.' DATETIME,
+			'.HUT_Common::SESSION_ID_COLUMN.' varchar(255),
+			'.HUT_Common::ROLE_COLUMN.' varchar(255) DEFAULT "",
+			'.HUT_Common::USER_LOGIN.' varchar(255) DEFAULT "",
+			browser_family varchar(255) DEFAULT "",
+			browser_version varchar(255) DEFAULT "",
+			device varchar(255) DEFAULT "",
+			os_family varchar(255) DEFAULT "",
+			os_version varchar(255) DEFAULT "",
+			PRIMARY KEY  ('.HUT_Common::ID_COLUMN.')
+			) ENGINE=InnoDB AUTO_INCREMENT=1;';
+			dbDelta( $create_click_tap_tbl_query );
+		} catch (Exception $e) {
+			die('An error occured updating the plugin database tables!');
+		}
+	}
 	// Now update the version if you get this far
 	update_option( HUT_Common::PLUGIN_VERSION_OPTION, HUT_Common::PLUGIN_VERSION );
 }
@@ -169,9 +199,9 @@ register_uninstall_hook( __FILE__, 'hut_uninstall_plugin' );
 //register_deactivation_hook( __FILE__, 'hut_uninstall_plugin' );
 function hut_activate_plugin() {
 	if (is_admin()) {
-		//if (class_exists('HUT_Admin_Pro'))
-		//	HUT_Admin_Pro::activate_plugin();
-		//else
+		if (class_exists('HUT_Admin_Pro'))
+			HUT_Admin_Pro::activate_plugin();
+		else
 			HUT_Admin::activate_plugin();
 	}
 
