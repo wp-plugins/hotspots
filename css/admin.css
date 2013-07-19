@@ -1,0 +1,15 @@
+table.heatmap,table.heatMaps .column-url {
+	width: 30%;
+}
+
+table.widefat .column-heatMaps {
+	width: 60%;
+}
+
+table.widefat .column-count {
+	width: 10%;
+}
+
+input[type="checkbox"] + label {
+	margin-right: 20px;
+}

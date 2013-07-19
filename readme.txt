@@ -1,59 +1,113 @@
-=== HotSpots ===
+=== Hotspots User Tracker ===
 Contributors: dpowney
 Donate link: http://www.danielpowney.com
-Tags: mouse click, tap, touch, click, usability, heat map, tracker, analytics
+Tags: mouse click, tap, touch, click, usability, heat map, tracker, analytics, tracking
 Requires at least: 3.0.1
 Tested up to: 3.5
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-View a heat map of mouse clicks and touch screen taps overlayed on your webpage allowing you to improve usability by analysing user behaviour.
+Hotspots User Tracker draws a heat map of mouse clicks overlayed on your webpage allowing you to improve usability by analysing user behaviour.
 
 == Description ==
 
-View a heat map of mouse clicks and touch screen taps overlayed on your webpage allowing you to improve usability by analysing user behaviour.. Google Analytics can show you what page a visitor went to, but HotSpots will show you which link a visitor clicked to get there. This can also give insight into which buttons or links are popular and easy to use including the effectiveness of advertising placement. 
+View a heat map of mouse clicks and touch screen taps overlayed on your webpage allowing you to improve usability by analysing user behaviour. Google Analytics can show you what page a visitor went to, but Hotspots User Tracker will show you which link a visitor clicked to get there. This can also give insight into which buttons or links are popular and easy to use including the effectiveness of advertising placement. 
 
 = Features =
 * Saves mouse click and touch screen tap information
 * Each page on your website has it's own heat map
+* It's free and there's no sign up or registration required!
+* All data is stored on your own WordPress database
 * Different heat maps are drawn when you resize the window, modify zoom levels and device pixel ratios to cater for responsive design
 * You can configure how many mouse clicks or touch screen taps are necessary to be hot, the size and also the opacity of the circle
 * You can apply URL filters to enable or disable the plugin for specific pages on your website (this can be useful for performance reasons)
-* It's free and there's no sign up or registration required! All data is stored on your own WordPress database
+* Hide mouse clicks and touch screen taps from specific user roles when drawing heat maps
+* Schedule a start date/time and an end date/time for saving mouse clicks and touch screen taps
+
+= Demo =
+Here's a demo of the heat map of mouse clicks and touch screen taps overlayed on the Home page of a website for 1600px width, go to http://danielpowney.com/?drawHeatMap=true&width=1600&devicePixelRatio=1&zoomLevel=1. Make sure you resize width to 1600px (there's always an information panel at the bottom right of the page to help you).
 
 = Notes =
 This plugin should not be used where performance is critical as an additional server request is made for each mouse click and touch screen tap. To be able to view the heat maps, your WordPress theme must be HTML5 compliant and you need to use an Internet browser which supports HTML5 canvas.
-
 == Installation ==
 
 1. Download the plugin and put it in the plugins directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Go to the plugin options page (Settings > HotSpots)
-1. To view the heat map of mouse clicks or touch screen taps, go to the Heat Maps section and then click View Heat Map for an available URL in the table. You can also manually add query parameter drawHeatMap=true to the URL of your page (i.e. www.mywebsite.com?drawHeatMap=true or www.mywebsite.com?cat=1&drawHeatMap=true).
+1. Go to the plugin menu page in the admin panel
+1. To view the heat maps, go to the Heat Maps tab or add URL query parameter drawHeatMap=true (i.e. http://www.danielpowney.com?drawHeatMap=true) to the URL
 
 == Frequently Asked Questions ==
+
 **I cannot see the heat map when adding URL query parameter drawHeatMap=true.**
-You cannot view the heat maps if your theme is not HTML5 compliant and you need to use an Internet browser which supports HTML5 canvas. Most modern browsers support HTML5 canvas now. Make sure the *Enable drawing heat map* option is turned on. If you see a box with the current browser window width, zoom level and device pixel information at the bottom right corner of your webpage, then there is no matching heat map data. You may need to resize the window, modify the zoom levels and device pixel ratios to match the heat map data collected. You can view the heat map data on the plugin options page (left menu Settings -> HotSpots). 
- 
-**What is device pixel ratio?** 
-Device pixel ratios is a comparison between a device's pixel density to the style of the website using CSS. A screen has a limited number of pixels it can display, and a limited space over which to display them. Therefore a higher device pixel ratio means a higher quality display.
+
+You cannot view the heat maps if your theme is not HTML5 compliant and you need to use an Internet browser which supports HTML5 canvas. Most modern browsers support HTML5 canvas now. Make sure the *Enable drawing heat map* option is turned on in the General options tab. If you see a box with the current browser window width, zoom level and device pixel information at the bottom right corner of your webpage, then there is no matching heat map data. You may need to resize the window, modify the zoom levels and device pixel ratios to match the heat map data collected. You can use the Heat Maps tab to find matching heat map data and to view the heat maps.
+
+**Plugin update does not seem to be working**
+
+If you're using a caching plugin such as W3TC then empty all page cache. Also empty your browser cache to ensure the latest JavaScript files are loaded.
+
+**What is device pixel ratio?**
+
+The device pixel ratio is the ratio between logical pixels and physical pixels (for websites that is the display device pixel density compared with CSS pixels). For instance, the iPhone 4 and iPhone 4S reports a device pixel ratio of 2, because the physical linear resolution is double the logical resolution (physical resolution: 960 x 640 and logical resolution: 480 x 320). A higher device pixel ratio means a higher quality display (effectively more dots per inch on the display screen).
+
+**How do I view the heat maps for different devices**
+
+If you have heat map data with various device pixel ratios, then you can use the actual device or find a device emulator to view the the heat maps. There are also options to ignore the device pixel ratio, ignore the zoom level and to ignore the width, but these options will not provide accurate heat map results.
+
+**Do I have to resize the window to the exact width?**
+
+No. There is an option to allow up to 20 pixels each side of your target width to display the heat map. This amount can be changed and is defaulted to 6 pixels.
+
+**My screen resolution is not large enough to display some of the heat maps**
+
+You can try ignoring the device pixel ratio and ignore the zoom level options, then do a browser zoom out to increase the website width. However, the heat map may not be entirely accurate if you do this. For heat map data with a device pixel ratio of 1:1 and a zoom level of 100%, viewing larger website widths using this method works OK.
 
 == Screenshots ==
+1. Heat map of mouse clicks and touch screen taps on a WordPress website with width 1200 pixels on a desktop PC.
 
-1. Heat map of clicks and taps on a WordPress website. As you can see, the navigation menu bar and top search input are highly used but the second search input is rarely used.
+2. Heat map of mouse clicks and touch screen taps on a responsive WordPress website on a mobile device with width 320 pixels.
 
-2. Heat map of clicks and taps on a responsive WordPress website.
+3. General options tab. 
 
-3. HotSpots plugin Settings page options for configuring and enabling features.
+4. Heat Maps tab. There's different heat maps for each width, device pixel ratio (device pixels compared to website pixels) and zoom level.
 
-4. HotSpots plugin Settings page options continued. You can configure the opacity, radius and hot colour of the circles or spots.
+5. Advanced options tab.
 
-5. HotSpots plugin Settings page allows you to open pages on your website and draw the heat maps for different widths, browser zoom levels and device pixel ratios.
-
-6. HotSpots plugin Settings page allows you to apply URL filters.
+6. Advanced options tab continued.
 
 == Changelog ==
+
+= 3.1.1 =
+* Added None to hide roles option for non logged in users or visitors who do not have a role
+
+= 3.1.0 =
+* Added scheduled start and end dates functionality for saving mouse clicks and touch screen taps
+* Small td left border added on the heat map data table for rows of the same width data
+* Added loading dialog while drawing heat map
+* Added hide specific user roles functionality for drawing heat maps
+
+= 3.0.2 =
+* Fixed drawing heat map where clickTapId=null in AJAX request
+
+= 3.0.1 =
+* Fix to show target information for different widths, device pixel ratios and zoom levels per URL when clicking the View Heat Map button
+* Added icon to plugin menu
+
+= 3.0 =
+* Major release and refactoring of plugin code
+* DB tables and columns renamed
+* Improved UI including tabs
+* Options are now managed via the Settings API
+* Additional information displayed to easier target heat map
+* Slight table changes to heat maps
+* Added width allowance option
+* New name for plugin Hotspots User Tracker - previously known as HotSpots
+* Plugin page added as a top level menu item in the admin panel
+* Added ignore width option
+
+= 2.2.5 =
+* Ignore hash # in URL when retrieving URL query params in JS
 
 = 2.2.4 = 
 * Overlayed information panel always on top
