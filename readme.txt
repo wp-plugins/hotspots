@@ -77,6 +77,9 @@ You can try ignoring the device pixel ratio and ignore the zoom level options, t
 
 == Changelog ==
 
+= 3.2.2 =
+* Fixed URL filter in heat maps tab
+
 = 3.2.1 =
 * Fixed url select style in heat maps tab
 

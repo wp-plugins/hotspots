@@ -1240,7 +1240,7 @@ class HUT_Heat_Maps_Table extends WP_List_Table {
 			$browser_family = isset($_REQUEST["browser_family"]) ? $_REQUEST["browser_family"]  : '';
 			$os_family = isset($_REQUEST["os_family"]) ? $_REQUEST["os_family"]  : '';
 			$device = isset($_REQUEST["device"]) ? $_REQUEST["device"]  : '';
-			$url = isset($_REQUEST["url"]) ? $_REQUEST["url"]  : '';
+			$url = isset($_REQUEST["url"]) ? stripslashes($_REQUEST["url"])  : '';
 			$width = isset($_REQUEST["width"]) ? $_REQUEST["width"]  : '';
 			$zoom_level = isset($_REQUEST["zoom_level"]) ? $_REQUEST["zoom_level"]  : '';
 			$device_pixel_ratio = isset($_REQUEST["device_pixel_ratio"]) ? $_REQUEST["device_pixel_ratio"]  : '';
@@ -1258,11 +1258,11 @@ class HUT_Heat_Maps_Table extends WP_List_Table {
 			echo '&nbsp;<select name="url" id="url">';
 			echo '<option value="">All</option>';
 			foreach ($rows as $row) {
-				$current_url = $row->url;
+				$current_url = stripslashes($row->url);
 				$selected = '';
 				if ($current_url == $url)
 					$selected = ' selected="selected"';
-				echo '<option value="' . $current_url . '"' . $selected . '>' . $current_url . '</option>';
+				echo '<option value="' . addslashes($current_url) . '"' . $selected . '>' . $current_url . '</option>';
 			}
 			echo '</select>';
 				
@@ -1442,7 +1442,7 @@ class HUT_Heat_Maps_Table extends WP_List_Table {
 		if ($zoom_level != null) {
 			$query .= ' AND zoom_level = "' . $zoom_level . '"';
 		}
-		$query .= ' GROUP BY width, device_pixel_ratio, zoom_level';
+		$query .= ' GROUP BY url, width, device_pixel_ratio, zoom_level';
 		if ($show_uaparser)
 			$query .= ', browser_family, os_family, device';
 		
@@ -1491,7 +1491,7 @@ class HUT_Heat_Maps_Table extends WP_List_Table {
 				// Hidden input for target data
 				$id = $item[ 'id' ];
 				$url = $item[ 'url' ];
-				echo '<input type="hidden" id="' . $id . '-url" name="' . $id . '-url" value="' . $url . '"></input>';
+				echo '<input type="hidden" id="' . $id . '-url" name="' . $id . '-url" value="' . addslashes($url) . '"></input>';
 				$width = $item[ 'width' ];
 				echo '<input type="hidden" id="' . $id . '-width" name="' . $id . '-width" value="' . $width . '"></input>';
 				$device_pixel_ratio = $item[ 'device_pixel_ratio' ];
