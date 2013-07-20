@@ -77,6 +77,11 @@ You can try ignoring the device pixel ratio and ignore the zoom level options, t
 
 == Changelog ==
 
+= 3.2.3 =
+* Fixed pagination issue after filtering again in heat maps table
+* Fixed invalid clicks and taps count in heat maps table
+* Increased items per page on heat maps table to 25
+
 = 3.2.2 =
 * Fixed URL filter in heat maps tab
 

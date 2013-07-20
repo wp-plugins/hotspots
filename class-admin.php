@@ -25,7 +25,10 @@ class HUT_Admin {
 	 */
 	function __construct() {
 		// Settings
-		add_action( 'init', array( &$this, 'load_settings' ) );
+		add_action('init', array( &$this, 'load_settings' ) );
+		add_action('init', array( &$this, 'start_session'), 1);
+		add_action('wp_logout', array( &$this, 'end_session') );
+		add_action('wp_login', array( &$this, 'end_session') );
 		
 		add_action( 'admin_init', array( &$this, 'register_general_settings' ) );
 		add_action( 'admin_init', array( &$this, 'register_url_filter_settings' ) );
@@ -49,6 +52,22 @@ class HUT_Admin {
 	
 		// Setup AJAX calls
 		$this->add_ajax_actions();
+	}
+	
+	/**
+	 * Start session
+	 */
+	function start_session() {
+		if(!session_id()) {
+			session_start();
+		}
+	}
+	
+	/**
+	 * End session
+	 */
+	function end_session() {
+		session_destroy ();
 	}
 
 	/**
@@ -1237,18 +1256,15 @@ class HUT_Heat_Maps_Table extends WP_List_Table {
 	 */
 	function extra_tablenav( $which ) {
 		if ( $which == "top" ){
-			$browser_family = isset($_REQUEST["browser_family"]) ? $_REQUEST["browser_family"]  : '';
-			$os_family = isset($_REQUEST["os_family"]) ? $_REQUEST["os_family"]  : '';
-			$device = isset($_REQUEST["device"]) ? $_REQUEST["device"]  : '';
-			$url = isset($_REQUEST["url"]) ? stripslashes($_REQUEST["url"])  : '';
-			$width = isset($_REQUEST["width"]) ? $_REQUEST["width"]  : '';
-			$zoom_level = isset($_REQUEST["zoom_level"]) ? $_REQUEST["zoom_level"]  : '';
-			$device_pixel_ratio = isset($_REQUEST["device_pixel_ratio"]) ? $_REQUEST["device_pixel_ratio"]  : '';
-			$show_uaparser = false;
-			if (isset($_REQUEST["show_uaparser"])) {
-				$show_uaparser = ($_REQUEST["show_uaparser"] == "on") ? true  : false;
-			}
-			
+			$browser_family = isset($_SESSION['browser_family']) ? $_SESSION['browser_family'] : '';
+			$os_family = isset($_SESSION['os_family']) ? $_SESSION['os_family'] : '';
+			$device = isset($_SESSION['device']) ? $_SESSION['device'] : '';
+			$url= isset($_SESSION['url']) ? $_SESSION['url'] : '';
+			$width = isset($_SESSION['width']) ? $_SESSION['width'] : '';
+			$zoom_level= isset($_SESSION['zoom_level']) ? $_SESSION['zoom_level'] : '';
+			$device_pixel_ratio= isset($_SESSION['device_pixel_ratio']) ? $_SESSION['device_pixel_ratio'] : '';
+			$show_uaparser= isset($_SESSION['show_uaparser']) ? $_SESSION['show_uaparser'] : false;
+
 			global $wpdb;
 			
 			// URL
@@ -1387,18 +1403,47 @@ class HUT_Heat_Maps_Table extends WP_List_Table {
 	}
 
 	/**
+	 * Resets the session object if a POST has been made
+	 */
+	function reset_session_object() {
+
+		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+			$browser_family = isset($_POST["browser_family"]) ? $_POST["browser_family"]  : '';
+			$os_family = isset($_POST["os_family"]) ? $_POST["os_family"]  : '';
+			$device = isset($_POST["device"]) ? $_POST["device"]  : '';
+			$url = isset($_POST["url"]) ? stripslashes($_POST["url"])  : '';
+			$width = isset($_POST["width"]) ? $_POST["width"]  : '';
+			$zoom_level = isset($_POST["zoom_level"]) ? $_POST["zoom_level"]  : '';
+			$device_pixel_ratio = isset($_POST["device_pixel_ratio"]) ? $_POST["device_pixel_ratio"]  : '';
+			$show_uaparser = false;
+			if (isset($_POST["show_uaparser"])) {
+				$show_uaparser = ($_POST["show_uaparser"] == "on") ? true  : false;
+			}
+			
+			$_SESSION['browser_family'] = $browser_family;
+			$_SESSION['os_family'] = $os_family;
+			$_SESSION['device'] = $device;
+			$_SESSION['url'] = $url;
+			$_SESSION['width'] = $width;
+			$_SESSION['zoom_level'] = $zoom_level;
+			$_SESSION['device_pixel_ratio'] = $device_pixel_ratio;
+			$_SESSION['show_uaparser'] = $show_uaparser;
+		}
+	}
+
+	/**
 	 * (non-PHPdoc)
 	 * @see WP_List_Table::prepare_items()
 	 */
 	function prepare_items() {
-		global $wpdb;	
+		$this->reset_session_object();
+		
+		$show_uaparser= isset($_SESSION['show_uaparser']) ? $_SESSION['show_uaparser'] : false;
+
+		global $wpdb;
 
 		// Register the columns
 		$columns = $this->get_columns();
-		$show_uaparser = false;
-		if (isset($_REQUEST["show_uaparser"])) {
-			$show_uaparser = ($_REQUEST["show_uaparser"] == "on") ? true  : false;
-		}
 		
 		$hidden = array('id');
 		if ($show_uaparser == false)
@@ -1406,19 +1451,21 @@ class HUT_Heat_Maps_Table extends WP_List_Table {
 			
 		$sortable = $this->get_sortable_columns();
 		$this->_column_headers = array($columns, $hidden, $sortable);
-
 		
 		// Query params
-		$browser_family = isset($_REQUEST["browser_family"]) ? $_REQUEST["browser_family"]  : null;
-		$os_family = isset($_REQUEST["os_family"]) ? $_REQUEST["os_family"]  : null;
-		$device = isset($_REQUEST["device"]) ? $_REQUEST["device"]  : null;
-		$url = isset($_REQUEST["url"]) ? $_REQUEST["url"]  : null;
-		$width = isset($_REQUEST["width"]) ? $_REQUEST["width"]  : null;
-		$zoom_level = isset($_REQUEST["zoom_level"]) ? $_REQUEST["zoom_level"]  : null;
-		$device_pixel_ratio = isset($_REQUEST["device_pixel_ratio"]) ? $_REQUEST["device_pixel_ratio"]  : null;
+		$browser_family = isset($_SESSION['browser_family']) ? $_SESSION['browser_family'] : '';
+		$os_family = isset($_SESSION['os_family']) ? $_SESSION['os_family'] : '';
+		$device = isset($_SESSION['device']) ? $_SESSION['device'] : '';
+		$url= isset($_SESSION['url']) ? $_SESSION['url'] : '';
+		$width = isset($_SESSION['width']) ? $_SESSION['width'] : '';
+		$zoom_level= isset($_SESSION['zoom_level']) ? $_SESSION['zoom_level'] : '';
+		$device_pixel_ratio= isset($_SESSION['device_pixel_ratio']) ? $_SESSION['device_pixel_ratio'] : '';
 		
 		// get table data
-		$query = 'SELECT id, url, width, browser_family, os_family, device, device_pixel_ratio, zoom_level, COUNT(*) AS count FROM '.$wpdb->prefix.HUT_Common::CLICK_TAP_TBL_NAME.' WHERE 1';
+		$query = 'SELECT id, url, width, device_pixel_ratio, zoom_level, COUNT(*) AS count ';
+		if ($show_uaparser)
+			$query .= ', browser_family, os_family, device';
+		$query .= ' FROM '.$wpdb->prefix.HUT_Common::CLICK_TAP_TBL_NAME.' WHERE 1';
 		if ($url != null) {
 			$query .= ' AND url = "'. $url . '"';
 		}
@@ -1445,13 +1492,13 @@ class HUT_Heat_Maps_Table extends WP_List_Table {
 		$query .= ' GROUP BY url, width, device_pixel_ratio, zoom_level';
 		if ($show_uaparser)
 			$query .= ', browser_family, os_family, device';
-		
 		$query .= ' ORDER BY count DESC';
-			
+		
 		// pagination
 		$item_count = $wpdb->query($query); //return the total number of affected rows
-		$items_per_page = 15;
-		$page_num = !empty($_GET["paged"]) ? mysql_real_escape_string($_GET["paged"]) : '';
+		$items_per_page = 25;
+		// Ensure paging is reset on filter submit by checking HTTP method as well
+		$page_num = !empty($_GET["paged"]) && ($_SERVER['REQUEST_METHOD'] != 'POST') ? mysql_real_escape_string($_GET["paged"]) : '';
 		if (empty($page_num) || !is_numeric($page_num) || $page_num<=0 ) {
 			$page_num = 1;
 		}
@@ -1462,7 +1509,7 @@ class HUT_Heat_Maps_Table extends WP_List_Table {
 			$query .= ' LIMIT ' .(int)$offset. ',' .(int)$items_per_page;
 		}
 		$this->set_pagination_args( array( "total_items" => $item_count, "total_pages" => $total_pages, "per_page" => $items_per_page ) );
-
+		
 		$this->items =  $wpdb->get_results($query, ARRAY_A);
 	}
 
@@ -1498,13 +1545,18 @@ class HUT_Heat_Maps_Table extends WP_List_Table {
 				echo '<input type="hidden" id="' . $id . '-device_pixel_ratio" name="' . $id . '-device_pixel_ratio" value="' . $device_pixel_ratio . '"></input>';
 				$zoom_level = $item[ 'zoom_level' ];
 				echo '<input type="hidden" id="' . $id . '-zoom_level" name="' . $id . '-zoom_level" value="' . $zoom_level . '"></input>';
-				$browser_family = $item[ 'browser_family' ];
-				echo '<input type="hidden" id="' . $id . '-browser_family" name="' . $id . '-browser_family" value="' . $browser_family . '"></input>';
-				$os_family = $item[ 'os_family' ];
-				echo '<input type="hidden" id="' . $id . '-os_family" name="' . $id . '-os_family" value="' . $os_family . '"></input>';
-				$device = $item[ 'device' ];
-				echo '<input type="hidden" id="' . $id . '-device" name="' . $id . '-device" value="' . $device . '"></input>';
-				
+				if (isset($item[ 'browser_family' ])) {
+					$browser_family = $item[ 'browser_family' ];
+					echo '<input type="hidden" id="' . $id . '-browser_family" name="' . $id . '-browser_family" value="' . $browser_family . '"></input>';
+				}
+				if (isset($item[ 'os_family' ])) {
+					$os_family = $item[ 'os_family' ];
+					echo '<input type="hidden" id="' . $id . '-os_family" name="' . $id . '-os_family" value="' . $os_family . '"></input>';
+				}
+				if (isset($item[ 'device' ])) {
+					$device = $item[ 'device' ];
+					echo '<input type="hidden" id="' . $id . '-device" name="' . $id . '-device" value="' . $device . '"></input>';
+				}
 				// View heat map button
 				echo '<input id="' . $id .'" type="button" class="button view-heat-map-button" value="View Heat Map" />';
 
@@ -1552,16 +1604,19 @@ class HUT_Heat_Maps_Table extends WP_List_Table {
 		$url = $item['url'];
 		$device_pixel_ratio = $item['device_pixel_ratio'];
 		$zoom_level = $item['zoom_level'];
-		$browser_family = $item['browser_family'];
-		$os_family = $item['os_family'];
-		$device = $item['device'];
 		
 		global $wpdb;
 		$query = 'SELECT * FROM '.$wpdb->prefix.HUT_Common::CLICK_TAP_TBL_NAME.' WHERE ' . HUT_Common::IS_TAP_COLUMN . ' = 1';
 		$query .= ' AND url = "' . $url . '" AND device_pixel_ratio = "' .  $device_pixel_ratio . '" AND zoom_level = "' . $zoom_level . '"';
-		$query .= ' AND browser_family = "' . $browser_family . '" AND os_family = "' . $os_family . '" AND device = "' . $device . '"';
+		if (isset($item[ 'browser_family' ]))
+			$query .= ' AND browser_family = "' . $item[ 'browser_family' ] . '"';
+		if (isset($item[ 'os_family' ]))
+			$query .= ' AND os_family = "' . $item[ 'os_family' ] . '"';
+		if (isset($item[ 'device' ]))
+			$query .= ' AND device = "' . $item[ 'device' ] . '"';
 
 		$tapCount = $wpdb->query($query); //return the total number of affected rows
+		
 		echo ($totalCount - $tapCount) . ' clicks and ' . $tapCount . ' taps';
 	}
 	
