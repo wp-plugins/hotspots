@@ -5,3 +5,7 @@ table.heatmapsdetails .column-url,table.heatmapdetail .column-url {
 input[type="checkbox"] + label.hut_role {
 	margin-right: 20px;
 }
+
+form#heat-maps-form select#url {
+	max-width: 300px;
+}

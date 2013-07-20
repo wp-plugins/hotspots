@@ -874,7 +874,7 @@ class HUT_Admin {
 		by adding a query parameter drawHeatMap=true to the URL (i.e. http://www.mywebsite.com?drawHeatMap=true and 
 		http://www.mywebsite.com?cat=1&drawHeatMap=true). Note: You can target specific heat maps (width, device pixel ratio 
 		and zoom levels only) using the View Heat Map button in the table below.</p>
-		<form method="post">
+		<form id="heat-maps-form" name="heat-maps-form" method="post">
 			<?php		        
 			$hut_heat_maps_table = new HUT_Heat_Maps_Table();
 			$hut_heat_maps_table->prepare_items();
