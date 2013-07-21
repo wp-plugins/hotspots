@@ -885,7 +885,7 @@ class HUT_Admin {
 		    $url_filters_table->prepare_items();
 		    $url_filters_table->display();
 		?>
-		 </form>
+		</form>
 	<?php
 	}
 		
