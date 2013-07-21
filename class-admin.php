@@ -1604,10 +1604,13 @@ class HUT_Heat_Maps_Table extends WP_List_Table {
 		$url = $item['url'];
 		$device_pixel_ratio = $item['device_pixel_ratio'];
 		$zoom_level = $item['zoom_level'];
+		$width = $item['width'];
 		
 		global $wpdb;
 		$query = 'SELECT * FROM '.$wpdb->prefix.HUT_Common::CLICK_TAP_TBL_NAME.' WHERE ' . HUT_Common::IS_TAP_COLUMN . ' = 1';
 		$query .= ' AND url = "' . $url . '" AND device_pixel_ratio = "' .  $device_pixel_ratio . '" AND zoom_level = "' . $zoom_level . '"';
+		$query .= ' AND width = "' . $width . '"';
+		
 		if (isset($item[ 'browser_family' ]))
 			$query .= ' AND browser_family = "' . $item[ 'browser_family' ] . '"';
 		if (isset($item[ 'os_family' ]))
