@@ -878,6 +878,14 @@ class HUT_Admin {
 			submit_button( $text = 'Add URL filter', $type = 'button-secondary', $name = 'add-URL-filter', $wrap = false, $other_attributes = null );
 		 	?>
 		</form>
+		
+		<form method="post">
+	    <?php 	
+	   		$url_filters_table = new HUT_URL_Filter_Table();
+		    $url_filters_table->prepare_items();
+		    $url_filters_table->display();
+		?>
+		 </form>
 	<?php
 	}
 		
