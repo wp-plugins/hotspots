@@ -106,28 +106,36 @@ jQuery(document).ready(function() {
 	     * @private
 	     */
 	    var webkit = function () {
-	        var important = function (str) {
-	            return str.replace(/;/g, " !important;");
-	        };
-	
-	        var div = document.createElement('div');
-	        div.innerHTML = "1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>0";
-	        div.setAttribute('style', important('font: 100px/1em sans-serif; -webkit-text-size-adjust: none; text-size-adjust: none; height: auto; width: 1em; padding: 0; overflow: visible;'));
-	
-	        // The container exists so that the div will be laid out in its own flow
-	        // while not impacting the layout, viewport size, or display of the
-	        // webpage as a whole.
-	        // Add !important and relevant CSS rule resets
-	        // so that other rules cannot affect the results.
-	        var container = document.createElement('div');
-	        container.setAttribute('style', important('width:0; height:0; overflow:hidden; visibility:hidden; position: absolute;'));
-	        container.appendChild(div);
-	
-	        document.body.appendChild(container);
-	        var zoom = 1000 / div.clientHeight;
-	        zoom = Math.round(zoom * 100) / 100;
-	        document.body.removeChild(container);
-	
+	        var zoom = 1;
+	        // For Chrome >= 27
+	        if (window.chrome && parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 27) {
+	        	var n = window.top.outerWidth / window.top.innerWidth; 
+		    	zoom = Math.round(n * 100) / 100;
+	        } else { // For all other webkit browsers
+		        var important = function (str) {
+		            return str.replace(/;/g, " !important;");
+		        };
+		
+		        var div = document.createElement('div');
+		        div.innerHTML = "1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>0";
+		        div.setAttribute('style', important('font: 100px/1em sans-serif; -webkit-text-size-adjust: none; text-size-adjust: none; height: auto; width: 1em; padding: 0; overflow: visible;'));
+		
+		        // The container exists so that the div will be laid out in its own flow
+		        // while not impacting the layout, viewport size, or display of the
+		        // webpage as a whole.
+		        // Add !important and relevant CSS rule resets
+		        // so that other rules cannot affect the results.
+		        var container = document.createElement('div');
+		        container.setAttribute('style', important('width:0; height:0; overflow:hidden; visibility:hidden; position: absolute;'));
+		        container.appendChild(div);
+		
+		        document.body.appendChild(container);
+		        
+	        	zoom = 1000 / div.clientHeight;
+	  	        zoom = Math.round(zoom * 100) / 100;
+	  	        document.body.removeChild(container);
+	        }
+	    	
 	        return{
 	            zoom: zoom,
 	            devicePxPerCssPx: zoom * devicePixelRatio()

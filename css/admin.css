@@ -9,3 +9,8 @@ input[type="checkbox"] + label.hut_role {
 form#heat-maps-form select#url {
 	max-width: 300px;
 }
+
+form#heat-maps-form .tablenav {
+	min-height: 30px;
+	height: auto;
+}
