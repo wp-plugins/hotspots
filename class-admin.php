@@ -691,7 +691,14 @@ class HUT_Admin {
 		?>
 		<div class="wrap">
 			<div id="hut-icon" class="icon32" style="background: url('<?php echo plugins_url( 'hotspots32.ico', __FILE__ ); ?>') no-repeat left top;"></div>
-			<h2>Hotspots User Tracker: Settings <span style="font-size: 12px;"><a href="http://www.danielpowney.com/donate">Donate now!</a></span></h2>
+			<h2>Hotspots User Tracker: Settings
+				<form id="paypal-form" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+					<input type="hidden" name="cmd" value="_s-xclick">
+					<input type="hidden" name="hosted_button_id" value="5BDJEA4KANDZW">
+					<input type="image" src="https://www.paypalobjects.com/en_AU/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="PayPal — The safer, easier way to pay online.">
+					<img alt="" border="0" src="https://www.paypalobjects.com/en_AU/i/scr/pixel.gif" width="1" height="1">
+				</form>
+			</h2>
 			
 			<h2 class="nav-tab-wrapper">
 			<?php
@@ -918,7 +925,15 @@ class HUT_Admin {
 		?>
 		<div class="wrap">
 			<div id="hut-icon" class="icon32" style="background: url('<?php echo plugins_url( 'hotspots32.ico', __FILE__ ); ?>') no-repeat left top;"></div>
-			<h2>Hotspots User Tracker: User Tracking <span style="font-size: 12px;"><a href="http://www.danielpowney.com/donate">Donate now!</a></span></h2>
+			<h2>Hotspots User Tracker: Settings
+				<form id="paypal-form" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+					<input type="hidden" name="cmd" value="_s-xclick">
+					<input type="hidden" name="hosted_button_id" value="5BDJEA4KANDZW">
+					<input type="image" src="https://www.paypalobjects.com/en_AU/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="PayPal — The safer, easier way to pay online.">
+					<img alt="" border="0" src="https://www.paypalobjects.com/en_AU/i/scr/pixel.gif" width="1" height="1">
+				</form>
+			</h2>
+			
 			<h2 class="nav-tab-wrapper">
 			<?php 
 			$current_tab = isset( $_GET['tab'] ) ? $_GET['tab'] : HUT_Common::HEAT_MAPS_TAB;

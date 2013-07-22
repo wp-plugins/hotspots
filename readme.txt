@@ -76,9 +76,11 @@ You can try ignoring the device pixel ratio and ignore the zoom level options, t
 5. General options tab.
 
 == Changelog ==
+
 = 3.2.5 =
 * Fixed heat maps table topnav filter height style
 * Added Chrome browser > 27 zoom detection fix
+* Replaced donate link with Paypal button
 
 = 3.2.4 =
 * Fixed invalid clicks and taps count in heat maps table
