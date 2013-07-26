@@ -48,7 +48,10 @@ You cannot view the heat maps if your theme is not HTML5 compliant and you need 
 **Plugin update does not seem to be working**
 If you're using a caching plugin such as W3TC then empty all page cache. Also empty your browser cache to ensure the latest JavaScript files are loaded. Also try to deactivate and then reactivate the plugin.
 
-** How do I target different device pixel ratios, widths, zoom levels, devices, browsers and operating systems? **
+** Heat map is now showing **
+The plugin relies on HTML5 canvas element to draw the heat map. Check your theme supports HTML5. Saving the mouse clicks and touch screen taps works in non HTML5 browsers.
+
+** How do I target different device pixel ratios, widths, zoom levels, devices, browsers and operating systems when viewing the heat map? **
 In the heat maps tab you can filter by URL, width, device pixel ratio, zoom level, devices, browsers and operating systems. Here you might see some different values which can be used to target different heat maps. Additional parameters can be passed along with the ?drawHeatMap=true query parameter to help target the heat maps:
 * width - Width i.e. 1600
 * devicePixelRatio - Device pixel ratio i.e. 1
@@ -59,6 +62,21 @@ In the heat maps tab you can filter by URL, width, device pixel ratio, zoom leve
 
 Here's an example:
 http://www.mywebsite.com?drawHeatMap=true&width=1600&devicePixelRatio=1&zoomLevel=1&osFamily=Mac OS X&browserFamily=Chrome&device=Other
+
+** Does the plugin impact performance **
+Yes, but it is basically negligable for most websites. An extra request is made to the server every mouse click and touch screen tap. You can use the schedule start date and end date feature to save mouse clicks and touch screen taps in a small window such as off peak usage times. There are also database limits that can be set so that the database is not over populated.
+
+** I only want to use the plugin on one page**
+There are URL filters you can use to include or exclude the plugin for different URLs.
+
+** Can I reset the database?**
+There is an option to clear the database.
+
+** Mouse clicks or touch screen taps not being saved when I click on a button or link **
+Sometimes mouse clicks and touch screen taps are not recorded as the browser event can take over the AJAX call (cancel it) when navigating to a different page for example. So it can be a little hit and miss and it's up to the browser. Also, if the page JavaScript has not finished loading and you quickly click on a link, obviously the mouse click will not be recorded.
+
+** Width is not the same when I view heat map from backend **
+Sometimes the browser adds a veritcal scrollbar which is subtracted from the width. E.g. 17px for Firefox. So if you wanted to view 1600px and when viewing the heat map the expanded browser window is 1583px with a vertical scrollbar of 17px, change the width allowance optionin the heat map settings tab to allow the mouse clicks to be displayed for 17px difference.
 
 ** How do I change the heat map display? **
 There's two implementations of the heat map. There is an option in the Heat map settings tab called use heatmap.js. heatmap.js is an open source JavaScript library for HTML5 drawing heat maps. If this option is not checked, then the mouse clicks and touch screen tapsare plotted as coloured spots from green to red.
