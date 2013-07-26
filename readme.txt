@@ -43,48 +43,48 @@ This plugin should not be used where performance is critical as an additional se
 == Frequently Asked Questions ==
 
 **I cannot see the heat map when adding URL query parameter drawHeatMap=true.**
-
 You cannot view the heat maps if your theme is not HTML5 compliant and you need to use an Internet browser which supports HTML5 canvas. Most modern browsers support HTML5 canvas now. Make sure the *Enable drawing heat map* option is turned on in the General options tab. If you see a box with the current browser window width, zoom level and device pixel information at the bottom right corner of your webpage, then there is no matching heat map data. You may need to resize the window, modify the zoom levels and device pixel ratios to match the heat map data collected. You can use the Heat Maps tab to find matching heat map data and to view the heat maps.
 
 **Plugin update does not seem to be working**
+If you're using a caching plugin such as W3TC then empty all page cache. Also empty your browser cache to ensure the latest JavaScript files are loaded. Also try to deactivate and then reactivate the plugin.
 
-If you're using a caching plugin such as W3TC then empty all page cache. Also empty your browser cache to ensure the latest JavaScript files are loaded.
+** How do I target different device pixel ratios, widths, zoom levels, devices, browsers and operating systems? **
+In the heat maps tab you can filter by URL, width, device pixel ratio, zoom level, devices, browsers and operating systems. Here you might see some different values which can be used to target different heat maps. Additional parameters can be passed along with the ?drawHeatMap=true query parameter to help target the heat maps:
+* width - Width i.e. 1600
+* devicePixelRatio - Device pixel ratio i.e. 1
+* zoomLevel - Zoom level i.e. 1
+* osFamily - Operating system i.e. Windows 7, Windows 8, Android, Mac OS X etc...
+* browserFamily - Operating System i.e. IE, Firefox, Safari etc...
+* device - Device i.e. Other, iPad etc...
+
+Here's an example:
+http://www.mywebsite.com?drawHeatMap=true&width=1600&devicePixelRatio=1&zoomLevel=1&osFamily=Mac OS X&browserFamily=Chrome&device=Other
+
+** How do I change the heat map display? **
+There's two implementations of the heat map. There is an option in the Heat map settings tab called use heatmap.js. heatmap.js is an open source JavaScript library for HTML5 drawing heat maps. If this option is not checked, then the mouse clicks and touch screen tapsare plotted as coloured spots from green to red.
 
 **What is device pixel ratio?**
-
 The device pixel ratio is the ratio between logical pixels and physical pixels (for websites that is the display device pixel density compared with CSS pixels). For instance, the iPhone 4 and iPhone 4S reports a device pixel ratio of 2, because the physical linear resolution is double the logical resolution (physical resolution: 960 x 640 and logical resolution: 480 x 320). A higher device pixel ratio means a higher quality display (effectively more dots per inch on the display screen).
 
 **How do I view the heat maps for different devices**
-
 If you have heat map data with various device pixel ratios, then you can use the actual device or find a device emulator to view the the heat maps. There are also options to ignore the device pixel ratio, ignore the zoom level and to ignore the width, but these options will not provide accurate heat map results.
 
 **Do I have to resize the window to the exact width?**
-
 No. There is an option to allow up to 20 pixels each side of your target width to display the heat map. This amount can be changed and is defaulted to 6 pixels.
 
 **My screen resolution is not large enough to display some of the heat maps**
-
 You can try ignoring the device pixel ratio and ignore the zoom level options, then do a browser zoom out to increase the website width. However, the heat map may not be entirely accurate if you do this. For heat map data with a device pixel ratio of 1:1 and a zoom level of 100%, viewing larger website widths using this method works OK.
 
 == Screenshots ==
 1. Heat map of clicks and taps on a WordPress website.
-
 2. Same heat map as above but using heatmap.js option to display the heat map
-
 3. Heat map of a clicks and taps on a responsive WordPress website using heatmap.js option
-
 4. Heat map of clicks and taps on a responsive WordPress website
-
-5. Heat Maps tab. There's different heat maps for each width, device pixel ratio (device pixels compared to website pixels) and zoom level.
-
+5. Heat Maps tab. There's different heat maps for each width, device pixel ratio (device pixels compared to website pixels) and zoom level. You can also filter by browser, operating system and device.
 6. General settings
-
 7. Heat map settings
-
 8. Heat map settings continued
-
 9. Schedule settings
-
 5. General options tab.
 
 == Changelog ==

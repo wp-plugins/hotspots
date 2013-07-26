@@ -33,7 +33,7 @@ jQuery(".view-heat-map-button").live('click', function(e) {
 	if (zoomLevel && zoomLevel.val())
 		url +="&zoomLevel=" + zoomLevel.val();
 	if (os_family && os_family.val())
-		url += "&os_family=" + os_family.val();
+		url += "&osFamily=" + os_family.val();
 	if (browserFamily && browserFamily.val())
 		url += "&browserFamily=" + browserFamily.val();
 	if (device && device.val())
