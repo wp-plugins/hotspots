@@ -12,32 +12,26 @@ Hotspots User Tracker draws a heat map of mouse clicks overlayed on your webpage
 
 == Description ==
 
-View a heat map of mouse clicks and touch screen taps overlayed on your webpage allowing you to improve usability by analysing user behaviour. Google Analytics can show you what page and links a visitor went to but it cannot tell you exactly where they clicked in a responsive design such as on smaller screen sizes. Hotspots User Tracker shows you exactly where user's have clicked or tapped. This can also give insight into which buttons or links are popular and easy to use including the effectiveness of advertising placement.
+View a heat map of mouse clicks and touch screen taps overlayed on your webpage allowing you to improve usability by analysing user behaviour.
 
 = Features =
 * Saves mouse click and touch screen tap information
 * Each page on your website has it's own heat map
+* Different heat maps are drawn when you resize the window, modify zoom levels and device pixel ratios to cater for responsive design
 * It's free and there's no sign up or registration required!
 * Heat maps can be displayed using two different implementations to choose from
 * All data is stored on your own WordPress database
-* Different heat maps are drawn when you resize the window, modify zoom levels and device pixel ratios to cater for responsive design
-* Browser, operating system and device information is also tracked
+* Browser, operating system and device information is also tracked and can be filtered
 * You can configure how many mouse clicks or touch screen taps are necessary to be hot, the size and also the opacity of the circle
 * You can apply URL filters to enable or disable the plugin for specific pages on your website (this can be useful for performance reasons)
 * Hide mouse clicks and touch screen taps from specific user roles when drawing heat maps
 * Schedule a start date/time and an end date/time for saving mouse clicks and touch screen taps
 
 = Demo =
-Here's a demo of the heat map of mouse clicks and touch screen taps overlayed on the Home page of a website for 1600px width, go to http://danielpowney.com/?drawHeatMap=true&width=1600&devicePixelRatio=1&zoomLevel=1. Make sure you resize width to 1600px (there's always an information panel at the bottom right of the page to help you).
+Here's a demo: http://danielpowney.com/?drawHeatMap=true&width=1600&devicePixelRatio=1&zoomLevel=1. Make sure you resize width to 1600px (there's always an information panel at the bottom right of the page to help you).
 
 = Notes =
 This plugin should not be used where performance is critical as an additional server request is made for each mouse click and touch screen tap. To be able to view the heat maps, your WordPress theme must be HTML5 compliant and you need to use an Internet browser which supports HTML5 canvas.
-
-= Credits =
-This plugin credits the following projects for some of it's functionality:
-* usparser for php: https://github.com/tobie/ua-parser
-* detect-zoom.js: https://github.com/tombigel/detect-zoom
-* heatmap.js: http://www.patrick-wied.at/static/heatmapjs/
 
 == Installation ==
 
