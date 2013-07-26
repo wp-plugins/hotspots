@@ -18,8 +18,10 @@ View a heat map of mouse clicks and touch screen taps overlayed on your webpage 
 * Saves mouse click and touch screen tap information
 * Each page on your website has it's own heat map
 * It's free and there's no sign up or registration required!
+* Heat maps can be displayed using two different implementations to choose from
 * All data is stored on your own WordPress database
 * Different heat maps are drawn when you resize the window, modify zoom levels and device pixel ratios to cater for responsive design
+* Browser, operating system and device information is also tracked
 * You can configure how many mouse clicks or touch screen taps are necessary to be hot, the size and also the opacity of the circle
 * You can apply URL filters to enable or disable the plugin for specific pages on your website (this can be useful for performance reasons)
 * Hide mouse clicks and touch screen taps from specific user roles when drawing heat maps
@@ -30,6 +32,12 @@ Here's a demo of the heat map of mouse clicks and touch screen taps overlayed on
 
 = Notes =
 This plugin should not be used where performance is critical as an additional server request is made for each mouse click and touch screen tap. To be able to view the heat maps, your WordPress theme must be HTML5 compliant and you need to use an Internet browser which supports HTML5 canvas.
+
+= Credits =
+This plugin credits the following projects for some of it's functionality:
+* usparser for php: https://github.com/tobie/ua-parser
+* detect-zoom.js: https://github.com/tombigel/detect-zoom
+* heatmap.js: http://www.patrick-wied.at/static/heatmapjs/
 
 == Installation ==
 
@@ -65,17 +73,36 @@ No. There is an option to allow up to 20 pixels each side of your target width t
 You can try ignoring the device pixel ratio and ignore the zoom level options, then do a browser zoom out to increase the website width. However, the heat map may not be entirely accurate if you do this. For heat map data with a device pixel ratio of 1:1 and a zoom level of 100%, viewing larger website widths using this method works OK.
 
 == Screenshots ==
-1. Heat map of clicks and taps on a WordPress website. As you can see, the navigation menu bar and top search input are highly used but the second search input is rarely used.
+1. Heat map of clicks and taps on a WordPress website.
 
-2. Heat map of clicks and taps on a responsive WordPress website for mobiles.
+2. Same heat map as above but using heatmap.js option to display the heat map
 
-3. Heat Maps tab. There's different heat maps for each width, device pixel ratio (device pixels compared to website pixels) and zoom level.
+3. Heat map of a clicks and taps on a responsive WordPress website using heatmap.js option
 
-4. Advanced options tab. You can customise the display of the heat maps and refresh the database.
+4. Heat map of clicks and taps on a responsive WordPress website
+
+5. Heat Maps tab. There's different heat maps for each width, device pixel ratio (device pixels compared to website pixels) and zoom level.
+
+6. General settings
+
+7. Heat map settings
+
+8. Heat map settings continued
+
+9. Schedule settings
 
 5. General options tab.
 
 == Changelog ==
+
+= 3.3 = 
+* Added heatmap.js option to display the heat map
+* Updated screenshots
+* Added ignore browser, ignore device and ignore device options
+* Added new banner
+* Fixed paypal button alignment
+* Added browser, operating system and device to information panel
+* Able to target browser, operating system and device
 
 = 3.2.5 =
 * Fixed heat maps table topnav filter height style

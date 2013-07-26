@@ -41,8 +41,13 @@ class HUT_Common {
 	APPLY_URL_FILTERS_OPTION			= 'apply_url_filters',
 	PLUGIN_VERSION_OPTION				= 'hut_plugin_version',
 	IGNORE_ZOOM_LEVEL_OPTION			= 'ignore_zoom_level',
+	USE_HEATMAPJS_OPTION				= 'use_heatmapjs',
 	IGNORE_DEVICE_PIXEL_RATIO_OPTION 	= 'ignore_device_pixel_ratio',
 	IGNORE_WIDTH_OPTION					= 'ignore_width',
+	IGNORE_DEVICE_OPTION				= 'ignore_device',
+	IGNORE_BROWSER_FAMILY_OPTION		= 'ignore_browser_family',
+	IGNORE_OS_FAMILY_OPTION				= 'ignore_os_family',
+	
 	URL_DB_LIMIT_OPTION					= 'url_db_limit',
 	WIDTH_ALLOWANCE_OPTION				= 'width_allowance',
 	SCHEDULED_START_DATE_OPTION			= 'schedule_start_date',
@@ -71,7 +76,7 @@ class HUT_Common {
 	NO_ROLE_VALUE						= "none";
 	
 	// URL query params which are ignored by the plugin
-	public static $ignore_query_params = array( 'drawHeatMap', 'KEY', 'XDEBUG_SESSION_START', 'clickTapId', 'width', 'devicePixelRatio', 'zoomLevel' );
+	public static $ignore_query_params = array( 'drawHeatMap', 'KEY', 'XDEBUG_SESSION_START', 'clickTapId', 'width', 'devicePixelRatio', 'zoomLevel', 'device', 'browserFamily', 'osFamily' );
 	
 	/**
 	 * Gets the client IP address

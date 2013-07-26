@@ -12,7 +12,7 @@
 	color: Gray;
 }
 
-div#infoDevPixRat, div#infoZoomLevel, div#infoWidth {
+div#infoDevPixRat, div#infoZoomLevel, div#infoWidth, div#infoBrowser, div#infoDevice, div#infoOS  {
 	display: inline-block !important;
 	font-family: Arial !important;
 	font-size: 1em !important;

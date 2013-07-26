@@ -10,6 +10,13 @@ var opacity = 0.2; // default is 0.2
 var drawHeatMapEnabled = false; // default is false
 var zIndex = 1000;
 var role = null;
+var useHeatmapjs = false;
+var device = null;
+var browserFamily = null;
+var osFamily = null;
+
+// heatmap.js
+var heatmap = null;
 
 
 /**
@@ -55,6 +62,7 @@ function initOptions() {
 	saveClickOrTapEnabled = (configData.saveClickOrTapEnabled) == "1" ? true : false;
 	if (urlDBLimitReached == true || scheduleCheck == false || urlExcluded == true)
 		saveClickOrTapEnabled = false;
+	useHeatmapjs = (configData.useHeatmapjs) == "1" ? true : false;
 	
 	spotRadius = parseInt(configData.spotRadius);
 	hot = parseInt(configData.hotValue);
@@ -158,8 +166,11 @@ function setupInfoPanel() {
 	
 	jQuery("<div id='infoPanel'>" +
 			"Width: <div id='infoWidth' />px, " +
-			"Zoom Level: <div id='infoZoomLevel' />, " +
-			"Device Pixel Ratio: <div id='infoDevPixRat' />" +
+			"Zoom: <div id='infoZoomLevel' />, " +
+			"DPR: <div id='infoDevPixRat' />, " +
+			"Browser: <div id='infoBrowser' />, " +
+			"OS: <div id='infoOS' />, " +
+			"Device: <div id='infoDevice' />" +
 			"</div>").appendTo("body");
 
 	// Add 1 to zIndex so it shows on top of the canvas
@@ -177,18 +188,33 @@ function setupInfoPanel() {
 	var width = getWidth();
 	var zoomLevel = detectZoom.zoom();
 	var devicePixelRatio =  detectZoom.device();
+
+	var osFamilyQueryParam =  urlHelper.getUrlParamByName(url, "osFamily");
+	var browserFamilyQueryParam =  urlHelper.getUrlParamByName(url, "browserFamily");
+	var deviceQueryParam =  urlHelper.getUrlParamByName(url, "device");
 	
 	var message = "";
 	if (widthQueryParam !== undefined && widthQueryParam !== "" && width != widthQueryParam) {
-		message += "<p style='color: Orange;'>Resize browser window width to " + widthQueryParam + ".</p>";
+		message += "Target width is " + widthQueryParam + "px. ";
 	}
 	if (devicePixelRatioQueryParam != undefined && devicePixelRatioQueryParam !== "" && devicePixelRatio != devicePixelRatioQueryParam) {
-		message += "<p style='color: Orange;'>Modify device pixel ratio to " + devicePixelRatioQueryParam + ".</p>";
+		message += "Target device pixel ratio is " + convertDecimalToRatio(devicePixelRatioQueryParam) + ". ";
 	}
 	if (zoomLevelQueryParam != undefined && zoomLevelQueryParam !== "" && zoomLevel != zoomLevelQueryParam) {
-		message += "<p style='color: Orange;'>Modify browser zoom level to " + zoomLevelQueryParam + ".</p>";
+		message += "Target zoom level is " + (parseInt(zoomLevelQueryParam) * 100) + "%. ";
 	}
+	if (osFamilyQueryParam !== undefined && osFamilyQueryParam !== "" && configData.osFamily != osFamilyQueryParam) {
+		message += "Target operating system is " + osFamilyQueryParam + ". ";
+	}
+	if (browserFamilyQueryParam !== undefined && browserFamilyQueryParam !== "" && configData.browserFamily != browserFamilyQueryParam) {
+		message += "Target browser is " + browserFamilyQueryParam + ". ";
+	}
+	if (deviceQueryParam !== undefined && deviceQueryParam !== "" && configData.device != deviceQueryParam) {
+		message += "Target device is " + deviceQueryParam + ".";
+	}
+	
 	if (message.length > 0)
+		message = "<p style='color: Orange;'>" + message + "</p>";
 		jQuery(message).appendTo("#infoPanel");
 	
 	// Update information on window resize
@@ -211,6 +237,9 @@ function refreshInfoPanel() {
 	var devicePixelRatio = detectZoom.device();
 	jQuery("#infoZoomLevel").html(zoomLevel * 100 + "%");
 	jQuery("#infoDevPixRat").html(convertDecimalToRatio(devicePixelRatio));
+	jQuery("#infoBrowser").html(configData.browserFamily);
+	jQuery("#infoOS").html(configData.osFamily);
+	jQuery("#infoDevice").html(configData.device);
 	
 }
 
@@ -294,8 +323,13 @@ function saveClickOrTap(posX, posY, isTap) {
 	jQuery.post(configData.ajaxUrl, data, function(response) {
 		var jsonResponse = jQuery.parseJSON(response);
 		if (drawHeatMapEnabled === true && debug === true) {
-			var heatValue = jsonResponse.heatValue;
-			drawClickOrTap(posX, posY, heatValue);
+			if (useHeatmapjs) {
+				// if heatmap.js
+				heatmap.store.addDataPoint(posX, posY, 1);
+			} else {
+				var heatValue = jsonResponse.heatValue;
+				drawClickOrTap(posX, posY, heatValue);
+			}
 		}
 	});
 }
@@ -319,7 +353,10 @@ function drawHeatMap() {
 	var width = getWidth();
 	
 	var clickTapId = urlHelper.getUrlParamByName(url, "clickTapId");
-	
+	var device = urlHelper.getUrlParamByName(url, "device");
+	var browserFamily = urlHelper.getUrlParamByName(url, "browserFamily");
+	var osFamily = urlHelper.getUrlParamByName(url, "osFamily");
+		
 	var data = {
 		action : "retrieve_clicks_and_taps",
 		nonce : configData.ajaxNonce,
@@ -327,16 +364,23 @@ function drawHeatMap() {
 		width : width,
 		zoomLevel : detectZoom.zoom(),
 		devicePixelRatio : detectZoom.device(),
-		clickTapId : (clickTapId !== undefined && clickTapId !== "") ? clickTapId : null
+		clickTapId : (clickTapId !== undefined && clickTapId !== "") ? clickTapId : null,
+		device : (device !== undefined && device !== "") ? device : null,
+		osFamily : (osFamily !== undefined && osFamily !== "") ? clickTapId : null,
+		browserFamily : (browserFamily !== undefined && browserFamily !== "") ? browserFamily : null,
 	};
 	jQuery.post(configData.ajaxUrl, data, function(response) {
 		var jsonResponse = jQuery.parseJSON(response);
 
 		for ( var index in jsonResponse) {
 			var clickOrTapData = jsonResponse[index];
-			// draw the mouse click or touch screen tap on the canvas
-			drawClickOrTap(clickOrTapData.x, clickOrTapData.y, 
-					clickOrTapData.heatValue);
+			if (useHeatmapjs) {
+				heatmap.store.addDataPoint(clickOrTapData.x, clickOrTapData.y, 1);
+			} else {
+				// draw the mouse click or touch screen tap on the canvas
+				drawClickOrTap(clickOrTapData.x, clickOrTapData.y, 
+						clickOrTapData.heatValue);
+			}
 		}
 		
 		jQuery("#loadingDialog").dialog('close');
@@ -405,24 +449,41 @@ function initCanvas() {
 	var canvasContainer = document.createElement('div');
 	document.body.appendChild(canvasContainer);
 	canvasContainer.setAttribute("id", "canvasContainer");
-	canvasContainer.style.position = "absolute";
 	canvasContainer.style.left = "0px";
 	canvasContainer.style.top = "0px";
-	canvasContainer.style.width = "100%";
-	canvasContainer.style.height = "100%";
 	canvasContainer.style.zIndex = zIndex;
-
-	// create the canvas
-	var canvas = document.createElement("canvas");
-	canvas.setAttribute("id", "canvas");
-	canvas.style.width = docWidth;
-	canvas.style.height = docHeight;
-	canvas.width = docWidth;
-	canvas.height = docHeight;
-	canvas.style.overflow = 'visible';
-	canvas.style.position = 'absolute';
 	
-	canvasContainer.appendChild(canvas);
+	if (useHeatmapjs) {
+		canvasContainer.style.width = docWidth + "px"; // "100%";
+		canvasContainer.style.height = docHeight + "px"; //"100%";
+		canvasContainer.style.position = "absolute";
+		 // heatmap configuration
+		var config = {
+			element : document.getElementById("canvasContainer"),
+			radius : spotRadius,
+			opacity : opacity * 100
+		};
+		// creates and initializes the heatmap
+		heatmap = h337.create(config);
+		heatmap.store.setDataSet({ max: hot, data : [] });
+	} else {
+		canvasContainer.style.position = "absolute";
+		canvasContainer.style.width = "100%";
+		canvasContainer.style.height = "100%";
+
+		
+		// create the canvas
+		var canvas = document.createElement("canvas");
+		canvas.setAttribute("id", "canvas");
+		canvas.style.width = docWidth;
+		canvas.style.height = docHeight;
+		canvas.width = docWidth;
+		canvas.height = docHeight;
+		canvas.style.overflow = 'visible';
+		canvas.style.position = 'absolute';
+		
+		canvasContainer.appendChild(canvas);		
+	}
 	
 	// set opacity for all elements so that hot spots are visible
 	jQuery("body *").each(function() {
@@ -435,8 +496,8 @@ function initCanvas() {
 		}
 		// check z-index to ensure heat map is overlayed on top of any element
 		var tempZIndex = jQuery(this).css("z-index");
-		if (tempZIndex > zIndex) {
-			zIndex = tempZIndex + 1;
+		if (tempZIndex != "auto" && parseInt(tempZIndex) > parseInt(zIndex)) {
+			zIndex = parseInt(tempZIndex) + 1;
 			var canvasContainer = jQuery("#canvasContainer");
 			canvasContainer.css("z-index", zIndex);
 		}

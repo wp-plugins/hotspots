@@ -28,7 +28,8 @@ class HUT_Frontend {
 
 		wp_enqueue_style( HUT_Common::PLUGIN_ID . '-frontend-style' , plugins_url( 'css/frontend.css', __FILE__ ) );
 		wp_enqueue_script( 'detect-zoom', plugins_url( 'js/detect-zoom.js', __FILE__ ), array(), false, true );
-		wp_enqueue_script( HUT_Common::PLUGIN_ID . '-frontend-script', plugins_url( 'js/frontend.js', __FILE__ ), array( 'jquery', 'detect-zoom' ), false, true );
+		wp_enqueue_script( 'heatmap.js', plugins_url( 'heatmap.js/heatmap.js', __FILE__ ), array(), false, true );
+		wp_enqueue_script( HUT_Common::PLUGIN_ID . '-frontend-script', plugins_url( 'js/frontend.js', __FILE__ ), array( 'jquery', 'detect-zoom', 'heatmap.js' ), false, true );
 
 		// for loading dialog
 		wp_enqueue_script('jquery-ui-dialog');
@@ -153,6 +154,16 @@ class HUT_Frontend {
 		$roles = $current_user->roles;
 		$role = array_shift($roles);
 		
+		$ua = $_SERVER['HTTP_USER_AGENT'];
+		$parser = new UAParser();
+		$result = $parser->parse($ua);
+			
+		$browser_family =  $result->ua->family;
+		$browser_version = $result->ua->toVersionString;
+		$device = $result->device->family;
+		$os_family = $result->os->family;
+		$os_version = $result->os->toVersionString;
+		
 		$config_array = array(
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 				'ajaxNonce' => wp_create_nonce( HUT_Common::PLUGIN_ID.'-nonce' ),
@@ -163,10 +174,14 @@ class HUT_Frontend {
 				'spotOpacity' =>  $heat_map_settings[ HUT_Common::SPOT_OPACITY_OPTION ],
 				'spotRadius' =>  $heat_map_settings[ HUT_Common::SPOT_RADIUS_OPTION ],
 				'filterType' => $url_filter_settings[ HUT_Common::FILTER_TYPE_OPTION ],
+				'useHeatmapjs' => $heat_map_settings[ HUT_Common::USE_HEATMAPJS_OPTION ],
 				'role' => $role,
 				'urlExcluded' => $url_excluded,
 				'scheduleCheck' => $schedule_check,
-				'urlDBLimitReached' => $url_db_limit_reached
+				'urlDBLimitReached' => $url_db_limit_reached,
+				'osFamily' => $os_family,
+				'device' => $device,
+				'browserFamily' => $browser_family
 		);
 		wp_localize_script( HUT_Common::PLUGIN_ID . '-frontend-script', HUT_Common::CONFIG_DATA, $config_array );
 	}

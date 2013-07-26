@@ -160,12 +160,16 @@ class HUT_Admin {
 		), $this->database_settings );
 		
 		$this->heat_map_settings = array_merge( array(
+				HUT_Common::USE_HEATMAPJS_OPTION => false,
 				HUT_Common::HOT_VALUE_OPTION => 20,
 				HUT_Common::SPOT_OPACITY_OPTION => 0.2,
 				HUT_Common::SPOT_RADIUS_OPTION => 8,
 				HUT_Common::IGNORE_ZOOM_LEVEL_OPTION => false,
 				HUT_Common::IGNORE_DEVICE_PIXEL_RATIO_OPTION => false,
 				HUT_Common::IGNORE_WIDTH_OPTION => false,
+				HUT_Common::IGNORE_DEVICE_OPTION => false,
+				HUT_Common::IGNORE_OS_FAMILY_OPTION => false,
+				HUT_Common::IGNORE_BROWSER_FAMILY_OPTION => false,
 				HUT_Common::WIDTH_ALLOWANCE_OPTION => 6,
 				HUT_Common::HIDE_ROLES_OPTION => null
 		), $this->heat_map_settings );
@@ -407,13 +411,16 @@ class HUT_Admin {
 		register_setting( HUT_Common::HEAT_MAP_SETTINGS_KEY, HUT_Common::HEAT_MAP_SETTINGS_KEY, array( &$this, 'sanitize_heat_map_settings' ) );
 		
 		add_settings_section( 'section_heat_map', 'Heat Map Settings', array( &$this, 'section_heat_map_desc' ), HUT_Common::HEAT_MAP_SETTINGS_KEY );
-		
+		add_settings_field( HUT_Common::USE_HEATMAPJS_OPTION, 'Use heatmap.js', array( &$this, 'field_heatmapjs' ), HUT_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
 		add_settings_field( HUT_Common::HOT_VALUE_OPTION, 'Hot value', array( &$this, 'field_hot_value' ), HUT_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
 		add_settings_field( HUT_Common::SPOT_RADIUS_OPTION, 'Spot radius', array( &$this, 'field_spot_radius' ), HUT_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
 		add_settings_field( HUT_Common::SPOT_OPACITY_OPTION, 'Spot opacity', array( &$this, 'field_spot_opacity' ), HUT_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
 		add_settings_field( HUT_Common::IGNORE_WIDTH_OPTION, 'Ignore width', array( &$this, 'field_ignore_width' ), HUT_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
 		add_settings_field( HUT_Common::IGNORE_ZOOM_LEVEL_OPTION, 'Ignore zoom level', array( &$this, 'field_ignore_zoom_level' ), HUT_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
 		add_settings_field( HUT_Common::IGNORE_DEVICE_PIXEL_RATIO_OPTION, 'Ignore device pixel ratio', array( &$this, 'field_ignore_device_pixel_ratio' ), HUT_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
+		add_settings_field( HUT_Common::IGNORE_DEVICE_OPTION, 'Ignore device', array( &$this, 'field_ignore_device' ), HUT_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
+		add_settings_field( HUT_Common::IGNORE_BROWSER_FAMILY_OPTION, 'Ignore browser', array( &$this, 'field_ignore_browser_family' ), HUT_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
+		add_settings_field( HUT_Common::IGNORE_OS_FAMILY_OPTION, 'Ignore operating system', array( &$this, 'field_ignore_os_family' ), HUT_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
 		add_settings_field( HUT_Common::WIDTH_ALLOWANCE_OPTION, 'Width allowance', array( &$this, 'field_width_allowance' ), HUT_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
 		add_settings_field( HUT_Common::HIDE_ROLES_OPTION, 'Hide roles', array( &$this, 'field_hide_roles' ), HUT_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
 
@@ -423,14 +430,17 @@ class HUT_Admin {
 	 */
 	function section_heat_map_desc() {
 		?>
-		<p>Each mouse click and touch screen tap is represented as a coloured circle or spot. The spots create a heat map with a colour range from green 
-		(cold), orange (warm) and red (hot). The colour of the spot is calculated based on how many other spots it is touching within it's radius (i.e 
-		if a spot is touching another spot, then it has a heat  value of 1. If it is touching two spots, then it has a heat value of 2 and so on).</p>
 		<?php 
 	}
 	/** 
 	 * Heat map settings fields
 	 */
+	function field_heatmapjs() {
+		?>
+			<input type="checkbox" name="<?php echo HUT_Common::HEAT_MAP_SETTINGS_KEY; ?>[<?php echo HUT_Common::USE_HEATMAPJS_OPTION; ?>]" value="true" <?php checked(true, $this->heat_map_settings[HUT_Common::USE_HEATMAPJS_OPTION], true); ?> />
+			<p class="description">Use <a href="http://www.patrick-wied.at/static/heatmapjs/">heatmap.js</a> library to draw the heat map. Otherwise, plot the mouse clicks and touch screen taps with coloured heat values.</p>
+			<?php 
+		}
 	function field_hot_value() {
 		?>
 		<input type="text" name="<?php echo HUT_Common::HEAT_MAP_SETTINGS_KEY; ?>[<?php echo HUT_Common::HOT_VALUE_OPTION; ?>]" value="<?php echo esc_attr( $this->heat_map_settings[HUT_Common::HOT_VALUE_OPTION] ); ?>" />&nbsp;(must be greater than 0)
@@ -465,6 +475,24 @@ class HUT_Admin {
 		?>
 		<input type="checkbox" name="<?php echo HUT_Common::HEAT_MAP_SETTINGS_KEY; ?>[<?php echo HUT_Common::IGNORE_DEVICE_PIXEL_RATIO_OPTION; ?>]" value="true" <?php checked(true, $this->heat_map_settings[HUT_Common::IGNORE_DEVICE_PIXEL_RATIO_OPTION], true ); ?>/>
 		<p class="description">You can ignore the device pixel ratio data when drawing the heat map. However, note your website likely appears differently for different device pixel ratios.</p>
+		<?php 
+	}
+	function field_ignore_device() {
+	?>
+		<input type="checkbox" name="<?php echo HUT_Common::HEAT_MAP_SETTINGS_KEY; ?>[<?php echo HUT_Common::IGNORE_DEVICE_OPTION; ?>]" value="true" <?php checked(true, $this->heat_map_settings[HUT_Common::IGNORE_DEVICE_OPTION], true); ?> />
+		<p class="description">You can ignore the device when drawing the heat map.</p>
+		<?php 
+	}
+	function field_ignore_os_family() {
+	?>
+		<input type="checkbox" name="<?php echo HUT_Common::HEAT_MAP_SETTINGS_KEY; ?>[<?php echo HUT_Common::IGNORE_OS_FAMILY_OPTION; ?>]" value="true" <?php checked(true, $this->heat_map_settings[HUT_Common::IGNORE_OS_FAMILY_OPTION], true); ?> />
+		<p class="description">You can ignore the operating system when drawing the heat map.</p>
+		<?php 
+	}
+	function field_ignore_browser_family() {
+	?>
+		<input type="checkbox" name="<?php echo HUT_Common::HEAT_MAP_SETTINGS_KEY; ?>[<?php echo HUT_Common::IGNORE_BROWSER_FAMILY_OPTION; ?>]" value="true" <?php checked(true, $this->heat_map_settings[HUT_Common::IGNORE_BROWSER_FAMILY_OPTION], true); ?> />
+		<p class="description">You can ignore the browser when drawing the heat map.</p>
 		<?php 
 	}
 	function field_width_allowance() {
@@ -506,6 +534,12 @@ class HUT_Admin {
 	 * @param unknown_type $input
 	 */
 	function sanitize_heat_map_settings($input) {
+		
+		// use heatmap.js option
+		if ( isset( $input[HUT_Common::USE_HEATMAPJS_OPTION] ) && $input[HUT_Common::USE_HEATMAPJS_OPTION] == "true")
+			$input[HUT_Common::USE_HEATMAPJS_OPTION] = true;
+		else
+			$input[HUT_Common::USE_HEATMAPJS_OPTION] = false;
 		
 		// Width allowance option
 		if ( isset( $input[HUT_Common::WIDTH_ALLOWANCE_OPTION] ) ) {
@@ -573,6 +607,24 @@ class HUT_Admin {
 			$input[HUT_Common::IGNORE_DEVICE_PIXEL_RATIO_OPTION] = true;
 		else
 			$input[HUT_Common::IGNORE_DEVICE_PIXEL_RATIO_OPTION] = false;
+		
+		// Ignore device option
+		if ( isset( $input[HUT_Common::IGNORE_DEVICE_OPTION] ) && $input[HUT_Common::IGNORE_DEVICE_OPTION] == "true")
+			$input[HUT_Common::IGNORE_DEVICE_OPTION] = true;
+		else
+			$input[HUT_Common::IGNORE_DEVICE_OPTION] = false;
+		
+		// Ignore os family option
+		if ( isset( $input[HUT_Common::IGNORE_OS_FAMILY_OPTION] ) && $input[HUT_Common::IGNORE_OS_FAMILY_OPTION] == "true")
+			$input[HUT_Common::IGNORE_OS_FAMILY_OPTION] = true;
+		else
+			$input[HUT_Common::IGNORE_OS_FAMILY_OPTION] = false;
+		
+		// Ignore browser family option
+		if ( isset( $input[HUT_Common::IGNORE_BROWSER_FAMILY_OPTION] ) && $input[HUT_Common::IGNORE_BROWSER_FAMILY_OPTION] == "true")
+			$input[HUT_Common::IGNORE_BROWSER_FAMILY_OPTION] = true;
+		else
+			$input[HUT_Common::IGNORE_BROWSER_FAMILY_OPTION] = false;
 		
 		return $input;
 	}
@@ -692,7 +744,7 @@ class HUT_Admin {
 		<div class="wrap">
 			<div id="hut-icon" class="icon32" style="background: url('<?php echo plugins_url( 'hotspots32.ico', __FILE__ ); ?>') no-repeat left top;"></div>
 			<h2>Hotspots User Tracker: Settings
-				<form id="paypal-form" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+				<form id="paypal-form" style="display: inline-block;" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" style="display: inline-block;">
 					<input type="hidden" name="cmd" value="_s-xclick">
 					<input type="hidden" name="hosted_button_id" value="5BDJEA4KANDZW">
 					<input type="image" src="https://www.paypalobjects.com/en_AU/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="PayPal — The safer, easier way to pay online.">
@@ -926,7 +978,7 @@ class HUT_Admin {
 		<div class="wrap">
 			<div id="hut-icon" class="icon32" style="background: url('<?php echo plugins_url( 'hotspots32.ico', __FILE__ ); ?>') no-repeat left top;"></div>
 			<h2>Hotspots User Tracker: Settings
-				<form id="paypal-form" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+				<form id="paypal-form" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" style="display: inline-block;">
 					<input type="hidden" name="cmd" value="_s-xclick">
 					<input type="hidden" name="hosted_button_id" value="5BDJEA4KANDZW">
 					<input type="image" src="https://www.paypalobjects.com/en_AU/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="PayPal — The safer, easier way to pay online.">
@@ -1093,6 +1145,27 @@ class HUT_Admin {
 				$query .= ' AND ' . HUT_Common::ID_COLUMN . ' = ' . $click_tap_id;
 			}
 			
+			$ignore_device = $this->heat_map_settings[ HUT_Common::IGNORE_DEVICE_OPTION];
+			if ($ignore_device == false) {
+				if ( isset($_POST['device']) && $_POST['device'] !== null && $_POST['device'] !== "" && $_POST['device'] !== "null") {
+					$device =  $_POST['device'];
+					$query .= ' AND device = "' . $device . '"';
+				}
+			}
+			$ignore_os_family = $this->heat_map_settings[ HUT_Common::IGNORE_OS_FAMILY_OPTION];
+			if ($ignore_os_family == false) {
+				if ( isset($_POST['osFamily']) && $_POST['osFamily'] !== null && $_POST['osFamily'] !== "" && $_POST['osFamily'] !== "null") {
+					$osFamily =  $_POST['osFamily'];
+					$query .= ' AND os_family = "' . $osFamily . '"';
+				}
+			}
+			$ignore_browser_family = $this->heat_map_settings[ HUT_Common::IGNORE_BROWSER_FAMILY_OPTION];
+			if ($ignore_browser_family == false) {
+				if ( isset($_POST['browserFamily']) && $_POST['browserFamily'] !== null && $_POST['browserFamily'] !== "" && $_POST['browserFamily'] !== "null") {
+					$browserFamily =  $_POST['browserFamily'];
+					$query .= ' AND browser_family = "' . $browserFamily . '"';
+				}
+			}
 			$hide_roles = $this->heat_map_settings[ HUT_Common::HIDE_ROLES_OPTION];
 			if (count($hide_roles) > 0) {
 				foreach ($hide_roles as $role) {
@@ -1304,6 +1377,51 @@ class HUT_Heat_Maps_Table extends WP_List_Table {
 				echo '<option value="' . addslashes($current_url) . '"' . $selected . '>' . $current_url . '</option>';
 			}
 			echo '</select>';
+			
+			// Width
+			$query = 'SELECT DISTINCT width FROM '.$wpdb->prefix. HUT_Common::CLICK_TAP_TBL_NAME;
+			$rows = $wpdb->get_results($query);
+			echo '&nbsp;&nbsp;<label for="width">Width</label>';
+			echo '&nbsp;<select name="width" id="width">';
+			echo '<option value="">All</option>';
+			foreach ($rows as $row) {
+				$current_width= $row->width;
+				$selected = '';
+				if ($current_width == $width)
+					$selected = ' selected="selected"';
+				echo '<option value="' . $current_width . '"' . $selected . '>' . $current_width . 'px</option>';
+			}
+			echo '</select>';
+				
+			// Device Pixel Ratio
+			$query = 'SELECT DISTINCT device_pixel_ratio FROM '.$wpdb->prefix. HUT_Common::CLICK_TAP_TBL_NAME;
+			$rows = $wpdb->get_results($query);
+			echo '&nbsp;&nbsp;<label for="device_pixel_ratio">Device Pixel Ratio</label>';
+			echo '&nbsp;<select name="device_pixel_ratio" id="device_pixel_ratio">';
+			echo '<option value="">All</option>';
+			foreach ($rows as $row) {
+				$current_device_pixel_ratio= $row->device_pixel_ratio;
+				$selected = '';
+				if ($current_device_pixel_ratio == $device_pixel_ratio)
+					$selected = ' selected="selected"';
+				echo '<option value="' . $current_device_pixel_ratio . '"' . $selected . '>' . HUT_Common::convert_decimalto_ratio($current_device_pixel_ratio) . '</option>';
+			}
+			echo '</select>';
+				
+			// Zoom level
+			$query = 'SELECT DISTINCT zoom_level FROM '.$wpdb->prefix. HUT_Common::CLICK_TAP_TBL_NAME;
+			$rows = $wpdb->get_results($query);
+			echo '&nbsp;&nbsp;<label for="zoom_level">Zoom Level</label>';
+			echo '&nbsp;<select name="zoom_level" id="zoom_level">';
+			echo '<option value="">All</option>';
+			foreach ($rows as $row) {
+				$current_zoom_level = $row->zoom_level;
+				$selected = '';
+				if ($current_zoom_level == $zoom_level)
+					$selected = ' selected="selected"';
+				echo '<option value="' . $current_zoom_level . '"' . $selected . '>' . ($current_zoom_level * 100). '%</option>';
+			}
+			echo '</select>';
 				
 			// Browser
 			$query = 'SELECT DISTINCT browser_family FROM '.$wpdb->prefix. HUT_Common::CLICK_TAP_TBL_NAME;
@@ -1350,53 +1468,8 @@ class HUT_Heat_Maps_Table extends WP_List_Table {
 			}
 			echo '</select>';
 			
-			// Width
-			$query = 'SELECT DISTINCT width FROM '.$wpdb->prefix. HUT_Common::CLICK_TAP_TBL_NAME;
-			$rows = $wpdb->get_results($query);
-			echo '&nbsp;&nbsp;<label for="width">Width</label>';
-			echo '&nbsp;<select name="width" id="width">';
-			echo '<option value="">All</option>';
-			foreach ($rows as $row) {
-				$current_width= $row->width;
-				$selected = '';
-				if ($current_width == $width)
-					$selected = ' selected="selected"';
-				echo '<option value="' . $current_width . '"' . $selected . '>' . $current_width . 'px</option>';
-			}
-			echo '</select>';
-			
-			// Device Pixel Ratio
-			$query = 'SELECT DISTINCT device_pixel_ratio FROM '.$wpdb->prefix. HUT_Common::CLICK_TAP_TBL_NAME;
-			$rows = $wpdb->get_results($query);
-			echo '&nbsp;&nbsp;<label for="device_pixel_ratio">Device Pixel Ratio</label>';
-			echo '&nbsp;<select name="device_pixel_ratio" id="device_pixel_ratio">';
-			echo '<option value="">All</option>';
-			foreach ($rows as $row) {
-				$current_device_pixel_ratio= $row->device_pixel_ratio;
-				$selected = '';
-				if ($current_device_pixel_ratio == $device_pixel_ratio)
-					$selected = ' selected="selected"';
-				echo '<option value="' . $current_device_pixel_ratio . '"' . $selected . '>' . HUT_Common::convert_decimalto_ratio($current_device_pixel_ratio) . '</option>';
-			}
-			echo '</select>';
-			
-			// Zoom level
-			$query = 'SELECT DISTINCT zoom_level FROM '.$wpdb->prefix. HUT_Common::CLICK_TAP_TBL_NAME;
-			$rows = $wpdb->get_results($query);
-			echo '&nbsp;&nbsp;<label for="zoom_level">Zoom Level</label>';
-			echo '&nbsp;<select name="zoom_level" id="zoom_level">';
-			echo '<option value="">All</option>';
-			foreach ($rows as $row) {
-				$current_zoom_level = $row->zoom_level;
-				$selected = '';
-				if ($current_zoom_level == $zoom_level)
-					$selected = ' selected="selected"';
-				echo '<option value="' . $current_zoom_level . '"' . $selected . '>' . ($current_zoom_level * 100). '%</option>';
-			}
-			echo '</select>';
-			
-			echo '&nbsp;&nbsp;<input type="checkbox" name="show_uaparser" id="show_uaparser" ' . checked(true, $show_uaparser, false) . '/>';
-			echo '&nbsp;<label for="show_uaparser">Show Internet Browser, Operating System & Device columns</label>';
+			echo '<input type="checkbox" name="show_uaparser" id="show_uaparser" ' . checked(true, $show_uaparser, false) . '/>';
+			echo '&nbsp;<label for="show_uaparser">Include browser, OS & device columns</label>';
 			
 			echo '&nbsp;&nbsp;<input type="submit" class="button" value="Filter" />';
 			
