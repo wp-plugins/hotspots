@@ -90,7 +90,7 @@ Sometimes the browser adds a veritcal scrollbar which is subtracted from the wid
 
 There's two implementations of the heat map. There is an option in the Heat map settings tab called use heatmap.js. heatmap.js is an open source JavaScript library for HTML5 drawing heat maps. If this option is not checked, then the mouse clicks and touch screen tapsare plotted as coloured spots from green to red.
 
-** What is device pixel ratio? **
+**What is device pixel ratio?**
 
 The device pixel ratio is the ratio between logical pixels and physical pixels (for websites that is the display device pixel density compared with CSS pixels). For instance, the iPhone 4 and iPhone 4S reports a device pixel ratio of 2, because the physical linear resolution is double the logical resolution (physical resolution: 960 x 640 and logical resolution: 480 x 320). A higher device pixel ratio means a higher quality display (effectively more dots per inch on the display screen).
 
@@ -103,6 +103,7 @@ If you have heat map data with various device pixel ratios, then you can use the
 No. There is an option to allow up to 20 pixels each side of your target width to display the heat map. This amount can be changed and is defaulted to 6 pixels.
 
 **My screen resolution is not large enough to display some of the heat maps**
+
 You can try ignoring the device pixel ratio and ignore the zoom level options, then do a browser zoom out to increase the website width. However, the heat map may not be entirely accurate if you do this. For heat map data with a device pixel ratio of 1:1 and a zoom level of 100%, viewing larger website widths using this method works OK.
 
 == Screenshots ==
