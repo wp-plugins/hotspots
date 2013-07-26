@@ -12,7 +12,7 @@ Hotspots User Tracker draws a heat map of mouse clicks overlayed on your webpage
 
 == Description ==
 
-View a heat map of mouse clicks and touch screen taps overlayed on your webpage allowing you to improve usability by analysing user behaviour.
+View a heat map of mouse clicks and touch screen taps overlayed on your webpage allowing you to improve usability by analysing user behaviour. Different heat maps are drawn to cater for responsive web design.
 
 = Features =
 * Saves mouse click and touch screen tap information
@@ -54,7 +54,8 @@ If you're using a caching plugin such as W3TC then empty all page cache. Also em
 
 The plugin relies on HTML5 canvas element to draw the heat map. Check your theme supports HTML5. Saving the mouse clicks and touch screen taps works in non HTML5 browsers.
 
-** How do I target different device pixel ratios, widths, zoom levels, devices, browsers and operating systems when viewing the heat map? **
+**How do I target different device pixel ratios, widths, zoom levels, devices, browsers and operating systems when viewing the heat map?**
+
 In the heat maps tab you can filter by URL, width, device pixel ratio, zoom level, devices, browsers and operating systems. Here you might see some different values which can be used to target different heat maps. Additional parameters can be passed along with the ?drawHeatMap=true query parameter to help target the heat maps:
 * width - Width i.e. 1600
 * devicePixelRatio - Device pixel ratio i.e. 1
@@ -92,11 +93,18 @@ There's two implementations of the heat map. There is an option in the Heat map 
 
 **What is device pixel ratio?**
 
-The device pixel ratio is the ratio between logical pixels and physical pixels (for websites that is the display device pixel density compared with CSS pixels). For instance, the iPhone 4 and iPhone 4S reports a device pixel ratio of 2, because the physical linear resolution is double the logical resolution (physical resolution: 960 x 640 and logical resolution: 480 x 320). A higher device pixel ratio means a higher quality display (effectively more dots per inch on the display screen).
+The device pixel ratio is the ratio between logical pixels and physical pixels (for websites that is the display device pixel density compared with CSS pixels). For instance, the iPhone 4 and iPhone 4S reports a device pixel ratio of 2, because the physical linear resolution is double the logical resolution (physical resolution: 960 x 640 and logical resolution: 480 x 320). A higher device pixel ratio means a higher quality display (effectively more dots per inch on the display screen). Note your website will likely appear differently if a device has different pixel ratio (device pixels compared to web page CSS pixels). Images may be better or less quality, text may be larger or smaller, images may be different size widths and heights etc...
 
 **How do I view the heat maps for different devices**
 
 If you have heat map data with various device pixel ratios, then you can use the actual device or find a device emulator to view the the heat maps. There are also options to ignore the device pixel ratio, ignore the zoom level and to ignore the width, but these options will not provide accurate heat map results.
+
+**How do I view the heat maps for different device pixel ratios?**
+
+The device pixel ratio is dependant on your display device pixels per inch. The best way to view the heat maps for different devices is to use the actual devices itself. You can also try using device emulators (Android > http://developer.android.com/tools/help/emulator.html) or using an online service like https://www.manymo.com/.
+
+Sometimes you can view the heat map for a different device pixel ratio by modifying the zoom level. For example a device pixel ration of 2:1 and zoom level of 200% for width 800px can be achieved on a 1600px monitor with a device pixel ratio of 1:1 by increasing the zoom level to 200%;
+
 
 ** Do I have to resize the window to the exact width?**
 
