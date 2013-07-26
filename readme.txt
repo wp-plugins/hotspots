@@ -43,12 +43,15 @@ This plugin should not be used where performance is critical as an additional se
 == Frequently Asked Questions ==
 
 **I cannot see the heat map when adding URL query parameter drawHeatMap=true.**
+
 You cannot view the heat maps if your theme is not HTML5 compliant and you need to use an Internet browser which supports HTML5 canvas. Most modern browsers support HTML5 canvas now. Make sure the *Enable drawing heat map* option is turned on in the General options tab. If you see a box with the current browser window width, zoom level and device pixel information at the bottom right corner of your webpage, then there is no matching heat map data. You may need to resize the window, modify the zoom levels and device pixel ratios to match the heat map data collected. You can use the Heat Maps tab to find matching heat map data and to view the heat maps.
 
 **Plugin update does not seem to be working**
+
 If you're using a caching plugin such as W3TC then empty all page cache. Also empty your browser cache to ensure the latest JavaScript files are loaded. Also try to deactivate and then reactivate the plugin.
 
-** Heat map is now showing **
+**Heat map is now showing**
+
 The plugin relies on HTML5 canvas element to draw the heat map. Check your theme supports HTML5. Saving the mouse clicks and touch screen taps works in non HTML5 browsers.
 
 ** How do I target different device pixel ratios, widths, zoom levels, devices, browsers and operating systems when viewing the heat map? **
@@ -63,27 +66,27 @@ In the heat maps tab you can filter by URL, width, device pixel ratio, zoom leve
 Here's an example:
 http://www.mywebsite.com?drawHeatMap=true&width=1600&devicePixelRatio=1&zoomLevel=1&osFamily=Mac OS X&browserFamily=Chrome&device=Other
 
-** Does the plugin impact performance **
+**Does the plugin impact performance**
 
 Yes, but it is basically negligable for most websites. An extra request is made to the server every mouse click and touch screen tap. You can use the schedule start date and end date feature to save mouse clicks and touch screen taps in a small window such as off peak usage times. There are also database limits that can be set so that the database is not over populated.
 
-** I only want to use the plugin on one page **
+**I only want to use the plugin on one page**
 
 There are URL filters you can use to include or exclude the plugin for different URLs.
 
-** Can I reset the database? **
+**Can I reset the database?**
 
 There is an option to clear the database.
 
-** Mouse clicks or touch screen taps not being saved when I click on a button or link **
+**Mouse clicks or touch screen taps not being saved when I click on a button or link**
 
 Sometimes mouse clicks and touch screen taps are not recorded as the browser event can take over the AJAX call (cancel it) when navigating to a different page for example. So it can be a little hit and miss and it's up to the browser. Also, if the page JavaScript has not finished loading and you quickly click on a link, obviously the mouse click will not be recorded.
 
-** Width is not the same when I view heat map from backend **
+**Width is not the same when I view heat map from backend**
 
 Sometimes the browser adds a veritcal scrollbar which is subtracted from the width. E.g. 17px for Firefox. So if you wanted to view 1600px and when viewing the heat map the expanded browser window is 1583px with a vertical scrollbar of 17px, change the width allowance optionin the heat map settings tab to allow the mouse clicks to be displayed for 17px difference.
 
-** How do I change the heat map display? **
+**How do I change the heat map display?**
 
 There's two implementations of the heat map. There is an option in the Heat map settings tab called use heatmap.js. heatmap.js is an open source JavaScript library for HTML5 drawing heat maps. If this option is not checked, then the mouse clicks and touch screen tapsare plotted as coloured spots from green to red.
 
@@ -91,15 +94,15 @@ There's two implementations of the heat map. There is an option in the Heat map 
 
 The device pixel ratio is the ratio between logical pixels and physical pixels (for websites that is the display device pixel density compared with CSS pixels). For instance, the iPhone 4 and iPhone 4S reports a device pixel ratio of 2, because the physical linear resolution is double the logical resolution (physical resolution: 960 x 640 and logical resolution: 480 x 320). A higher device pixel ratio means a higher quality display (effectively more dots per inch on the display screen).
 
-** How do I view the heat maps for different devices **
+**How do I view the heat maps for different devices**
 
 If you have heat map data with various device pixel ratios, then you can use the actual device or find a device emulator to view the the heat maps. There are also options to ignore the device pixel ratio, ignore the zoom level and to ignore the width, but these options will not provide accurate heat map results.
 
-** Do I have to resize the window to the exact width? **
+** Do I have to resize the window to the exact width?**
+
 No. There is an option to allow up to 20 pixels each side of your target width to display the heat map. This amount can be changed and is defaulted to 6 pixels.
 
-** My screen resolution is not large enough to display some of the heat maps **
-
+**My screen resolution is not large enough to display some of the heat maps**
 You can try ignoring the device pixel ratio and ignore the zoom level options, then do a browser zoom out to increase the website width. However, the heat map may not be entirely accurate if you do this. For heat map data with a device pixel ratio of 1:1 and a zoom level of 100%, viewing larger website widths using this method works OK.
 
 == Screenshots ==
