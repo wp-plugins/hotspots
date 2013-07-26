@@ -105,8 +105,7 @@ The device pixel ratio is dependant on your display device pixels per inch. The 
 
 Sometimes you can view the heat map for a different device pixel ratio by modifying the zoom level. For example a device pixel ration of 2:1 and zoom level of 200% for width 800px can be achieved on a 1600px monitor with a device pixel ratio of 1:1 by increasing the zoom level to 200%;
 
-
-** Do I have to resize the window to the exact width?**
+**Do I have to resize the window to the exact width?**
 
 No. There is an option to allow up to 20 pixels each side of your target width to display the heat map. This amount can be changed and is defaulted to 6 pixels.
 
