@@ -9,6 +9,8 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'class-common.php';
  */
 class HUT_Frontend {
 
+	private $ignore_ajax_actions = array('url_ping', 'ajax_ping', 'save_click_or_tap', 'retrieve_clicks_and_taps', 'element_selector_ping');
+	
 	/**
 	 * Constructor
 	 *
@@ -34,7 +36,6 @@ class HUT_Frontend {
 		// for loading dialog
 		wp_enqueue_script('jquery-ui-dialog');
 		wp_enqueue_style('jquery-style', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/smoothness/jquery-ui.css');
-			
 		
 		$heat_map_settings = get_option(HUT_Common::HEAT_MAP_SETTINGS_KEY);
 		$general_settings = get_option(HUT_Common::GENERAL_SETTINGS_KEY);
@@ -44,6 +45,22 @@ class HUT_Frontend {
 		
 		$draw_heat_map_enabled = $general_settings[ HUT_Common::DRAW_HEAT_MAP_ENABLED_OPTION ];
 		$save_click_or_tap_enabled = $general_settings[ HUT_Common::SAVE_CLICK_TAP_OPTION ];
+		
+		// retrieve CSS selectors for config data
+		global $wpdb;
+		$url = HUT_Common::get_current_url();
+		$element_selectors = array();
+		$query = 'SELECT element_selector, is_form_submit FROM ' . $wpdb->prefix.HUT_Common::ELEMENT_SELECTOR_TBL_NAME . ' WHERE ' . HUT_Common::URL_COLUMN. ' = "' . $url . '" OR ' . HUT_Common::URL_COLUMN . ' = ""';
+		$rows = $wpdb->get_results($query);
+		foreach ($rows as $row) {
+			array_push($element_selectors, array('element_selector' => $row->element_selector, 'is_form_submit' => $row->is_form_submit));
+		}
+		
+		$save_element_selectors = $general_settings[ HUT_Common::SAVE_ELEMENT_SELECTORS_OPTION ];
+		
+		$save_ajax_actions = $general_settings[ HUT_Common::SAVE_AJAX_ACTIONS_OPTION ];
+		$save_element_selectors = $general_settings[ HUT_Common::SAVE_ELEMENT_SELECTORS_OPTION ];
+		$save_page_loads = $general_settings[ HUT_Common::SAVE_PAGE_LOADS_OPTION ];
 		
 		/**
 		 * Check if there's a scheduled start date or end date which overrides save clicks and taps option
@@ -181,7 +198,12 @@ class HUT_Frontend {
 				'urlDBLimitReached' => $url_db_limit_reached,
 				'osFamily' => $os_family,
 				'device' => $device,
-				'browserFamily' => $browser_family
+				'browserFamily' => $browser_family,
+				'elementSelectors' => $element_selectors,
+				'ignoreAjaxActions' => $this->ignore_ajax_actions,
+				'saveAjaxActions' => $save_ajax_actions,
+				'saveElementSelectors' => $save_element_selectors,
+				'savePageLoads' => $save_page_loads
 		);
 		wp_localize_script( HUT_Common::PLUGIN_ID . '-frontend-script', HUT_Common::CONFIG_DATA, $config_array );
 	}

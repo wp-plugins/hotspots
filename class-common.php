@@ -14,8 +14,14 @@ class HUT_Common {
 	CONFIG_DATA 						= 'configData',
 	
 	// database
-	PLUGIN_VERSION						= '3.2.0',
+	PLUGIN_VERSION						= '3.4.0',
+	
 	CLICK_TAP_TBL_NAME 					= 'hut_click_tap',
+	URL_PING_TBL_NAME					= 'hut_url_ping',
+	AJAX_PING_TBL_NAME					= 'hut_ajax_ping',
+	ELEMENT_SELECTOR_TBL_NAME			= 'hut_element_selector',
+	ELEMENT_SELECTOR_PING_TBL_NAME 		= 'hut_element_selector_ping',
+	
 	ID_COLUMN							= 'id',
 	X_COLUMN							= 'x',
 	Y_COLUMN							= 'y',
@@ -29,6 +35,14 @@ class HUT_Common {
 	SESSION_ID_COLUMN					= 'session_id',
 	ROLE_COLUMN							= 'role',
 	USER_LOGIN							= 'user_login',
+	RECORD_DATE_COLUMN					= 'record_date',
+	STATUS_TEXT_COLUMN					= 'status_text',
+	AJAX_ACTION_COLUMN					= 'ajax_action',
+	FORM_ID_COLUMN						= 'form_id',
+	ELEMENT_SELECTOR_COLUMN				= 'element_selector',
+	NAME_COLUMN							= 'name',
+	IS_FORM_SUBMIT_COLUMN				= 'is_form_submit',
+	USER_ID_COLUMN						= 'user_id',
 	
 	// Options
 	SAVE_CLICK_TAP_OPTION 				= 'save_click_tap',
@@ -54,6 +68,14 @@ class HUT_Common {
 	SCHEDULED_END_DATE_OPTION			= 'schedule_end_date',
 	SCHEDULED_SAVE_CLICK_TAP			= 'schedule_save_click_tap',
 	HIDE_ROLES_OPTION					= 'hide_roles',
+	START_DATE_SEARCH_INPUT				= 'start_date',
+	END_DATE_SEARCH_INPUT				= 'end_date',
+	URL_SEARCH_INPUT					= 'url',
+	IP_ADDRESS_OPTION					= 'ip_address',
+	HAS_VISITED_URL_OPTION				= 'has_visited_url',
+	ELEMENT_SELECTOR_INPUT				= 'element_selector',
+	NAME_INPUT							= 'name',
+	NO_ROLE_VALUE						= "none",
 	
 	// Settings
 	GENERAL_SETTINGS_KEY 				= 'hut_general_settings',
@@ -70,10 +92,17 @@ class HUT_Common {
 	DATABASE_SETTINGS_TAB				= 'hut_database_settings_tab',
 	URL_FILTER_SETTINGS_TAB 			= 'hut_url_filter_settings_tab',
 	HEAT_MAPS_TAB 						= 'hut_heat_maps_tab',
+	USERS_TAB							= 'users_tab',
+	ELEMENT_SETTINGS_TAB				= 'elements_tab',
+	REPORTS_TAB							= 'reports_tab',
+	USER_ACTIVITY_TAB 					= 'user_activity_tab',
+	STATISTICS_TAB 						= 'statistics_tab',
 	
 	MENU_PAGE_SLUG						= 'hut_menu_page',
 	
-	NO_ROLE_VALUE						= "none";
+	SAVE_AJAX_ACTIONS_OPTION		= 'save_ajax_actions',
+	SAVE_ELEMENT_SELECTORS_OPTION	= 'save_element_selectors',
+	SAVE_PAGE_LOADS_OPTION			= 'save_page_loads';
 	
 	// URL query params which are ignored by the plugin
 	public static $ignore_query_params = array( 'drawHeatMap', 'KEY', 'XDEBUG_SESSION_START', 'clickTapId', 'width', 'devicePixelRatio', 'zoomLevel', 'device', 'browserFamily', 'osFamily' );
@@ -257,9 +286,8 @@ class HUT_Common {
 	 * @param decimal i.e. 1.75
 	 */
 	public static function convert_decimalto_ratio($decimal) {
-	
 		$decimal = strval($decimal);
-	
+
 		$decimal_array = explode('.', $decimal);
 	
 		// if a whole number
@@ -268,13 +296,13 @@ class HUT_Common {
 		} else {
 			$left_decimal_part = $decimal_array[0]; // 1
 			$right_decimal_part = $decimal_array[1]; // 75
-	
-			$numerator = $left_decimal_part + $right_decimal_part; // 175
+
+			$numerator = $left_decimal_part . $right_decimal_part; // 175
 			$denominator = pow(10,strlen($right_decimal_part)); // 100
 			$factor = HUT_Common::highest_common_factor($numerator, $denominator); // 25
 			$denominator /= $factor;
 			$numerator /= $factor;
-	
+
 			return $numerator . ':' . $denominator;
 		}
 	}

@@ -78,3 +78,10 @@ jQuery(document).ready(function() {
 	onchangeUAParser();
 	
 });
+
+
+jQuery(document).ready(function() {	
+	jQuery('.date-field').datepicker({
+        dateFormat : 'yy-mm-dd'
+    });
+});
