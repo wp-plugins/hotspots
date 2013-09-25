@@ -113,6 +113,10 @@ No. There is an option to allow up to 20 pixels each side of your target width t
 
 You can try ignoring the device pixel ratio and ignore the zoom level options, then do a browser zoom out to increase the website width. However, the heat map may not be entirely accurate if you do this. For heat map data with a device pixel ratio of 1:1 and a zoom level of 100%, viewing larger website widths using this method works OK.
 
+**How do I define element selectors?**
+
+The element selectors are implemented as jQuery element selectors. You can find a summary of jQuery element selectors here: http://api.jquery.com/category/selectors/
+
 == Screenshots ==
 1. Heat map of clicks and taps on a WordPress website.
 2. Same heat map as above but using heatmap.js option to display the heat map
@@ -123,7 +127,8 @@ You can try ignoring the device pixel ratio and ignore the zoom level options, t
 7. Heat map settings
 8. Heat map settings continued
 9. Schedule settings
-5. General options tab.
+10. Users tab. You can view all users and their details.
+11. View a sequence of steps of user activity. You can also view each mouse click or touch screen tap indivually. Custom user events, form submits, page loads and AJAX calls can also be tracked.
 
 == Changelog ==
 
