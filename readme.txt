@@ -119,16 +119,16 @@ The element selectors are implemented as jQuery element selectors. You can find 
 
 == Screenshots ==
 1. Heat map of clicks and taps on a WordPress website.
-2. Same heat map as above but using heatmap.js option to display the heat map
-3. Heat map of a clicks and taps on a responsive WordPress website using heatmap.js option
-4. Heat map of clicks and taps on a responsive WordPress website
-5. Heat Maps tab. There's different heat maps for each width, device pixel ratio (device pixels compared to website pixels) and zoom level. You can also filter by browser, operating system and device.
-6. General settings
-7. Heat map settings
-8. Heat map settings continued
-9. Schedule settings
-10. Users tab. You can view all users and their details.
-11. View a sequence of steps of user activity. You can also view each mouse click or touch screen tap indivually. Custom user events, form submits, page loads and AJAX calls can also be tracked.
+2. Users tab. You can view all users and their details.
+3. View a sequence of steps of user activity. You can also view each mouse click or touch screen tap indivually. Custom user events, form submits, page loads and AJAX calls can also be tracked.
+4. Same heat map as above but using heatmap.js option to display the heat map
+5. Heat map of a clicks and taps on a responsive WordPress website using heatmap.js option
+6. Heat map of clicks and taps on a responsive WordPress website
+7. Heat Maps tab. There's different heat maps for each width, device pixel ratio (device pixels compared to website pixels) and zoom level. You can also filter by browser, operating system and device.
+8. General settings
+9. Heat map settings
+10. Heat map settings continued
+11. Schedule settings
 
 == Changelog ==
 
