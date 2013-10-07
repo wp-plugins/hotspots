@@ -1470,7 +1470,7 @@ class HUT_Admin {
 					<tr valign="top">
 						<th scope="row">Clicks/Taps</th>
 						<td><?php echo $click_tap_count; ?></td>
-						<th scope="row">Element</th>
+						<th scope="row">Element Selectors</th>
 						<td><?php echo $element_count; ?></td>
 					</tr>
 					<tr valign="top">
@@ -1518,7 +1518,7 @@ class HUT_Admin {
 					<tr valign="top">
 						<th scope="row">Device</th>
 						<td><?php echo $rows[0]->device; ?></td>
-						<th scope="row">Operatig System</th>
+						<th scope="row">Operating System</th>
 						<td><?php echo $rows[0]->os_family . ' ' . $rows[0]->os_version; ?></td>
 					</tr>
 				</tbody>
