@@ -1187,7 +1187,7 @@ class HUT_Admin {
 		}
 	
 		?>
-		<p>Track mouse clicks, touch screen taps of HTML elements including submit events.</p>
+		<p>Element selectors can be used to track the areas of impressions (a mouse click or touch screen tap) and form submits. For example, a website may have a div container with id "my-sidebar" and you'd like to track how often a user makes an impression anywhere within this container. An element selector "div#my-sidebar" could be used to track this information. Element selectors can also be nested.</p>
 		<form method="post">
 			<table class="form-table">
 				<tbody>
@@ -1196,10 +1196,14 @@ class HUT_Admin {
 						<td>
 							<input type="text" name="element_selector" id="element_selector" value="" />
 							<p class="description">Enter a jQuery element selector.</p>
-							<p class="description">Some examples:<br />
+							<p class="description">Some useful examples for WordPress websites (if you are to use these check the HTML and modify the element selectors accordinly):<br />
 								ul.menu li - All menu items<br />
-								input#name - Input field with id "name"<br />
-								form - All forms</p>
+								header - Header<br />
+								footer - Footer<br />
+								.widget - Widgets<br />
+								form.search-form - a search form<br />
+								input#name - Name input field<br />
+								form - All forms (form submit)</p>
 						</td>
 					</tr>
 					<tr valign="top">
@@ -1245,8 +1249,25 @@ class HUT_Admin {
 	 * Reports tab
 	 */
 	function do_reports_tab() {
+		global $wpdb;
+		$start_date = isset($_POST[HUT_Common::START_DATE_SEARCH_INPUT]) ? $_POST[HUT_Common::START_DATE_SEARCH_INPUT] : '';
+		$end_date = isset($_POST[HUT_Common::END_DATE_SEARCH_INPUT]) ? $_POST[HUT_Common::END_DATE_SEARCH_INPUT] : '';
 		?>
 		<h3>Reports</h3>
+		<p><a href="#">Element Selector Report</a></p>
+		
+		<h4>Element Selector Report</h4>
+		
+		<form method="post">
+			<?php 
+			$element_impressions_report_table = new HUT_Element_Impressions_Report_Table();
+			$element_impressions_report_table->prepare_items();
+			$element_impressions_report_table->display();
+			?>
+		</form>
+		
+		<p class="description">Note: Reports may not be 100% accurate. Nested element selectors can be used.</p>
+		
 		<p>Please suggest report ideas in the plugin <a href="http://wordpress.org/support/plugin/hotspots">support forum</a>. Thank you.</p>
 		<?php
 	}
@@ -1271,10 +1292,10 @@ class HUT_Admin {
 		<p>Search for users to view their activities.</p>
 		<form method="post">
 		
-		<?php 
-		$users_table = new HUT_Users_Table();
-		$users_table->prepare_items();
-		$users_table->display();
+			<?php 
+			$users_table = new HUT_Users_Table();
+			$users_table->prepare_items();
+			$users_table->display();
 		
 		?></form><?php
 	}
@@ -1310,85 +1331,13 @@ class HUT_Admin {
 			</table>
 			<input type="submit" class="button button-primary" value="View User Activity" />
 		</form>
+		<p class="description">Navigate from the Users tab using the "View User Activity" action button to prefill the IP address and session ID inputs for a specific user.</p>
 		
 		<?php 
-		// TODO validate ip address and session ID
 		$this->display_user_activies($ip_address, $session_id);
 	}
 	
-	/**
-	 * Retrieves an array of user activities
-	 * 
-	 * @param unknown_type $ip_address
-	 * @param unknown_type $session_id
-	 * @return multitype:
-	 */
-	function retrieve_user_activities($ip_address, $session_id) {
-		global $wpdb;
-		$user_activities = array();
-		
-		$query = 'SELECT * FROM ' . $wpdb->prefix.HUT_Common::URL_PING_TBL_NAME . ' WHERE ' . HUT_Common::IP_ADDRESS_COLUMN. ' = "' . $ip_address . '" AND ' . HUT_Common::SESSION_ID_COLUMN . ' = "' . $session_id . '"';
-		$rows = $wpdb->get_results($query);
-		foreach ($rows as $row) {
-			array_push($user_activities, array(
-					'type' => 'url',
-					'url' => $row->url,
-					'record_date' => $row->record_date
-				));
-		}
-		
-		$query = 'SELECT * FROM ' . $wpdb->prefix.HUT_Common::AJAX_PING_TBL_NAME . ' WHERE ' . HUT_Common::IP_ADDRESS_COLUMN. ' = "' . $ip_address . '" AND ' . HUT_Common::SESSION_ID_COLUMN . ' = "' . $session_id . '"';
-		$rows = $wpdb->get_results($query);
-		foreach ($rows as $row) {
-			array_push($user_activities, array(
-					'type' => 'ajax',
-					'ajax_action' => $row->ajax_action,
-					'status_text' => $row->status_text,
-					'record_date' => $row->record_date
-			));
-		}
-		
-		$query = 'SELECT * FROM ' . $wpdb->prefix.HUT_Common::CLICK_TAP_TBL_NAME . ' WHERE ' . HUT_Common::IP_ADDRESS_COLUMN. ' = "' . $ip_address . '" AND ' . HUT_Common::SESSION_ID_COLUMN . ' = "' . $session_id . '"';
-		$rows = $wpdb->get_results($query);
-		foreach ($rows as $row) {
-			array_push($user_activities, array(
-					'type' => 'click_tap',	
-					'x' => $row->x,
-					'y' => $row->y,
-					'width' => $row->width,
-					'is_tap' => $row->is_tap,
-					'zoom_level' => $row->zoom_level,
-					'device_pixel_ratio' => $row->device_pixel_ratio,
-					'record_date' => $row->created_date,
-					'url' => $row->url,
-					'id' => $row->id
-			));
-		}
-		
-		$query = 'SELECT * FROM ' . $wpdb->prefix.HUT_Common::ELEMENT_SELECTOR_PING_TBL_NAME . ' WHERE ' . HUT_Common::IP_ADDRESS_COLUMN. ' = "' . $ip_address . '" AND ' . HUT_Common::SESSION_ID_COLUMN . ' = "' . $session_id . '"';
-		$rows = $wpdb->get_results($query);
-		foreach ($rows as $row) {
-			
-			$query2 = 'SELECT name, is_form_submit FROM ' .  $wpdb->prefix.HUT_Common::ELEMENT_SELECTOR_TBL_NAME . ' WHERE ' . HUT_Common::ELEMENT_SELECTOR_COLUMN . ' = "' . $row->element_selector . '"';
-			$url = $row->url;
-			if (strlen($url) > 0) 
-				$query2 .= ' AND (' . HUT_Common::URL_COLUMN . ' = "' . $url . '" OR ' . HUT_Common::URL_COLUMN . ' = "")';
 
-			$name = $wpdb->get_col($query2, 0);
-			$is_form_submit = $wpdb->get_col($query2, 1);
-			
-			array_push($user_activities, array(
-					'type' => 'element_selector',
-					'name' => $name[0],
-					'element_selector' => $row->element_selector,
-					'record_date' => $row->record_date,
-					'is_form_submit' => $is_form_submit[0]
-			));
-		}
-		
-		usort($user_activities, array( &$this, 'sort_user_activities_by_time' ) );
-		return $user_activities;
-	}
 	
 	/**
 	 * Displays user activities
@@ -1396,159 +1345,190 @@ class HUT_Admin {
 	 * @param unknown_type $ip_address
 	 */
 	function display_user_activies($ip_address, $session_id) {		
-		$user_activities = $this->retrieve_user_activities($ip_address, $session_id);
-			
-		$activity_count = count($user_activities);
 		
-		if ($activity_count == 0) {
-			echo '<p>No user activity exists.</p>';	
-			return;
+		$ip_address = isset($_REQUEST["ip_address"]) ? $_REQUEST["ip_address"]  : null;
+		$session_id = isset($_REQUEST["session_id"]) ?  $_REQUEST["session_id"] : null;
+		$start_date = null;
+		$end_date = null;
+		$url = null;
+		if ($ip_address == null || $session_id == null) {
+			if (isset($_POST[HUT_Common::START_DATE_SEARCH_INPUT]) && strlen(trim($_POST[HUT_Common::START_DATE_SEARCH_INPUT])) > 0) {
+				if (HUT_Common::check_date_format($_POST[HUT_Common::START_DATE_SEARCH_INPUT])) {
+					$start_date = date("Y-m-d H:i:s", strtotime($_POST[HUT_Common::START_DATE_SEARCH_INPUT])); // default yyyy-mm-dd format
+				}
+			}
+				
+			if (isset($_POST[HUT_Common::END_DATE_SEARCH_INPUT]) && strlen(trim($_POST[HUT_Common::END_DATE_SEARCH_INPUT])) > 0) {
+				if (HUT_Common::check_date_format($_POST[HUT_Common::END_DATE_SEARCH_INPUT])) {
+					list($yyyy, $mm, $dd) = explode('-', $_POST[HUT_Common::END_DATE_SEARCH_INPUT]);// default yyyy-mm-dd format
+					$end_date = date("Y-m-d H:i:s", mktime(23, 59, 59, $mm, $dd, $yyyy) );
+				}
+			}
+				
+			if (isset($_POST[HUT_Common::URL_SEARCH_INPUT]) && strlen(trim($_POST[HUT_Common::URL_SEARCH_INPUT])) > 0) {
+				$url = $_POST[HUT_Common::URL_SEARCH_INPUT];
+			}
 		}
-
-		echo '<br />';
+		$params = array('ip_address' => $ip_address, 'session_id' => $session_id, 'start_date' => $start_date, 'end_date' => $end_date, 'url' => $url);
 		
-		echo '<h3>User Activity Summary</h3>';
-		$users_table = new HUT_Users_Table();
+		?>
+		
+		<div id="poststuff" class="">
+	        <div id="post-body" class="metabox-holder hut-columns-2">
+				<form  method="get" action="">
+                <?php wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false ); ?>
+                <?php wp_nonce_field('meta-box-order', 'meta-box-order-nonce', false ); ?>
+                <?php add_meta_box("summary-metabox", "Summary", array($this, "user_activity_summary_metabox"), "hut_user_tracking_page", "normal");?>
+                <?php add_meta_box("environment-metabox", "Environment", array($this, "user_activity_environment_metabox"), "hut_user_tracking_page", "normal");?>
+                <?php do_meta_boxes('hut_user_tracking_page','normal', $params);?>
+            </form>
+			</div>
+		</div>
+		
+		<?php 
+
+		$users_table = new HUT_User_Activity_Sequence_Table();
 		$users_table->prepare_items();
 		$users_table->display();
-		
-		echo '<h3>User Activity Environment</h3>';
-		$user_summary_table = new HUT_User_Summary_Table();
-		$user_summary_table->prepare_items();
-		$user_summary_table->display();
-		
-		echo '<h3>User Activity Sequence</h3>';
-		$this->display_user_activity_table($user_activities);
 	}
 	
-	/**
-	 * Displays user activities in a table
-	 * 
-	 * @param unknown_type $user_activities
-	 */
-	function display_user_activity_table($user_activities) {
-		// FIXME extend WP_List_Table instead 
+	function user_activity_summary_metabox($params) {
+		global $wpdb;
+		$start_date = $params['start_date'];
+		$end_date = $params['end_date'];
+		$ip_address = $params['ip_address'];
+		$session_id = $params['session_id'];
+		$url = $params['url'];
 		
-		echo '<table class="widefat" cellspacing="0">';
-		echo '<thead><tr><th class="manage-column">Order</th><th class="manage-column">Event</th><th class="manage-column">Description</th><th class="manage-column">Date and time</th><th class="manage-column">Time Elapsed</th><th class="manage-column">Additional Info</th><th class="manage-column">Actions</th></tr></thead>';
+		$summary_query = 'SELECT ip_address, session_id, record_date as r, record_date FROM ( SELECT * FROM ' . $wpdb->prefix . HUT_Common::URL_PING_TBL_NAME . ' ';
+		$summary_query .= 'WHERE ';		
+		if ($session_id && $ip_address)
+			$summary_query .= 'session_id = "' . $session_id . '" AND ip_address = "' . $ip_address . '"';
+		else if ($session_id)
+			$summary_query .= 'session_id = "' . $session_id . '"';
+		else
+			$summary_query .= 'ip_address = "' . $ip_address . '"';
 		
-		echo '<tbody>';
-		$row_count = 0;
-		foreach ($user_activities as $user_activity) {	
-			$current_activity_date = $user_activity['record_date'];
-			
-			$previous_activity_date = null;
-			if ($row_count != 0)
-				$previous_activity_date = $user_activities[$row_count - 1]['record_date'];
-			
-			// we're not using inbuilt WordPress function human_time_diff because it's not accurate enough
-			$human_time_diff = '';
-			if ($previous_activity_date != null) {
-				$current_activity_time = strtotime($current_activity_date);
-				$previous_activity_time = strtotime($previous_activity_date);
-				$human_time_diff = $this->human_time_diff($previous_activity_time, $current_activity_time);
-			}
-			
-			$activity_type = $user_activity['type'];
-			
-			// Create table information
-			$event = '';
-			$description = '';
-			$additional_info = '';
-			$actions = '';
-			if ($activity_type == 'ajax') {
-				$event = 'Action';
-				$ajax_action = $user_activity['ajax_action'];
-				$status_text = $user_activity['status_text'];
-				$description = 'AJAX action with name "' . $ajax_action . '" was processed';
-				$additional_info = 'status text ' . $status_text;
-			} else if ($activity_type == 'element_selector') {
-				$event = 'Element selector';
-				$name = $user_activity['name'];
-				$is_form_submit = $user_activity['is_form_submit'];
-				if ($is_form_submit)
-					$description = $name . ' was submitted';
-				else
-					$description = $name . ' was selected';
-			} else if ($activity_type == 'url') {
-				$event = 'Page load';
-				$url = $user_activity['url'];
-				$description = 'Navigated to URL <a href="' . stripslashes($url) . '">' . $url . '</a>';
-			} else { // click_tap
-				$x = $user_activity['x'];
-				$y = $user_activity['x'];
-				$width = $user_activity['width'];
-				$is_tap = $user_activity['is_tap'];
-				$device_pixel_ratio = $user_activity['device_pixel_ratio'];
-				$zoom_level = $user_activity['zoom_level'];
-				$url = $user_activity['url'];
-				$click_tap_id = $user_activity['id'];
-			
-				$event = 'Mouse click';
-				$description = 'A mouse click was made';
-				if ($is_tap) {
-					$event = 'Touch Screen Tap';
-					$description = 'A touch screen tap was made';
-				}
-				
-				$additional_info = 'x=' . $x . ', y=' . $y . ', width=' . $width .' pixels, device pixel ratio=' . HUT_Common::convert_decimalto_ratio($device_pixel_ratio) . ' and zoom level=' . $zoom_level * 100 . '%';
-					
-				$actions .= '<input type="hidden" id="' . $row_count . '-url" name="' . $row_count . '-url" value="' . addslashes($url) . '"></input>';
-				$actions .= '<input type="hidden" id="' . $row_count . '-width" name="' . $row_count . '-width" value="' . $width . '"></input>';
-				$actions .= '<input type="hidden" id="' . $row_count . '-click_tap_id" name="' . $row_count . '-click_tap_id" value="' . $click_tap_id . '"></input>';
-				$actions .= '<input type="hidden" id="' . $row_count . '-device_pixel_ratio" name="' . $row_count . '-device_pixel_ratio" value="' . $device_pixel_ratio . '"></input>';
-				$actions .= '<input type="hidden" id="' . $row_count . '-zoom_level" name="' . $row_count . '-zoom_level" value="' . $zoom_level . '"></input>';
-				if (isset($item[ 'browser_family' ])) {
-					$browser_family = $item[ 'browser_family' ];
-					$actions .= '<input type="hidden" id="' . $row_count . '-browser_family" name="' . $row_count . '-browser_family" value="' . $browser_family . '"></input>';
-				}
-				if (isset($item[ 'os_family' ])) {
-					$os_family = $item[ 'os_family' ];
-					$actions .= '<input type="hidden" id="' . $row_count . '-os_family" name="' . $row_count . '-os_family" value="' . $os_family . '"></input>';
-				}
-				if (isset($item[ 'device' ])) {
-					$device = $item[ 'device' ];
-					$actions .= '<input type="hidden" id="' . $row_count . '-device" name="' . $row_count . '-device" value="' . $device . '"></input>';
-				}
-				
-				// View heat map button
-				$actions .= '<input id="' . $row_count .'" type="button" class="button view-heat-map-button" value="View ' . $event . '" />';
-			}
-			
-			
-			$previous_activity_type = null;
-			if ($row_count > 1)
-				$previous_activity_type = $user_activities[$row_count - 1]['type'];
-			
-			$row_class = '';
-			if ( ( $row_count++ % 2 ) == 0 )
-				$row_class = 'alternate';
-			echo '<tr class="' . $row_class . '">';
-			
-			// Order column
-			echo '<td class="column-width">'. $row_count . '</td>';
-				
-			// Event column
-			echo '<td class="column-width">'. $event . '</td>';
-			// Description column
-			echo '<td class="column-width">'. $description . '</td>';
+		$summary_query .= 'ORDER BY ' . HUT_Common::RECORD_DATE_COLUMN . ' DESC ) AS a GROUP BY ' . HUT_Common::IP_ADDRESS_COLUMN . ', session_id ORDER BY r DESC';
+		$rows = $wpdb->get_results( $summary_query );
 		
-			// Date and time
-			echo '<td class="column-width">'. $current_activity_date . '</td>';
-				
-			// Time since previous event
-			echo '<td class="column-width">'. $human_time_diff . '</td>';
+		// user login and role
+		$user_query = 'SELECT user_login, role FROM '.$wpdb->prefix.HUT_Common::CLICK_TAP_TBL_NAME . ' where '. HUT_Common::IP_ADDRESS_COLUMN .' = "' .$ip_address . '" AND ' . HUT_Common::SESSION_ID_COLUMN . ' = "' . $session_id . '"';
+		$user_login = $wpdb->get_col($user_query, 0);
+		$user_role =  $wpdb->get_col($user_query, 1);
+		if (isset($user_login) && is_array($user_login) && count($user_login) > 0)
+			$user_login = $user_login[0];
+		else
+			$user_login = '';
+		global $wp_roles;
+		if ( ! isset( $wp_roles) )
+			$wp_roles = new WP_Roles();
+		$roles = $wp_roles->get_names();
+		if (count($user_role) > 0 && $user_role[0] != null)
+			$user_role = $roles[$user_role[0]];
+		else
+			$user_role = '';
 		
-			// Additional info
-			echo '<td class="column-width">' . $additional_info . '</td>';
+		// page view count
+		$page_hits_count_query = 'SELECT * FROM '.$wpdb->prefix.HUT_Common::URL_PING_TBL_NAME . ' where '. HUT_Common::IP_ADDRESS_COLUMN .' = "' .$ip_address . '" AND ' . HUT_Common::SESSION_ID_COLUMN . ' = "' . $session_id . '"';
+		$page_hits_count = $wpdb->query($page_hits_count_query);
 		
-			// Actions
-			echo '<td class="column-width">' . $actions . ' </td>';
+		// ajax action count
+		$ajax_action_count_query = 'SELECT * FROM '.$wpdb->prefix.HUT_Common::AJAX_PING_TBL_NAME . ' where '. HUT_Common::IP_ADDRESS_COLUMN .' = "' .$ip_address . '" AND ' . HUT_Common::SESSION_ID_COLUMN . ' = "' . $session_id . '"';
+		$ajax_action_count = $wpdb->query($ajax_action_count_query);
 		
-			echo '</tr>';
+		// click tap count
+		$click_tap_count_query = 'SELECT * FROM '.$wpdb->prefix.HUT_Common::CLICK_TAP_TBL_NAME . ' where '. HUT_Common::IP_ADDRESS_COLUMN .' = "' .$ip_address . '" AND ' . HUT_Common::SESSION_ID_COLUMN . ' = "' . $session_id . '"';
+		$click_tap_count = $wpdb->query($click_tap_count_query);
+		
+		// elements
+		$element_count_query = 'SELECT * FROM '.$wpdb->prefix.HUT_Common::ELEMENT_SELECTOR_PING_TBL_NAME . ' where '. HUT_Common::IP_ADDRESS_COLUMN .' = "' .$ip_address . '" AND ' . HUT_Common::SESSION_ID_COLUMN . ' = "' . $session_id . '"';
+		$element_count = $wpdb->query($element_count_query);
+		
+		if (count($rows) > 0) {
+			?>
+			<table class="form-table">
+				<tbody>
+					<tr valign="top">
+						<th scope="row">IP Address</th>
+						<td><?php echo $rows[0]->ip_address; ?></td>
+						<th scope="row">Session ID</th>
+						<td><?php echo $rows[0]->session_id; ?></td>
+					</tr>
+					<tr valign="top">
+						<th scope="row">User</th>
+						<td><?php echo $user_login; ?></td>
+						<th scope="row">Last Page Hit Date</th>
+						<td><?php echo date("F j, Y, g:i a", strtotime($rows[0]->record_date)); ?></td>
+					</tr>
+					<tr valign="top">
+						<th scope="row">Page Hits</th>
+						<td><?php echo $page_hits_count; ?></td>
+						<th scope="row">AJAX Actions</th>
+						<td><?php echo $ajax_action_count; ?></td>
+					</tr>
+					<tr valign="top">
+						<th scope="row">Clicks/Taps</th>
+						<td><?php echo $click_tap_count; ?></td>
+						<th scope="row">Element</th>
+						<td><?php echo $element_count; ?></td>
+					</tr>
+					<tr valign="top">
+						<th scope="row">Role</th>
+						<td><?php echo $user_role; ?></td>
+						<th scope="row"></th>
+						<td></td>
+					</tr>
+				</tbody>
+			</table>
+			<?php
+		} else {
+			echo '<p>No data found.</p>';
 		}
-		echo '</tbody></table>';
 	}
+	
+	
+	function user_activity_environment_metabox($params) {
+		global $wpdb;
+		$start_date = $params['start_date'];
+		$end_date = $params['end_date'];
+		$ip_address = $params['ip_address'];
+		$session_id = $params['session_id'];
+		$url = $params['url'];
+		$query = 'SELECT zoom_level, width, device_pixel_ratio, browser_family, browser_version, device, os_family, os_version FROM  ' . $wpdb->prefix.HUT_Common::CLICK_TAP_TBL_NAME . ' WHERE ' . HUT_Common::IP_ADDRESS_COLUMN. ' = "' . $ip_address . '" AND ' . HUT_Common::SESSION_ID_COLUMN . ' = "' . $session_id . '" GROUP BY zoom_level, width, device_pixel_ratio, browser_family, browser_version, device, os_family, os_version';
+		$rows = $wpdb->get_results( $query );
+
+			
+		if (count($rows) > 0) {
+			?>
+			<table class="form-table">
+				<tbody>
+					<tr valign="top">
+						<th scope="row">Zoom Level</th>
+						<td><?php echo (100 * $rows[0]->zoom_level); ?>%</td>
+						<th scope="row">Width</th>
+						<td><?php echo $rows[0]->width; ?>px</td>
+					</tr>
+					<tr valign="top">
+						<th scope="row">Device Pixel Ratio</th>
+						<td><?php echo HUT_Common::convert_decimalto_ratio($rows[0]->device_pixel_ratio); ?></td>
+						<th scope="row">Browser</th>
+						<td><?php echo $rows[0]->browser_family . ' ' . $rows[0]->browser_version; ?></td>
+					</tr>
+					<tr valign="top">
+						<th scope="row">Device</th>
+						<td><?php echo $rows[0]->device; ?></td>
+						<th scope="row">Operatig System</th>
+						<td><?php echo $rows[0]->os_family . ' ' . $rows[0]->os_version; ?></td>
+					</tr>
+				</tbody>
+			</table>
+			<?php
+		} else {
+			echo '<p>No data found.</p>';
+		}
+	}
+
 	/**
 	 * Admin assets
 	 *
@@ -1570,6 +1550,10 @@ class HUT_Admin {
 			wp_enqueue_script('jquery-ui-timepicker');
 			wp_enqueue_style('jquery-style', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/smoothness/jquery-ui.css');
 		}
+		
+		wp_enqueue_script('common');
+	    wp_enqueue_script('wp-lists');
+	    wp_enqueue_script('postbox');
 	}
 	
 	/**
@@ -1856,86 +1840,6 @@ class HUT_Admin {
 		}
 	
 		die();
-	}
-	
-	
-	/**
-	 * A more accurate hum_time_diff function than the one inbuilt with WordPress
-	 *
-	 * @param $from_date
-	 * @param $to_date
-	 * @return $human_time_diff
-	 */
-	function human_time_diff($from_date, $to_date) {
-		$human_time_diff = '';
-		$time_diff = $to_date - $from_date;
-		$mins_diff = intval( ( $time_diff ) / 60 );
-		$seconds_diff = ( $time_diff ) % 60;
-		$hours_diff = 0;
-		if ($mins_diff > 0)
-			$hours_diff = intval( $mins_diff / 60);
-	
-		// days are not necessary
-	
-		// hours first
-		if ($hours_diff > 0) {
-			// must subtract here otherwise the minutes is not right
-			$mins_diff -= $hours_diff * 60;
-	
-			$human_time_diff .= $hours_diff . ' hour';
-			if ($human_time_diff != 1)
-				$human_time_diff .= 's';
-			if ($seconds_diff > 0 || $mins_diff > 0) {
-				if (($seconds_diff > 0 && $hours_diff == 0)
-						|| ($seconds_diff == 0 && $hours_diff > 0))
-					$human_time_diff .= ' and ';
-				else
-					$human_time_diff .= ', ';
-			}
-		}
-	
-		// then minutes
-		if ($mins_diff > 0) {
-			$human_time_diff .= $mins_diff . ' minute';
-			if ($mins_diff != 1)
-				$human_time_diff .= 's';
-			if ($seconds_diff > 0 )
-				$human_time_diff .= ' and ';
-		}
-	
-		// then seconds
-		if ($seconds_diff > 0) {
-			$human_time_diff .= $seconds_diff .= ' second';
-			if ($seconds_diff != 1)
-				$human_time_diff .= 's';
-		}
-	
-		if (strlen($human_time_diff) == 0) {
-			$human_time_diff .= '< 1 second';
-		}
-	
-		return $human_time_diff;
-	}
-	
-	/**
-	 * Sorts user activities by time
-	 *
-	 * @param unknown_type $a
-	 * @param unknown_type $b
-	 * @return number
-	 */
-	function sort_user_activities_by_time($a, $b) {
-		if ($a['record_date'] == $b['record_date']) {
-			if ($a['type'] == 'url' || $b['type'] == 'url') {
-				if ($b['type'] == 'form_submit')
-					return 1;
-				if ($a['type'] == 'form_submit')
-					return -1;
-			}
-			return 0;
-		}
-	
-		return ($a['record_date'] <= $b['record_date']) ? -1 : 1;
 	}
 	
 	

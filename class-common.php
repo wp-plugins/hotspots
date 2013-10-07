@@ -312,7 +312,7 @@ class HUT_Common {
 	 * @param unknown_type $date
 	 * @return boolean
 	 */
-	function check_date_format($date) {
+	public static function check_date_format($date) {
 		list($yyyy, $mm, $dd) = explode('-',$date);
 		return checkdate($mm,$dd,$yyyy);
 	}

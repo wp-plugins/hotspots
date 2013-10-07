@@ -3,7 +3,7 @@ Contributors: dpowney
 Donate link: http://www.danielpowney.com/donate
 Tags: mouse click, tap, touch, click, usability, heat map, tracker, analytics, tracking
 Requires at least: 3.0.1
-Tested up to: 3.5
+Tested up to: 3.6
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -26,6 +26,7 @@ View a heat map of mouse clicks and touch screen taps overlayed on your webpage 
 * You can disable the plugin for specific pages on your website (this can be useful for performance reasons)
 * Hide mouse clicks and touch screen taps from specific user roles when drawing heat maps
 * Schedule a start date/time and an end date/time for saving mouse clicks and touch screen taps
+* Reports including impressions and form submits
 
 = Demo =
 Here's a demo: http://danielpowney.com/?drawHeatMap=true&width=1600&devicePixelRatio=1&zoomLevel=1. Make sure you resize width to 1600px (there's always an information panel at the bottom right of the page to help you).
@@ -132,6 +133,11 @@ The element selectors are implemented as jQuery element selectors. You can find 
 
 
 == Changelog ==
+
+= 3.4.1 =
+* Added metabox's to user activity tab
+* Refactored the user activity sequence table to use the WP_List_Table class
+* Added element selectors report
 
 = 3.4 =
 * Added Users, User Activity and Reports tabs to User Tracking menu page

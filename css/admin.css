@@ -14,3 +14,16 @@ form#heat-maps-form .tablenav {
 	min-height: 30px;
 	height: auto;
 }
+
+.hut-columns-2 #summary-metabox {
+	width: 49%;
+	float: left;
+}
+.hut-columns-2 #environment-metabox {
+	width: 49%;
+	float: right;
+}
+
+.hut-columns-2 th {
+	font-weight: bold;
+}

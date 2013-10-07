@@ -7,20 +7,254 @@ if (!class_exists('WP_List_Table')){
 
 
 /**
- * HUT_User_Summary_Table class displays user summary for session
+ * HUT_Element_Impressions_Report_Table class
  *
  * @author dpowney
  * @since 2.0
  */
-class HUT_User_Summary_Table extends WP_List_Table {
+class HUT_Element_Impressions_Report_Table extends WP_List_Table {
 
 	/**
 	 * Constructor
 	 */
 	function __construct() {
 		parent::__construct( array(
-				'singular'=> 'User Summary',
-				'plural' => 'User Summary',
+				'singular'=> 'Element Impression/Submit Report',
+				'plural' => 'Element Impression/Submit Report',
+				'ajax'	=> false
+		) );
+	}
+
+	/**
+	 * (non-PHPdoc)
+	 * @see WP_List_Table::extra_tablenav()
+	 */
+	function extra_tablenav( $which ) {
+		if ( $which == "top" ){
+			?>
+			<div class="alignleft">
+				<?php 
+				global $wpdb;
+				$query = 'SELECT DISTINCT ' . HUT_Common::URL_COLUMN . ' FROM '.$wpdb->prefix.HUT_Common::URL_PING_TBL_NAME;
+				$rows = $wpdb->get_results($query);
+				echo '<label for="' . HUT_Common::URL_SEARCH_INPUT . '">URL</label>&nbsp;';
+				echo '<select name="' . HUT_Common::URL_SEARCH_INPUT . '" id="' . HUT_Common::URL_SEARCH_INPUT . '">';
+				echo '<option value=""></option>';
+				foreach ($rows as $row) {
+					$url = $row->url;
+					$selected = '';
+					if ($url == $_POST[HUT_Common::URL_SEARCH_INPUT])
+						$selected = ' selected="selected"';
+					echo '<option value="' . $row->url . '"' . $selected . '>' . $row->url . '</option>';
+				}
+				echo '</select>';
+				
+				$start_date = isset($_POST[HUT_Common::START_DATE_SEARCH_INPUT]) ? $_POST[HUT_Common::START_DATE_SEARCH_INPUT] : '';
+				$end_date = isset($_POST[HUT_Common::END_DATE_SEARCH_INPUT]) ? $_POST[HUT_Common::END_DATE_SEARCH_INPUT] : '';
+				?>
+				<label>Start date</label>&nbsp;
+				<input type="text" name="<?php echo HUT_Common::START_DATE_SEARCH_INPUT; ?>" id="<?php echo HUT_Common::START_DATE_SEARCH_INPUT; ?>" class="date-field" value="<?php echo $start_date; ?>" />
+				<label>End date</label>&nbsp;
+				<input type="text" name="<?php echo HUT_Common::END_DATE_SEARCH_INPUT; ?>" id="<?php echo HUT_Common::END_DATE_SEARCH_INPUT; ?>" class="date-field" value="<?php echo $end_date; ?>" />
+				<?php 
+				submit_button( __( 'Filter' ), 'submit', false, false, array( 'id' => 'filter-submit' ) );
+				?>
+			</div><?php 
+		}
+		
+		if ( $which == "bottom" ){
+			echo '';
+		}
+	}
+
+	/**
+	 * (non-PHPdoc)
+	 * @see WP_List_Table::get_columns()
+	 */
+	function get_columns() {
+		global $wpdb;
+		$query = 'SELECT * FROM '.$wpdb->prefix.HUT_Common::CLICK_TAP_TBL_NAME;
+		
+		// search inputs
+		$url = null;
+		$start_date = null;
+		$end_date = null;
+		if (isset($_POST[HUT_Common::START_DATE_SEARCH_INPUT]) && strlen(trim($_POST[HUT_Common::START_DATE_SEARCH_INPUT])) > 0) {
+			if (HUT_Common::check_date_format($_POST[HUT_Common::START_DATE_SEARCH_INPUT])) {
+				$start_date = date("Y-m-d H:i:s", strtotime($_POST[HUT_Common::START_DATE_SEARCH_INPUT])); // default yyyy-mm-dd format
+			}
+		}
+		if (isset($_POST[HUT_Common::END_DATE_SEARCH_INPUT]) && strlen(trim($_POST[HUT_Common::END_DATE_SEARCH_INPUT])) > 0) {
+			if (HUT_Common::check_date_format($_POST[HUT_Common::END_DATE_SEARCH_INPUT])) {
+				list($yyyy, $mm, $dd) = explode('-', $_POST[HUT_Common::END_DATE_SEARCH_INPUT]);// default yyyy-mm-dd format
+				$end_date = date("Y-m-d H:i:s", mktime(23, 59, 59, $mm, $dd, $yyyy) );
+			}
+		}
+		if (isset($_POST[HUT_Common::URL_SEARCH_INPUT]) && strlen(trim($_POST[HUT_Common::URL_SEARCH_INPUT])) > 0) {
+			$url = $_POST[HUT_Common::URL_SEARCH_INPUT];
+		}
+		if ($start_date != null || $end_date != null || $url != null) {
+			$query .= ' WHERE ';
+		
+			if ($start_date && $end_date)
+				$query .= HUT_Common::RECORD_DATE_COLUMN . ' >= "' . $start_date . '" AND ' . HUT_Common::RECORD_DATE_COLUMN . ' <= "' . $end_date . '" ';
+			else if ($start_date)
+				$query .=  HUT_Common::RECORD_DATE_COLUMN . ' >= "' . $start_date . '" ';
+			else if ($end_date)
+				$query .=  HUT_Common::RECORD_DATE_COLUMN . ' <= "' . $end_date . '" ';
+			if ($url && ($start_date || $end_date))
+				$query .= 'AND ';
+			if ($url)
+				$query .= HUT_Common::URL_COLUMN . ' = "' . $url . '" ';
+		}
+		
+		$total = $wpdb->query($query);
+		
+		return $columns= array(
+				'element_selector' => __('Element Selector Name'),
+				'count' => __('Impressions/Submits'),
+				'percentage' => 'Percentage (Total Clicks/Taps: ' . $total . ')'
+		);
+	}
+
+	/**
+	 * (non-PHPdoc)
+	 * @see WP_List_Table::prepare_items()
+	 */
+	function prepare_items() {
+		global $wpdb;
+
+		// Register the columns
+		$columns = $this->get_columns();
+		$hidden = array( );
+		
+		$sortable = $this->get_sortable_columns();
+		$this->_column_headers = array($columns, $hidden, $sortable);
+
+		// search inputs
+		$start_date = null;
+		$end_date = null;
+		$url = null;
+		if (isset($_POST[HUT_Common::START_DATE_SEARCH_INPUT]) && strlen(trim($_POST[HUT_Common::START_DATE_SEARCH_INPUT])) > 0) {
+			if (HUT_Common::check_date_format($_POST[HUT_Common::START_DATE_SEARCH_INPUT])) {
+				$start_date = date("Y-m-d H:i:s", strtotime($_POST[HUT_Common::START_DATE_SEARCH_INPUT])); // default yyyy-mm-dd format
+			}
+		}
+		if (isset($_POST[HUT_Common::END_DATE_SEARCH_INPUT]) && strlen(trim($_POST[HUT_Common::END_DATE_SEARCH_INPUT])) > 0) {
+			if (HUT_Common::check_date_format($_POST[HUT_Common::END_DATE_SEARCH_INPUT])) {
+				list($yyyy, $mm, $dd) = explode('-', $_POST[HUT_Common::END_DATE_SEARCH_INPUT]);// default yyyy-mm-dd format
+				$end_date = date("Y-m-d H:i:s", mktime(23, 59, 59, $mm, $dd, $yyyy) );
+			}
+		}
+		if (isset($_POST[HUT_Common::URL_SEARCH_INPUT]) && strlen(trim($_POST[HUT_Common::URL_SEARCH_INPUT])) > 0) {
+			$url = $_POST[HUT_Common::URL_SEARCH_INPUT];
+		}
+		
+		// get table data
+		$query = 'SELECT count(*) as count, element_selector FROM '.$wpdb->prefix.HUT_Common::ELEMENT_SELECTOR_PING_TBL_NAME;
+		if ($start_date != null || $end_date != null || $url != null) {
+			$query .= ' WHERE ';
+		
+			if ($start_date && $end_date)
+				$query .= HUT_Common::RECORD_DATE_COLUMN . ' >= "' . $start_date . '" AND ' . HUT_Common::RECORD_DATE_COLUMN . ' <= "' . $end_date . '" ';
+			else if ($start_date)
+				$query .=  HUT_Common::RECORD_DATE_COLUMN . ' >= "' . $start_date . '" ';
+			else if ($end_date)
+				$query .=  HUT_Common::RECORD_DATE_COLUMN . ' <= "' . $end_date . '" ';
+			if ($url && ($start_date || $end_date))
+				$query .= 'AND ';
+			if ($url)
+				$query .= HUT_Common::URL_COLUMN . ' = "' . $url . '" ';
+		}
+		$query .= ' GROUP BY element_selector';
+
+		$this->items = $wpdb->get_results( $query, ARRAY_A );
+	}
+
+	/**
+	 * Default column
+	 * @param unknown_type $item
+	 * @param unknown_type $column_name
+	 * @return unknown|mixed
+	 */
+	function column_default( $item, $column_name ) {
+		switch( $column_name ) {
+			case 'count':
+			case 'element_selector':
+				return $item[$column_name];
+				break;
+			case 'percentage': {
+				global $wpdb;
+				$query = 'SELECT * FROM '.$wpdb->prefix.HUT_Common::CLICK_TAP_TBL_NAME;
+				
+				// search inputs
+				$start_date = null;
+				$end_date = null;
+				$url = null;
+				if (isset($_POST[HUT_Common::START_DATE_SEARCH_INPUT]) && strlen(trim($_POST[HUT_Common::START_DATE_SEARCH_INPUT])) > 0) {
+					if (HUT_Common::check_date_format($_POST[HUT_Common::START_DATE_SEARCH_INPUT])) {
+						$start_date = date("Y-m-d H:i:s", strtotime($_POST[HUT_Common::START_DATE_SEARCH_INPUT])); // default yyyy-mm-dd format
+					}
+				}
+				if (isset($_POST[HUT_Common::END_DATE_SEARCH_INPUT]) && strlen(trim($_POST[HUT_Common::END_DATE_SEARCH_INPUT])) > 0) {
+					if (HUT_Common::check_date_format($_POST[HUT_Common::END_DATE_SEARCH_INPUT])) {
+						list($yyyy, $mm, $dd) = explode('-', $_POST[HUT_Common::END_DATE_SEARCH_INPUT]);// default yyyy-mm-dd format
+						$end_date = date("Y-m-d H:i:s", mktime(23, 59, 59, $mm, $dd, $yyyy) );
+					}
+				}
+				if (isset($_POST[HUT_Common::URL_SEARCH_INPUT]) && strlen(trim($_POST[HUT_Common::URL_SEARCH_INPUT])) > 0) {
+					$url = $_POST[HUT_Common::URL_SEARCH_INPUT];
+				}
+				if ($start_date != null || $end_date != null || $url != null) {
+					$query .= ' WHERE ';
+				
+					if ($start_date && $end_date)
+						$query .= HUT_Common::RECORD_DATE_COLUMN . ' >= "' . $start_date . '" AND ' . HUT_Common::RECORD_DATE_COLUMN . ' <= "' . $end_date . '" ';
+					else if ($start_date)
+						$query .=  HUT_Common::RECORD_DATE_COLUMN . ' >= "' . $start_date . '" ';
+					else if ($end_date)
+						$query .=  HUT_Common::RECORD_DATE_COLUMN . ' <= "' . $end_date . '" ';
+					if ($url && ($start_date || $end_date))
+						$query .= 'AND ';
+					if ($url)
+						$query .= HUT_Common::URL_COLUMN . ' = "' . $url . '" ';
+				}
+				
+				$total = $wpdb->query($query);
+				
+				if ($total != 0)
+					echo round($item['count'] / doubleval($total) * 100, 2) . '%';
+				else
+					echo '100%';
+			}
+			break;
+			default:
+				return print_r( $item, true ) ;
+		}
+	}
+
+}
+
+
+
+
+
+
+/**
+ * HUT_User_Activity_Sequence_Table class 
+ *
+ * @author dpowney
+ * @since 2.0
+ */
+class HUT_User_Activity_Sequence_Table extends WP_List_Table {
+
+	/**
+	 * Constructor
+	 */
+	function __construct() {
+		parent::__construct( array(
+				'singular'=> 'User Activity Sequence Table',
+				'plural' => 'User Activity Sequence Table',
 				'ajax'	=> false
 		) );
 	}
@@ -44,14 +278,13 @@ class HUT_User_Summary_Table extends WP_List_Table {
 	 */
 	function get_columns() {
 		return $columns= array(
-				'zoom_level' => __('Zoom Level'),
-				'width' => __('Width'),
-				'device_pixel_ratio' => __('Device Pixel Ratio'),
-				'browser_family' => __('Browser'),
-				'browser_version' => __(''),
-				'device' => __('Device'),
-				'os_family' => __('Operating System'),
-				'os_version' => __('')
+				'order' => __('Order'),
+				'event' => __('Event'),
+				'description' => __('Description'),
+				'date_time' => __('Date & Time'),
+				'time_elapsed' => __('Time Elapsed'),
+				'additional_info' => __('Addintion Info'),
+				'actions' => __('Actions')
 		);
 	}
 
@@ -69,16 +302,265 @@ class HUT_User_Summary_Table extends WP_List_Table {
 
 		// Register the columns
 		$columns = $this->get_columns();
-		$hidden = array('browser_version', 'os_version' );
+		$hidden = array( );
 		$sortable = $this->get_sortable_columns();
 		$this->_column_headers = array($columns, $hidden, $sortable);
+		
+		// TODO pagination
 
-		$ip_address = isset($_REQUEST["ip_address"]) ? $_REQUEST["ip_address"]  : '';
-		$session_id = isset($_REQUEST["session_id"]) ?  $_REQUEST["session_id"] : '';
+		$this->items = $this->construct_items_array();
+	}
+	
+	/**
+	 * Helper class to create the data items array
+	 */
+	function construct_items_array() {
+		global $wpdb;
+		$ip_address = isset($_REQUEST["ip_address"]) ? $_REQUEST["ip_address"]  : null;
+		$session_id = isset($_REQUEST["session_id"]) ?  $_REQUEST["session_id"] : null;
+		
+		$user_activities = array();
+		
+		$query = 'SELECT * FROM ' . $wpdb->prefix.HUT_Common::URL_PING_TBL_NAME . ' WHERE ' . HUT_Common::IP_ADDRESS_COLUMN. ' = "' . $ip_address . '" AND ' . HUT_Common::SESSION_ID_COLUMN . ' = "' . $session_id . '"';
+		$rows = $wpdb->get_results($query);
+		foreach ($rows as $row) {
+			array_push($user_activities, array(
+					'type' => 'url',
+					'url' => $row->url,
+					'record_date' => $row->record_date
+			));
+		}
+		
+		$query = 'SELECT * FROM ' . $wpdb->prefix.HUT_Common::AJAX_PING_TBL_NAME . ' WHERE ' . HUT_Common::IP_ADDRESS_COLUMN. ' = "' . $ip_address . '" AND ' . HUT_Common::SESSION_ID_COLUMN . ' = "' . $session_id . '"';
+		$rows = $wpdb->get_results($query);
+		foreach ($rows as $row) {
+			array_push($user_activities, array(
+					'type' => 'ajax',
+					'ajax_action' => $row->ajax_action,
+					'status_text' => $row->status_text,
+					'record_date' => $row->record_date
+			));
+		}
+		
+		$query = 'SELECT * FROM ' . $wpdb->prefix.HUT_Common::CLICK_TAP_TBL_NAME . ' WHERE ' . HUT_Common::IP_ADDRESS_COLUMN. ' = "' . $ip_address . '" AND ' . HUT_Common::SESSION_ID_COLUMN . ' = "' . $session_id . '"';
+		$rows = $wpdb->get_results($query);
+		foreach ($rows as $row) {
+			array_push($user_activities, array(
+					'type' => 'click_tap',
+					'x' => $row->x,
+					'y' => $row->y,
+					'width' => $row->width,
+					'is_tap' => $row->is_tap,
+					'zoom_level' => $row->zoom_level,
+					'device_pixel_ratio' => $row->device_pixel_ratio,
+					'record_date' => $row->created_date,
+					'url' => $row->url,
+					'id' => $row->id
+			));
+		}
+		
+		$query = 'SELECT * FROM ' . $wpdb->prefix.HUT_Common::ELEMENT_SELECTOR_PING_TBL_NAME . ' WHERE ' . HUT_Common::IP_ADDRESS_COLUMN. ' = "' . $ip_address . '" AND ' . HUT_Common::SESSION_ID_COLUMN . ' = "' . $session_id . '"';
+		$rows = $wpdb->get_results($query);
+		foreach ($rows as $row) {
+				
+			$query2 = 'SELECT name, is_form_submit FROM ' .  $wpdb->prefix.HUT_Common::ELEMENT_SELECTOR_TBL_NAME . ' WHERE ' . HUT_Common::ELEMENT_SELECTOR_COLUMN . ' = "' . $row->element_selector . '"';
+			$url = $row->url;
+			if (strlen($url) > 0)
+				$query2 .= ' AND (' . HUT_Common::URL_COLUMN . ' = "' . $url . '" OR ' . HUT_Common::URL_COLUMN . ' = "")';
+		
+			$name = $wpdb->get_col($query2, 0);
+			$is_form_submit = $wpdb->get_col($query2, 1);
+				
+			array_push($user_activities, array(
+					'type' => 'element_selector',
+					'name' => $name[0],
+					'element_selector' => $row->element_selector,
+					'record_date' => $row->record_date,
+					'is_form_submit' => $is_form_submit[0]
+			));
+		}
+		
+		usort($user_activities, array( &$this, 'sort_user_activities_by_time' ) );
+		
+		// now the table data
+		
+		$items = array();
+		if (count($user_activities) == 0)
+			return $items;
+		
+		$row_count = 0;
+		foreach ($user_activities as $user_activity) {
+			$current_activity_date = $user_activity['record_date'];
+				
+			$previous_activity_date = null;
+			if ($row_count != 0)
+				$previous_activity_date = $user_activities[$row_count - 1]['record_date'];
+				
+			// we're not using inbuilt WordPress function human_time_diff because it's not accurate enough
+			$human_time_diff = '';
+			if ($previous_activity_date != null) {
+				$current_activity_time = strtotime($current_activity_date);
+				$previous_activity_time = strtotime($previous_activity_date);
+				$human_time_diff = $this->human_time_diff($previous_activity_time, $current_activity_time);
+			}
+				
+			$activity_type = $user_activity['type'];
+				
+			// Create table information
+			$event = '';
+			$description = '';
+			$additional_info = '';
+			$actions = '';
+			if ($activity_type == 'ajax') {
+				$event = 'Action';
+				$ajax_action = $user_activity['ajax_action'];
+				$status_text = $user_activity['status_text'];
+				$description = 'AJAX action with name "' . $ajax_action . '" was processed';
+				$additional_info = 'status text ' . $status_text;
+			} else if ($activity_type == 'element_selector') {
+				$event = 'Element selector';
+				$name = $user_activity['name'];
+				$is_form_submit = $user_activity['is_form_submit'];
+				if ($is_form_submit)
+					$description = $name . ' was submitted';
+				else
+					$description = $name . ' impression occured';
+			} else if ($activity_type == 'url') {
+				$event = 'Page load';
+				$url = $user_activity['url'];
+				$description = 'Navigated to URL <a href="' . stripslashes($url) . '">' . $url . '</a>';
+			} else { // click_tap
+				$x = $user_activity['x'];
+				$y = $user_activity['x'];
+				$width = $user_activity['width'];
+				$is_tap = $user_activity['is_tap'];
+				$device_pixel_ratio = $user_activity['device_pixel_ratio'];
+				$zoom_level = $user_activity['zoom_level'];
+				$url = $user_activity['url'];
+				$click_tap_id = $user_activity['id'];
+					
+				$event = 'Mouse click';
+				$description = 'A mouse click was made';
+				if ($is_tap) {
+					$event = 'Touch Screen Tap';
+					$description = 'A touch screen tap was made';
+				}
+		
+				$additional_info = 'x=' . $x . ', y=' . $y . ', width=' . $width .' pixels, device pixel ratio=' . HUT_Common::convert_decimalto_ratio($device_pixel_ratio) . ' and zoom level=' . $zoom_level * 100 . '%';
+					
+				$actions .= '<input type="hidden" id="' . $row_count . '-url" name="' . $row_count . '-url" value="' . addslashes($url) . '"></input>';
+				$actions .= '<input type="hidden" id="' . $row_count . '-width" name="' . $row_count . '-width" value="' . $width . '"></input>';
+				$actions .= '<input type="hidden" id="' . $row_count . '-click_tap_id" name="' . $row_count . '-click_tap_id" value="' . $click_tap_id . '"></input>';
+				$actions .= '<input type="hidden" id="' . $row_count . '-device_pixel_ratio" name="' . $row_count . '-device_pixel_ratio" value="' . $device_pixel_ratio . '"></input>';
+				$actions .= '<input type="hidden" id="' . $row_count . '-zoom_level" name="' . $row_count . '-zoom_level" value="' . $zoom_level . '"></input>';
+				if (isset($item[ 'browser_family' ])) {
+					$browser_family = $item[ 'browser_family' ];
+					$actions .= '<input type="hidden" id="' . $row_count . '-browser_family" name="' . $row_count . '-browser_family" value="' . $browser_family . '"></input>';
+				}
+				if (isset($item[ 'os_family' ])) {
+					$os_family = $item[ 'os_family' ];
+					$actions .= '<input type="hidden" id="' . $row_count . '-os_family" name="' . $row_count . '-os_family" value="' . $os_family . '"></input>';
+				}
+				if (isset($item[ 'device' ])) {
+					$device = $item[ 'device' ];
+					$actions .= '<input type="hidden" id="' . $row_count . '-device" name="' . $row_count . '-device" value="' . $device . '"></input>';
+				}
+		
+				// View heat map button
+				$actions .= '<input id="' . $row_count .'" type="button" class="button view-heat-map-button" value="View ' . $event . '" />';
+			}
+				
+				
+			$previous_activity_type = null;
+			if ($row_count > 1)
+				$previous_activity_type = $user_activities[$row_count - 1]['type'];
 
-		$query = 'SELECT zoom_level, width, device_pixel_ratio, browser_family, browser_version, device, os_family, os_version FROM  ' . $wpdb->prefix.HUT_Common::CLICK_TAP_TBL_NAME . ' WHERE ' . HUT_Common::IP_ADDRESS_COLUMN. ' = "' . $ip_address . '" AND ' . HUT_Common::SESSION_ID_COLUMN . ' = "' . $session_id . '" GROUP BY zoom_level, width, device_pixel_ratio, browser_family, browser_version, device, os_family, os_version';
-
-		$this->items = $wpdb->get_results( $query, ARRAY_A );
+			array_push($items, array('event' => $event, 'description' => $description, 'order' => $row_count, 'time_elapsed' => $human_time_diff, 'date_time' => $current_activity_date, 'actions' => $actions, 'additional_info' => $additional_info));
+			
+			$row_count++;
+			
+		}
+		
+		return $items;
+	}
+	
+	/**
+	 * Sorts user activities by time
+	 *
+	 * @param unknown_type $a
+	 * @param unknown_type $b
+	 * @return number
+	 */
+	function sort_user_activities_by_time($a, $b) {
+		if ($a['record_date'] == $b['record_date']) {
+			if ($a['type'] == 'url' || $b['type'] == 'url') {
+				if ($b['type'] == 'form_submit')
+					return 1;
+				if ($a['type'] == 'form_submit')
+					return -1;
+			}
+			return 0;
+		}
+	
+		return ($a['record_date'] <= $b['record_date']) ? -1 : 1;
+	}
+	
+	/**
+	 * A more accurate hum_time_diff function than the one inbuilt with WordPress
+	 *
+	 * @param $from_date
+	 * @param $to_date
+	 * @return $human_time_diff
+	 */
+	function human_time_diff($from_date, $to_date) {
+		$human_time_diff = '';
+		$time_diff = $to_date - $from_date;
+		$mins_diff = intval( ( $time_diff ) / 60 );
+		$seconds_diff = ( $time_diff ) % 60;
+		$hours_diff = 0;
+		if ($mins_diff > 0)
+			$hours_diff = intval( $mins_diff / 60);
+	
+		// days are not necessary
+	
+		// hours first
+		if ($hours_diff > 0) {
+			// must subtract here otherwise the minutes is not right
+			$mins_diff -= $hours_diff * 60;
+	
+			$human_time_diff .= $hours_diff . ' hour';
+			if ($human_time_diff != 1)
+				$human_time_diff .= 's';
+			if ($seconds_diff > 0 || $mins_diff > 0) {
+				if (($seconds_diff > 0 && $hours_diff == 0)
+						|| ($seconds_diff == 0 && $hours_diff > 0))
+					$human_time_diff .= ' and ';
+				else
+					$human_time_diff .= ', ';
+			}
+		}
+	
+		// then minutes
+		if ($mins_diff > 0) {
+			$human_time_diff .= $mins_diff . ' minute';
+			if ($mins_diff != 1)
+				$human_time_diff .= 's';
+			if ($seconds_diff > 0 )
+				$human_time_diff .= ' and ';
+		}
+	
+		// then seconds
+		if ($seconds_diff > 0) {
+			$human_time_diff .= $seconds_diff .= ' second';
+			if ($seconds_diff != 1)
+				$human_time_diff .= 's';
+		}
+	
+		if (strlen($human_time_diff) == 0) {
+			$human_time_diff .= '< 1 second';
+		}
+	
+		return $human_time_diff;
 	}
 
 	/**
@@ -89,26 +571,17 @@ class HUT_User_Summary_Table extends WP_List_Table {
 	 */
 	function column_default( $item, $column_name ) {
 		switch( $column_name ) {
-			case 'zoom_level' :
-				echo (100 * $item['zoom_level']) . '%';
-				break;
-			case 'device_pixel_ratio':
-				echo HUT_Common::convert_decimalto_ratio($item['device_pixel_ratio']);
-				break;
-			case 'width' :
-				echo $item['width'] . 'px';
-				break;
-			case 'device':
-			case 'browser_version':
-			case 'os_version':
-				echo $item[$column_name];
-				break;
-			case 'browser_family':
-				echo $item['browser_family'] . ' ' . $item['browser_version'];
-				break;
-			case 'os_family':
-				echo $item['os_family'] . ' ' . $item['os_version'];
-				break;
+			case 'order' :
+			case 'event':
+			case 'description' :
+			case 'time_elapsed':
+			case 'additional_info':
+			case 'actions':
+				return $item[$column_name];
+			break;
+			case 'date_time':
+				echo date("F j, Y, g:i a", strtotime($item[$column_name]));
+			break;
 			default:
 				return print_r( $item, true ) ;
 		}
@@ -203,7 +676,7 @@ class HUT_Users_Table extends WP_List_Table {
 				'page_view_count' => __('Page Hits'),
 				'ajax_action_count' => __('AJAX Actions'),
 				'click_tap_count' => __('Clicks/Taps'),
-				'element_selector_count' => __('Elements'),
+				'element_selector_count' => __('Element Selectors'),
 				'view_user_acticity' => __('Action')
 		);
 	}
