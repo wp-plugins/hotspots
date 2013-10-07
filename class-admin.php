@@ -1196,7 +1196,7 @@ class HUT_Admin {
 						<td>
 							<input type="text" name="element_selector" id="element_selector" value="" />
 							<p class="description">Enter a jQuery element selector.</p>
-							<p class="description">Some useful examples for WordPress websites (if you are to use these check the HTML and modify the element selectors accordinly):<br />
+							<p class="description">Some useful examples for WordPress websites (if you are to use these check the HTML and modify the element selectors accordingly):<br />
 								ul.menu li - All menu items<br />
 								header - Header<br />
 								footer - Footer<br />
