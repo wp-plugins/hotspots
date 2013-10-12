@@ -97,15 +97,16 @@ class HUT_Element_Impressions_Report_Table extends WP_List_Table {
 			$query .= ' WHERE ';
 		
 			if ($start_date && $end_date)
-				$query .= HUT_Common::RECORD_DATE_COLUMN . ' >= "' . $start_date . '" AND ' . HUT_Common::RECORD_DATE_COLUMN . ' <= "' . $end_date . '" ';
+				$query .= HUT_Common::CREATED_DATE_COLUMN . ' >= "' . $start_date . '" AND ' . HUT_Common::CREATED_DATE_COLUMN . ' <= "' . $end_date . '" ';
 			else if ($start_date)
-				$query .=  HUT_Common::RECORD_DATE_COLUMN . ' >= "' . $start_date . '" ';
+				$query .=  HUT_Common::CREATED_DATE_COLUMN . ' >= "' . $start_date . '" ';
 			else if ($end_date)
-				$query .=  HUT_Common::RECORD_DATE_COLUMN . ' <= "' . $end_date . '" ';
+				$query .=  HUT_Common::CREATED_DATE_COLUMN . ' <= "' . $end_date . '" ';
+			
 			if ($url && ($start_date || $end_date))
 				$query .= 'AND ';
 			if ($url)
-				$query .= HUT_Common::URL_COLUMN . ' = "' . $url . '" ';
+				$query .= HUT_Common::URL_COLUMN . ' = "' . $url . '"';
 		}
 		
 		$total = $wpdb->query($query);
@@ -167,7 +168,7 @@ class HUT_Element_Impressions_Report_Table extends WP_List_Table {
 				$query .= HUT_Common::URL_COLUMN . ' = "' . $url . '" ';
 		}
 		$query .= ' GROUP BY element_selector';
-
+		
 		$this->items = $wpdb->get_results( $query, ARRAY_A );
 	}
 
@@ -209,17 +210,17 @@ class HUT_Element_Impressions_Report_Table extends WP_List_Table {
 					$query .= ' WHERE ';
 				
 					if ($start_date && $end_date)
-						$query .= HUT_Common::RECORD_DATE_COLUMN . ' >= "' . $start_date . '" AND ' . HUT_Common::RECORD_DATE_COLUMN . ' <= "' . $end_date . '" ';
+						$query .= HUT_Common::CREATED_DATE_COLUMN . ' >= "' . $start_date . '" AND ' . HUT_Common::CREATED_DATE_COLUMN . ' <= "' . $end_date . '" ';
 					else if ($start_date)
-						$query .=  HUT_Common::RECORD_DATE_COLUMN . ' >= "' . $start_date . '" ';
+						$query .=  HUT_Common::CREATED_DATE_COLUMN . ' >= "' . $start_date . '" ';
 					else if ($end_date)
-						$query .=  HUT_Common::RECORD_DATE_COLUMN . ' <= "' . $end_date . '" ';
+						$query .=  HUT_Common::CREATED_DATE_COLUMN . ' <= "' . $end_date . '" ';
 					if ($url && ($start_date || $end_date))
 						$query .= 'AND ';
 					if ($url)
 						$query .= HUT_Common::URL_COLUMN . ' = "' . $url . '" ';
 				}
-				
+					
 				$total = $wpdb->query($query);
 				
 				if ($total != 0)

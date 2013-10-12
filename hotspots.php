@@ -3,7 +3,7 @@
 Plugin Name: Hotspots User Tracker
 Plugin URI: http://wordpress.org/extend/plugins/hotspots/
 Description: Track what users are doing and view a heat map of mouse clicks and touch screen taps overlayed on your webpage.
-Version: 3.4.1
+Version: 3.4.2
 Author: Daniel Powney
 Auhtor URI: www.danielpowney.com
 License: GPL2

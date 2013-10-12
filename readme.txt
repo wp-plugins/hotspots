@@ -134,6 +134,9 @@ The element selectors are implemented as jQuery element selectors. You can find 
 
 == Changelog ==
 
+= 3.4.2 =
+* Added fix for element selectors report
+
 = 3.4.1 =
 * Added metabox's to user activity tab
 * Refactored the user activity sequence table to use the WP_List_Table class

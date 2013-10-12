@@ -1249,9 +1249,6 @@ class HUT_Admin {
 	 * Reports tab
 	 */
 	function do_reports_tab() {
-		global $wpdb;
-		$start_date = isset($_POST[HUT_Common::START_DATE_SEARCH_INPUT]) ? $_POST[HUT_Common::START_DATE_SEARCH_INPUT] : '';
-		$end_date = isset($_POST[HUT_Common::END_DATE_SEARCH_INPUT]) ? $_POST[HUT_Common::END_DATE_SEARCH_INPUT] : '';
 		?>
 		<h3>Reports</h3>
 		<p><a href="#">Element Selector Report</a></p>
