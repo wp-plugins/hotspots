@@ -134,6 +134,9 @@ The element selectors are implemented as jQuery element selectors. You can find 
 
 == Changelog ==
 
+= 3.4.3 =
+* Added flot graphs to element selectors report
+
 = 3.4.2 =
 * Added fix for element selectors report
 

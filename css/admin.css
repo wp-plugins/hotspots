@@ -27,3 +27,50 @@ form#heat-maps-form .tablenav {
 .hut-columns-2 th {
 	font-weight: bold;
 }
+
+
+.report-container {
+	width: 100%;
+	height: 300px;
+}
+
+.report-wrapper {
+	padding: 10px 20px;
+	margin: 20px 0 20px 0;
+	border: 1px solid #ddd;
+	background: #fff;
+	background: linear-gradient(#f6f6f6 0, #fff 50px);
+	background: -o-linear-gradient(#f6f6f6 0, #fff 50px);
+	background: -ms-linear-gradient(#f6f6f6 0, #fff 50px);
+	background: -moz-linear-gradient(#f6f6f6 0, #fff 50px);
+	background: -webkit-linear-gradient(#f6f6f6 0, #fff 50px);
+	box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+	-o-box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+	-ms-box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+	-moz-box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+	-webkit-box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+	box-sizing: border-box;
+	width: 100%;
+}
+
+.flot-container {
+	width: 100%;
+}
+
+.hut-float-left {
+	float: left;
+	width: 49%;
+}
+.hut-float-right {
+	float: right;
+	width: 49%;
+}
+
+.report-placeholder {
+	margin: 10px;
+	width: 100%;
+	height: 100%;
+	font-size: 14px;
+	line-height: 1.2em;
+}
+

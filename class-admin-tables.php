@@ -7,22 +7,29 @@ if (!class_exists('WP_List_Table')){
 
 
 /**
- * HUT_Element_Impressions_Report_Table class
+ * HUT_Element_Selector_Report_Table class
  *
  * @author dpowney
  * @since 2.0
  */
-class HUT_Element_Impressions_Report_Table extends WP_List_Table {
+class HUT_Element_Selector_Report_Table extends WP_List_Table {
 
 	/**
 	 * Constructor
 	 */
 	function __construct() {
 		parent::__construct( array(
-				'singular'=> 'Element Impression/Submit Report',
-				'plural' => 'Element Impression/Submit Report',
+				'singular'=> 'Element Selector Report',
+				'plural' => 'Element Selector Report',
 				'ajax'	=> false
 		) );
+	}
+	
+	function display_tablenav( $which ) {
+		if ( $which == "bottom" ){
+			return;
+		}
+		parent::display_tablenav($which);
 	}
 
 	/**
@@ -132,41 +139,11 @@ class HUT_Element_Impressions_Report_Table extends WP_List_Table {
 		$sortable = $this->get_sortable_columns();
 		$this->_column_headers = array($columns, $hidden, $sortable);
 
-		// search inputs
-		$start_date = null;
-		$end_date = null;
-		$url = null;
-		if (isset($_POST[HUT_Common::START_DATE_SEARCH_INPUT]) && strlen(trim($_POST[HUT_Common::START_DATE_SEARCH_INPUT])) > 0) {
-			if (HUT_Common::check_date_format($_POST[HUT_Common::START_DATE_SEARCH_INPUT])) {
-				$start_date = date("Y-m-d H:i:s", strtotime($_POST[HUT_Common::START_DATE_SEARCH_INPUT])); // default yyyy-mm-dd format
-			}
-		}
-		if (isset($_POST[HUT_Common::END_DATE_SEARCH_INPUT]) && strlen(trim($_POST[HUT_Common::END_DATE_SEARCH_INPUT])) > 0) {
-			if (HUT_Common::check_date_format($_POST[HUT_Common::END_DATE_SEARCH_INPUT])) {
-				list($yyyy, $mm, $dd) = explode('-', $_POST[HUT_Common::END_DATE_SEARCH_INPUT]);// default yyyy-mm-dd format
-				$end_date = date("Y-m-d H:i:s", mktime(23, 59, 59, $mm, $dd, $yyyy) );
-			}
-		}
-		if (isset($_POST[HUT_Common::URL_SEARCH_INPUT]) && strlen(trim($_POST[HUT_Common::URL_SEARCH_INPUT])) > 0) {
-			$url = $_POST[HUT_Common::URL_SEARCH_INPUT];
-		}
+		
 		
 		// get table data
 		$query = 'SELECT count(*) as count, element_selector FROM '.$wpdb->prefix.HUT_Common::ELEMENT_SELECTOR_PING_TBL_NAME;
-		if ($start_date != null || $end_date != null || $url != null) {
-			$query .= ' WHERE ';
-		
-			if ($start_date && $end_date)
-				$query .= HUT_Common::RECORD_DATE_COLUMN . ' >= "' . $start_date . '" AND ' . HUT_Common::RECORD_DATE_COLUMN . ' <= "' . $end_date . '" ';
-			else if ($start_date)
-				$query .=  HUT_Common::RECORD_DATE_COLUMN . ' >= "' . $start_date . '" ';
-			else if ($end_date)
-				$query .=  HUT_Common::RECORD_DATE_COLUMN . ' <= "' . $end_date . '" ';
-			if ($url && ($start_date || $end_date))
-				$query .= 'AND ';
-			if ($url)
-				$query .= HUT_Common::URL_COLUMN . ' = "' . $url . '" ';
-		}
+		$query = HUT_Common::add_filters_to_query($query);
 		$query .= ' GROUP BY element_selector';
 		
 		$this->items = $wpdb->get_results( $query, ARRAY_A );
@@ -693,85 +670,29 @@ class HUT_Users_Table extends WP_List_Table {
 		$columns = $this->get_columns();
 		$hidden = array( );
 		
-		$ip_address = isset($_REQUEST["ip_address"]) ? $_REQUEST["ip_address"]  : null;
-		$session_id = isset($_REQUEST["session_id"]) ?  $_REQUEST["session_id"] : null;
-		
-		if ($ip_address && $session_id) {
-			$hidden = array( 'view_user_acticity' );
-		}
-		
 		$sortable = $this->get_sortable_columns();
 		$this->_column_headers = array($columns, $hidden, $sortable);
 
-		// search inputs
-		$start_date = null;
-		$end_date = null;
-		$url = null;
-		
-		if ($ip_address == null || $session_id == null) {
-			if (isset($_POST[HUT_Common::START_DATE_SEARCH_INPUT]) && strlen(trim($_POST[HUT_Common::START_DATE_SEARCH_INPUT])) > 0) {
-				if (HUT_Common::check_date_format($_POST[HUT_Common::START_DATE_SEARCH_INPUT])) {
-					$start_date = date("Y-m-d H:i:s", strtotime($_POST[HUT_Common::START_DATE_SEARCH_INPUT])); // default yyyy-mm-dd format
-				}
-			}
-			
-			if (isset($_POST[HUT_Common::END_DATE_SEARCH_INPUT]) && strlen(trim($_POST[HUT_Common::END_DATE_SEARCH_INPUT])) > 0) {
-				if (HUT_Common::check_date_format($_POST[HUT_Common::END_DATE_SEARCH_INPUT])) {
-					list($yyyy, $mm, $dd) = explode('-', $_POST[HUT_Common::END_DATE_SEARCH_INPUT]);// default yyyy-mm-dd format
-					$end_date = date("Y-m-d H:i:s", mktime(23, 59, 59, $mm, $dd, $yyyy) );
-				}
-			}
-			
-			if (isset($_POST[HUT_Common::URL_SEARCH_INPUT]) && strlen(trim($_POST[HUT_Common::URL_SEARCH_INPUT])) > 0) {
-				$url = $_POST[HUT_Common::URL_SEARCH_INPUT];
-			}
-		}
-		
-		// get table data
-		// FIXME order by record_date, temporary workaround using alias as r for ORDER BY
 		$query = 'SELECT ip_address, session_id, record_date as r, record_date FROM ( SELECT * FROM ' . $wpdb->prefix . HUT_Common::URL_PING_TBL_NAME . ' ';
-		if ($start_date != null || $end_date != null || $url != null) {
-			$query .= 'WHERE ';
-		
-			if ($start_date && $end_date)
-				$query .= HUT_Common::RECORD_DATE_COLUMN . ' >= "' . $start_date . '" AND ' . HUT_Common::RECORD_DATE_COLUMN . ' <= "' . $end_date . '" ';
-			else if ($start_date)
-				$query .=  HUT_Common::RECORD_DATE_COLUMN . ' >= "' . $start_date . '" ';
-			else if ($end_date)
-				$query .=  HUT_Common::RECORD_DATE_COLUMN . ' <= "' . $end_date . '" ';
-			if ($url && ($start_date || $end_date))
-				$query .= 'AND ';
-			if ($url)
-				$query .= HUT_Common::URL_COLUMN . ' = "' . $url . '" ';
-		} else if ($session_id || $ip_address) {
-			$query .= 'WHERE ';
-			
-			if ($session_id && $ip_address)
-				$query .= 'session_id = "' . $session_id . '" AND ip_address = "' . $ip_address . '"';
-			else if ($session_id)
-				$query .= 'session_id = "' . $session_id . '"';
-			else
-				$query .= 'ip_address = "' . $ip_address . '"';
-		}
-		
+		$query = HUT_Common::add_filters_to_query($query);
+		 
+		// FIXME order by record_date, temporary workaround using alias as r for ORDER BY
 		$query .= 'ORDER BY ' . HUT_Common::RECORD_DATE_COLUMN . ' DESC ) AS a GROUP BY ' . HUT_Common::IP_ADDRESS_COLUMN . ', session_id ORDER BY r DESC';
 		
 		// pagination
-		if ($ip_address == null || $session_id == null) {
-			$item_count = $wpdb->query( $query ); //return the total number of affected rows
-			$items_per_page = 10;
-			$page_num = !empty($_GET["paged"]) ? mysql_real_escape_string($_GET["paged"]) : '';
-			if ( empty( $page_num ) || !is_numeric( $page_num ) || $page_num <= 0 ) {
-				$page_num = 1;
-			}
-			$total_pages = ceil( $item_count / $items_per_page );
-			// adjust the query to take pagination into account
-			if ( !empty( $page_num ) && !empty( $items_per_page ) ) {
-				$offset=($page_num-1)*$items_per_page;
-				$query .= ' LIMIT ' .(int) $offset. ',' .(int) $items_per_page;
-			}
-			$this->set_pagination_args( array( "total_items" => $item_count, "total_pages" => $total_pages, "per_page" => $items_per_page ) );
+		$item_count = $wpdb->query( $query ); //return the total number of affected rows
+		$items_per_page = 10;
+		$page_num = !empty($_GET["paged"]) ? mysql_real_escape_string($_GET["paged"]) : '';
+		if ( empty( $page_num ) || !is_numeric( $page_num ) || $page_num <= 0 ) {
+			$page_num = 1;
 		}
+		$total_pages = ceil( $item_count / $items_per_page );
+		// adjust the query to take pagination into account
+		if ( !empty( $page_num ) && !empty( $items_per_page ) ) {
+			$offset=($page_num-1)*$items_per_page;
+			$query .= ' LIMIT ' .(int) $offset. ',' .(int) $items_per_page;
+		}
+		$this->set_pagination_args( array( "total_items" => $item_count, "total_pages" => $total_pages, "per_page" => $items_per_page ) );
 		$this->items = $wpdb->get_results( $query, ARRAY_A );
 	}
 

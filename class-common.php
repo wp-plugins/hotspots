@@ -31,6 +31,7 @@ class HUT_Common {
 	IS_TAP_COLUMN						= 'is_tap',
 	IP_ADDRESS_COLUMN					= 'ip_address',
 	DEVICE_PIXEL_RATIO_COLUMN			= 'device_pixel_ratio',
+	// TODO rename to record_date
 	CREATED_DATE_COLUMN					= 'created_date',
 	SESSION_ID_COLUMN					= 'session_id',
 	ROLE_COLUMN							= 'role',
@@ -315,6 +316,61 @@ class HUT_Common {
 	public static function check_date_format($date) {
 		list($yyyy, $mm, $dd) = explode('-',$date);
 		return checkdate($mm,$dd,$yyyy);
+	}
+	
+	/**
+	 * Adds common filters to DB query
+	 * 
+	 * @param unknown_type $query
+	 * @return string
+	 */
+	public static function add_filters_to_query($query) {
+		$start_date = null;
+		$end_date = null;
+		$url = null;
+		$ip_address = isset($_REQUEST["ip_address"]) ? $_REQUEST["ip_address"]  : null;
+		$session_id = isset($_REQUEST["session_id"]) ?  $_REQUEST["session_id"] : null;
+		
+		if (isset($_POST[HUT_Common::START_DATE_SEARCH_INPUT]) && strlen(trim($_POST[HUT_Common::START_DATE_SEARCH_INPUT])) > 0) {
+			if (HUT_Common::check_date_format($_POST[HUT_Common::START_DATE_SEARCH_INPUT])) {
+				$start_date = date("Y-m-d H:i:s", strtotime($_POST[HUT_Common::START_DATE_SEARCH_INPUT])); // default yyyy-mm-dd format
+			}
+		}
+		if (isset($_POST[HUT_Common::END_DATE_SEARCH_INPUT]) && strlen(trim($_POST[HUT_Common::END_DATE_SEARCH_INPUT])) > 0) {
+			if (HUT_Common::check_date_format($_POST[HUT_Common::END_DATE_SEARCH_INPUT])) {
+				list($yyyy, $mm, $dd) = explode('-', $_POST[HUT_Common::END_DATE_SEARCH_INPUT]);// default yyyy-mm-dd format
+				$end_date = date("Y-m-d H:i:s", mktime(23, 59, 59, $mm, $dd, $yyyy) );
+			}
+		}
+		if (isset($_POST[HUT_Common::URL_SEARCH_INPUT]) && strlen(trim($_POST[HUT_Common::URL_SEARCH_INPUT])) > 0) {
+			$url = $_POST[HUT_Common::URL_SEARCH_INPUT];
+		}
+		
+		// Contruct where clause
+		if ($start_date != null || $end_date != null || $url != null) {
+			$query .= ' WHERE ';
+		
+			if ($start_date && $end_date)
+				$query .= HUT_Common::RECORD_DATE_COLUMN . ' >= "' . $start_date . '" AND ' . HUT_Common::RECORD_DATE_COLUMN . ' <= "' . $end_date . '" ';
+			else if ($start_date)
+				$query .=  HUT_Common::RECORD_DATE_COLUMN . ' >= "' . $start_date . '" ';
+			else if ($end_date)
+				$query .=  HUT_Common::RECORD_DATE_COLUMN . ' <= "' . $end_date . '" ';
+			if ($url && ($start_date || $end_date))
+				$query .= 'AND ';
+			if ($url)
+				$query .= HUT_Common::URL_COLUMN . ' = "' . $url . '" ';
+		} else if ($session_id || $ip_address) {
+			$query .= 'WHERE ';
+			
+			if ($session_id && $ip_address)
+				$query .= 'session_id = "' . $session_id . '" AND ip_address = "' . $ip_address . '"';
+			else if ($session_id)
+				$query .= 'session_id = "' . $session_id . '"';
+			else
+				$query .= 'ip_address = "' . $ip_address . '"';
+		}
+		return $query;
 	}
 }
 

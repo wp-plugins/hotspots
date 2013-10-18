@@ -1253,18 +1253,126 @@ class HUT_Admin {
 		<h3>Reports</h3>
 		<p><a href="#">Element Selector Report</a></p>
 		
-		<h4>Element Selector Report</h4>
-		
 		<form method="post">
 			<?php 
-			$element_impressions_report_table = new HUT_Element_Impressions_Report_Table();
-			$element_impressions_report_table->prepare_items();
-			$element_impressions_report_table->display();
+			$element_selector_report = new HUT_Element_Selector_Report_Table();
+			$element_selector_report->prepare_items();
+			$element_selector_report->display();
 			?>
 		</form>
+
+		<?php
+		global $wpdb;
 		
-		<p class="description">Note: Reports may not be 100% accurate. Nested element selectors can be used.</p>
+		// Element selectors count
+		$query = 'SELECT count(*) as count, element_selector FROM '.$wpdb->prefix.HUT_Common::ELEMENT_SELECTOR_PING_TBL_NAME;
+		$query = HUT_Common::add_filters_to_query($query);
+		$query .= ' GROUP BY element_selector';
+		$rows = $wpdb->get_results($query);
+		$count_data = array();
+		foreach ($rows as $row) {
+			$element_selector = $row->element_selector;
+			$count = $row->count;
+			array_push($count_data, array($element_selector, $count));
+		}
 		
+		// Element selectors time graph
+		$query = 'SELECT DISTINCT DATE( record_date ) AS day, element_selector, count(*) as count FROM dp_hut_element_selector_ping ';
+		$query = HUT_Common::add_filters_to_query($query);
+		$query .= 'GROUP BY element_selector, day ORDER BY record_date DESC';
+		$rows = $wpdb->get_results($query);
+		$time_data = array();
+		foreach ($rows as $row) {
+			$day = $row->day;
+			$count = $row->count;
+			$element_selector = $row->element_selector;
+			// TODO if a day has no data, then make it 0 visitors. 
+			// Otherwise, it is not plotted on the graph as 0.
+			
+			$data = array();
+			if (isset($time_data[$element_selector]))
+				$data = $time_data[$element_selector];
+			
+			array_push($data, array((strtotime($day) * 1000), $count));
+			$time_data[$element_selector] = $data;
+		}
+		?>
+				
+		<script type="text/javascript">
+			jQuery(function() {	
+				// element selectors couunt graph
+				jQuery.plot("#element-selector-count-placeholder", [ <?php echo json_encode($count_data); ?> ], {
+					series: {
+						bars: {
+							show: true,
+							barWidth: 1,
+							align: "center"
+						}
+					},
+					xaxis: {
+						mode: "categories",
+						tickLength: 0
+					}
+				});
+
+				// element selectors time graph
+				<?php 
+				$datasets = '';
+				$index = 0;
+				$count = count($time_data);
+				foreach($time_data as $key => $value) {
+					
+					$options = 'label : "'. $key .'", lines: { show: true }, points: { show: true }';
+					
+					$datasets .= '{ data: ' . json_encode($value) . ', ' . $options . ' }';
+					if ($index < $count-1)
+						$datasets .= ', ';
+					$index++;
+				}
+				?>
+
+				// add markers for weekends on grid
+				function weekendAreas(axes) {
+					var markings = [];
+					var d = new Date(axes.xaxis.min);
+					// go to the first Saturday
+					d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 1) % 7))
+					d.setUTCSeconds(0);
+					d.setUTCMinutes(0);
+					d.setUTCHours(0);
+					var i = d.getTime();
+					// when we don't set yaxis, the rectangle automatically
+					// extends to infinity upwards and downwards
+					do {
+						markings.push({ xaxis: { from: i, to: i + 2 * 24 * 60 * 60 * 1000 } });
+						i += 7 * 24 * 60 * 60 * 1000;
+					} while (i < axes.xaxis.max);
+						return markings;
+				}
+				var datasets = [ <?php echo $datasets; ?> ];
+				var options = <?php echo '{ xaxis: { mode: "time", tickLength: 5, timeformat: "%y/%m/%d", minTickSize: [1, "day"] }, grid: { markings: weekendAreas } } '; ?>;
+				
+				jQuery.plot("#element-selector-time-placeholder", datasets, options );
+			});
+		</script>
+
+		<div class="flot-container">
+
+				<div class="report-wrapper hut-float-left">
+					<div class="report-container">
+						<div id="element-selector-count-placeholder" class="report-placeholder"></div>
+					</div>
+				</div>
+
+				<div class="report-wrapper hut-float-right">
+					<div class="report-container">
+						<div id="element-selector-time-placeholder" class="report-placeholder"></div>
+					</div>
+				</div>
+			
+		</div>
+		
+		<p class="description">Reports may not be 100% accurate. Nested element selectors can be used.</p>	
 		<p>Please suggest report ideas in the plugin <a href="http://wordpress.org/support/plugin/hotspots">support forum</a>. Thank you.</p>
 		<?php
 	}
@@ -1546,6 +1654,12 @@ class HUT_Admin {
 			wp_enqueue_script('jquery-ui-datepicker');
 			wp_enqueue_script('jquery-ui-timepicker');
 			wp_enqueue_style('jquery-style', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/smoothness/jquery-ui.css');
+			
+			// flot
+			wp_enqueue_script( 'flot', plugins_url( 'js/flot/jquery.flot.js', __FILE__ ), array( 'jquery' ) );
+			wp_enqueue_script( 'flot-categories', plugins_url( 'js/flot/jquery.flot.categories.js', __FILE__ ), array( 'jquery', 'flot' ) );
+			wp_enqueue_script( 'flot-time', plugins_url( 'js/flot/jquery.flot.time.js', __FILE__ ), array( 'jquery', 'flot' ) );
+				
 		}
 		
 		wp_enqueue_script('common');
