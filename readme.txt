@@ -130,7 +130,7 @@ The element selectors are implemented as jQuery element selectors. You can find 
 9. Schedule settings
 10. Users tab. You can view all users and their details.
 11. View a sequence of steps of user activity. You can also view each mouse click or touch screen tap indivually. Custom user events, form submits, page loads and AJAX calls can also be tracked.
-
+12. Reports tab
 
 == Changelog ==
 
