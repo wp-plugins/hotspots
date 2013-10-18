@@ -1277,7 +1277,7 @@ class HUT_Admin {
 		}
 		
 		// Element selectors time graph
-		$query = 'SELECT DISTINCT DATE( record_date ) AS day, element_selector, count(*) as count FROM dp_hut_element_selector_ping ';
+		$query = 'SELECT DISTINCT DATE( record_date ) AS day, element_selector, count(*) as count FROM ' . $wpdb->prefix . HUT_Common::ELEMENT_SELECTOR_PING_TBL_NAME . ' ';
 		$query = HUT_Common::add_filters_to_query($query);
 		$query .= 'GROUP BY element_selector, day ORDER BY record_date DESC';
 		$rows = $wpdb->get_results($query);
