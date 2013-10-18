@@ -1,7 +1,7 @@
 === Hotspots User Tracker ===
 Contributors: dpowney
 Donate link: http://www.danielpowney.com/donate
-Tags: mouse click, tap, touch, click, usability, heat map, tracker, analytics, tracking
+Tags: mouse click, tap, touch, click, usability, heat map, tracker, analytics, tracking, impression, funnel, conversion, link
 Requires at least: 3.0.1
 Tested up to: 3.6
 Stable tag: trunk
@@ -12,7 +12,7 @@ Track what users are doing and view a heat map of mouse clicks and touch screen 
 
 == Description ==
 
-View a heat map of mouse clicks and touch screen taps overlayed on your webpage allowing you to improve usability by analysing user behaviour. Different heat maps are drawn to cater for responsive web design. Custom user on click events, form submits and AJAX calls can also be tracked and monitored producing a sequence of user activity steps.
+View a heat map of mouse clicks and touch screen taps overlayed on your webpage allowing you to improve usability by analysing user behaviour. Different heat maps are drawn to cater for responsive web design. Custom user on click events, form submits and AJAX calls can also be tracked and monitored producing a sequence of user activity steps. There are also reports to help you compare different HTML elements including container, forms, buttons, links etc... that are being clicked and tapped.
 
 = Features =
 * Saves mouse click and touch screen tap information
@@ -26,7 +26,7 @@ View a heat map of mouse clicks and touch screen taps overlayed on your webpage 
 * You can disable the plugin for specific pages on your website (this can be useful for performance reasons)
 * Hide mouse clicks and touch screen taps from specific user roles when drawing heat maps
 * Schedule a start date/time and an end date/time for saving mouse clicks and touch screen taps
-* Reports including impressions and form submits
+* Reports and graphs
 
 = Demo =
 Here's a demo: http://danielpowney.com/?drawHeatMap=true&width=1600&devicePixelRatio=1&zoomLevel=1. Make sure you resize width to 1600px (there's always an information panel at the bottom right of the page to help you).
