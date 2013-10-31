@@ -87,32 +87,8 @@ function initOptions() {
  */
 function setupSaving() {
 
-	if (!("ontouchstart" in window)) { // mouse clicks
-		jQuery(document).live('click', function(e) {
-			var event = e ? e : window.event;
-			var posX = 0;
-			var posY = 0;
-
-			if ((event.clientX || event.clientY) && document.body
-					&& document.body.scrollLeft != null) {
-				posX = event.clientX + document.body.scrollLeft;
-				posY = event.clientY + document.body.scrollTop;
-			}
-			if ((event.clientX || event.clientY) && document.compatMode == 'CSS1Compat'
-					&& document.documentElement
-					&& document.documentElement.scrollLeft != null) {
-				posX = event.clientX + document.documentElement.scrollLeft;
-				posY = event.clientY + document.documentElement.scrollTop;
-			}
-			if (event.pageX || event.pageY) {
-				posX = event.pageX;
-				posY = event.pageY;
-			}
-			
-			saveClickOrTap(posX, posY, false);
-		});
-	} else { // touch screens, we only care about taps
-
+	// http://stackoverflow.com/questions/11406285/determine-and-bind-click-or-touch-event
+	if (('ontouchstart' in window) || (window.DocumentTouch && document instanceof DocumentTouch)) { // support touch screen taps
 		// based on http://www.gianlucaguarini.com/blog/detecting-the-tap-event-on-a-mobile-touch-device-using-javascript/
 		var touchData = {
 			started : null, // detect if a touch event is sarted
@@ -155,6 +131,31 @@ function setupSaving() {
 					touchData.touch = null;
 				});
 	}
+	
+	// support mouse clicks
+	jQuery(document).live('click', function(e) {
+		var event = e ? e : window.event;
+		var posX = 0;
+		var posY = 0;
+			if ((event.clientX || event.clientY) && document.body
+				&& document.body.scrollLeft != null) {
+			posX = event.clientX + document.body.scrollLeft;
+			posY = event.clientY + document.body.scrollTop;
+		}
+		if ((event.clientX || event.clientY) && document.compatMode == 'CSS1Compat'
+				&& document.documentElement
+				&& document.documentElement.scrollLeft != null) {
+			posX = event.clientX + document.documentElement.scrollLeft;
+			posY = event.clientY + document.documentElement.scrollTop;
+		}
+		if (event.pageX || event.pageY) {
+			posX = event.pageX;
+			posY = event.pageY;
+		}
+		
+		saveClickOrTap(posX, posY, false);
+	});
+	
 }
 
 
