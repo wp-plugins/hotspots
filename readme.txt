@@ -134,6 +134,9 @@ The element selectors are implemented as jQuery element selectors. You can find 
 
 == Changelog ==
 
+= 3.4.4 =
+* Fixed latest Chrome desktop issue not recording mouse clicks on Windows 8 and devices multi support for touch screen and mouse click events
+
 = 3.4.3 =
 * Added flot graphs to element selectors report
 
