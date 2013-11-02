@@ -14,7 +14,7 @@ The most advanced free WordPress plugin for user tracking and heat maps overlaye
 
 This plugin is a compliment to Google Analytics and provides support for responsive web design and touch screen devices.
 
-=Features=
+= Features =
 * Heat maps of mouse clicks and touch screen taps overlayed on your webpage (You can launch the heat map for a page from wp-admin or simply add ?drawHeatMap=true to the URL)
 * Different heat maps are drawn to cater for responsive web design (resize window, modify zoom level, change device etc...). Each page on your website has it's own heat map
 * Track page loads, AJAX calls and custom events such as form submits and impressions (i.e. any HTML element such as a div container or a button). View a detailed table containing the user activity sequence steps.
