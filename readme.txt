@@ -1,7 +1,7 @@
 === Hotspots User Tracker ===
 Contributors: dpowney
 Donate link: http://www.danielpowney.com/donate
-Tags: mouse click, tap, touch, click, usability, heat map, tracker, analytics, tracking, impression, funnel, conversion, link
+Tags: mouse click, tap, touch, click, usability, heat map, tracker, analytic, analytics, user, track, tracking, impression, funnel, conversion, link, responsive, device, Google
 Requires at least: 3.0.1
 Tested up to: 3.6
 Stable tag: trunk
@@ -21,7 +21,7 @@ This plugin is a compliment to Google Analytics and provides support for respons
 * It's free and there's no sign up or registration required!
 * All data is stored on your own WordPress database
 
-Here's a demo in debug mode: the: http://danielpowney.com/?drawHeatMap=true. Feel free to click or tap away!
+Here's a demo in debug mode: http://danielpowney.com/?drawHeatMap=true. Feel free to click or tap away!
 
 == Notes ==
 This plugin should not be used where performance is critical as an additional server request is made for each mouse click and touch screen tap. To be able to view the heat maps, your WordPress theme must be HTML5 compliant and you need to use an Internet browser which supports HTML5 canvas.
