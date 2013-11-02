@@ -8,28 +8,20 @@ Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Track what users are doing and view a heat map of mouse clicks and touch screen taps overlayed on your webpage.
+The most advanced free WordPress plugin for user tracking and heat maps overlayed on your website.
 
 == Description ==
 
-View a heat map of mouse clicks and touch screen taps overlayed on your webpage allowing you to improve usability by analysing user behaviour. Different heat maps are drawn to cater for responsive web design. Custom user on click events, form submits and AJAX calls can also be tracked and monitored producing a sequence of user activity steps. There are also reports to help you compare different HTML elements including container, forms, buttons, links etc... that are being clicked and tapped.
+This plugin is a compliment to Google Analytics and provides support for responsive web design and touch screen devices.
 
-= Features =
-* Saves mouse click and touch screen tap information
-* Can also track AJAX calls, page loads and custom user events such as clicking on menu items, buttons and form submits
-* View a table containing a sequence of steps of user activity
-* Each page on your website has it's own heat map
+* Heat maps of mouse clicks and touch screen taps overlayed on your webpage (You can launch the heat map for a page from wp-admin or simply add ?drawHeatMap=true to the URL)
+* Different heat maps are drawn to cater for responsive web design (resize window, modify zoom level, change device etc...). Each page on your website has it's own heat map
+* Track page loads, AJAX calls and custom events such as form submits and impressions (i.e. any HTML element such as a div container or a button). View a detailed table containing the user activity sequence steps.
+* Loads of options such as heat map configuration, hide user roles, disable plugin for specific pages, scheduling etc... 
 * It's free and there's no sign up or registration required!
 * All data is stored on your own WordPress database
-* Different heat maps are drawn when you resize the window, modify zoom levels and device pixel ratios to cater for responsive design
-* You can configure how the heat map is drawn including opacity, spot radius and what is hot
-* You can disable the plugin for specific pages on your website (this can be useful for performance reasons)
-* Hide mouse clicks and touch screen taps from specific user roles when drawing heat maps
-* Schedule a start date/time and an end date/time for saving mouse clicks and touch screen taps
-* Reports and graphs
 
-= Demo =
-Here's a demo: http://danielpowney.com/?drawHeatMap=true&width=1600&devicePixelRatio=1&zoomLevel=1. Make sure you resize width to 1600px (there's always an information panel at the bottom right of the page to help you).
+Here's a demo in debug mode: the: http://danielpowney.com/?drawHeatMap=true. Feel free to click or tap away!
 
 == Notes ==
 This plugin should not be used where performance is critical as an additional server request is made for each mouse click and touch screen tap. To be able to view the heat maps, your WordPress theme must be HTML5 compliant and you need to use an Internet browser which supports HTML5 canvas.
@@ -133,6 +125,9 @@ The element selectors are implemented as jQuery element selectors. You can find 
 12. Reports tab
 
 == Changelog ==
+
+= 3.4.5 =
+* Made reports background-color the same as WordPress admin color scheme
 
 = 3.4.4 =
 * Fixed latest Chrome desktop issue not recording mouse clicks on Windows 8 and devices multi support for touch screen and mouse click events
