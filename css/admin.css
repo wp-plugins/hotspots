@@ -27,6 +27,10 @@ form#heat-maps-form .tablenav {
 	min-height: 240px;
 }
 
+.hut-columns-2 #summary-metabox.closed, .hut-columns-2 #environment-metabox.closed {
+	min-height: 0px;
+}
+
 .hut-columns-2 th {
 	font-weight: bold;
 }
