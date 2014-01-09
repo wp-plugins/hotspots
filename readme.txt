@@ -15,16 +15,16 @@ The most advanced analytics plugin for WordPress websites including heatmaps, us
 Hotspots Analytics is the most advanced free analytics plugin for WordPress websites including heatmaps, user activity and custom event tracking. It can be a great compliment to Google Analytics and provides support for responsive web design and touch screen devices.
 
 The key features of the plugin are:
-* Heatmaps of mouse clicks and touch screen taps overlayed on your webpage (You can launch the heatmap for a page from wp-admin or simply add ?drawHeatmap=true to the URL)
-* Different heatmaps are drawn to cater for responsive web design
-* Each page on your website has it’s own heatmap
-* Track user activity including page views, AJAX actions, mouse clicks, touchscreen taps and custom JavaScript events
-* It’s free and there’s no sign up or registration required!
-* All data is stored on your own WordPress database
-* All data is viewed in your WordPress admin. No need to go to a third party website.
+* Heatmaps of mouse clicks and touch screen taps overlayed on your webpage (You can launch the heatmap for a page from wp-admin or simply add ?drawHeatmap=true to the URL),
+* Different heatmaps are drawn to cater for responsive web design,
+* Each page on your website has it’s own heatmap,
+* Track user activity including page views, AJAX actions, mouse clicks, touchscreen taps and custom JavaScript events,
+* It’s free and there’s no sign up or registration required!,
+* All data is stored on your own WordPress database,
+* All data is viewed in your WordPress admin. No need to go to a third party website.,
 * To be able to view the heatmaps, your WordPress theme must be HTML5 compliant and you need to use an Internet browser which supports HTML5 canvas.
 
-Here's a demo in debug mode: http://danielpowney.com/hotspots-analytics?drawHeatMap=true
+Here's a demo in debug mode: http://danielpowney.com/hotspots-analytics?drawHeatmap=true
 
 = Heatmaps =
 Heatmaps can be launched from the WordPress admin plugin page by clicking on the “View Heatmap” button or by adding the query string parameter drawHeatmap=true to your website URL ( i.e. http://danielpowney.com?drawHeatmap=true). There are different heatmaps for each page, page widht, browser, operating system and device to cater for responsive web design and for filtering. 
@@ -37,9 +37,9 @@ A comprehensive summary of all user activity on your website can be viewed inclu
 
 = Reports =
 There are various reports which provide statistics and graphs of all user activity on your website. Each report can be filtered for different devices, browsers, operating systems, page widths and within a period of time (today, yesterday, last week, last 30 days or last 60 days). The following are some examples of reports that can be generated:
-* Graph and count of all page views, page hits, mouse clicks, touch screen taps, AJAX actions and custom events
-* Averages and total count of all page views, page hits, mouse clicks, touch screen taps, AJAX actions and custom events per users and pages
-* Compare a graph and count of multiple custom events which can be used to determine which are more popular or easy to use
+* Graph and count of all page views, page hits, mouse clicks, touch screen taps, AJAX actions and custom events,
+* Averages and total count of all page views, page hits, mouse clicks, touch screen taps, AJAX actions and custom events per users and pages,
+* Compare a graph and count of multiple custom events which can be used to determine which are more popular or easy to use,
 
 = Custom Events =
 
@@ -47,7 +47,7 @@ Custom events can be added for mouse clicks, touch screen taps or form submits o
 
 = Remote Setting =
 
-The plugin should not be used where performance is critical as an additional server request is made for each mouse click, touch screen tap, AJAX action, page view and custom event. However you can purchase two plugins which allow you to direct all user activity events to be saved on a remote host and database to reduce load on your server. For more information, visit http://danielpowney.com/?download=hotspots-analytics-remote
+The plugin should not be used where performance is critical as an additional server request is made for each mouse click, touch screen tap, AJAX action, page view and custom event. However you can purchase two plugins which allow you to direct all user activity events to be saved on a remote host and database to reduce load on your server. For more information, visit http://danielpowney.com/?downloads/hotspots-analytics-remote-bundle
 
 == Installation ==
 
@@ -103,7 +103,9 @@ No. There is an setting called width allowance which allows up to 20 pixels each
 You will need to understand jQuery selectors first here: http://api.jquery.com/category/selectors/. You can bind a mouse click, touchscreen tap, or form submit event to any HTML elements on the pahe by using jQuery selectors. 
 
 Here's some example jQuery selectors for WordPress:
+
 ul.menu li - all menu items
+
 header - header
 footer - footer
 .widget - widgets
