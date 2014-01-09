@@ -1,761 +1,131 @@
-// constants
-var MAX_COLOUR = 255;
-var MIN_COLOUR = 0;
-var debug = false; // default is false
-var saveClickOrTapEnabled = false; // default is false
+// Globals
+var drawHeatmapEnabled = false;
 var spotRadius = 6;
 var hot = 20; // default is 20
 var warm = hot / 2; // default is 10
 var opacity = 0.2; // default is 0.2
-var drawHeatMapEnabled = false; // default is false
-var zIndex = 1000;
-var role = null;
-var useHeatmapjs = false;
-var device = null;
-var browserFamily = null;
-var osFamily = null;
+var isHeatmap = false; // for heatmap.js
+var debug = false;
+var remoteEnabled = false;
 
-// heatmap.js
-var heatmap = null;
-
-
-/**
- * After page load setup plugin functions
- * 
- */
-jQuery(window).load(function() {
+jQuery(window).load(function() {	
 	
-	// initialise the plugin options
 	initOptions();
-
-	jQuery("<div id='loadingDialog' title=\"Loading...\">" +
-			"<p>Loading heat map...</p>" +
-			"</div>").appendTo("body");
-	jQuery("#loadingDialog").dialog( { autoOpen: false });
 	
-	// setup and draw hot spots if option is enabled
-	if (drawHeatMapEnabled) {		
-		setupDrawing();
-	}
+	setupSaveEvents();
 
-	// setup saving mouse clicks and touch screen taps if option is enabled
-	if (saveClickOrTapEnabled) {
-		setupSaving();
-	}
+	setupDrawing();
+	
 });
 
 
 /**
- * Initialises the plugin options
- * 
+ * Initialises plugin options
  */
 function initOptions() {
-
-	// set all options
-	drawHeatMapEnabled = (configData.drawHeatMapEnabled) == "1" ? true
-			: false;
-	debug = (configData.debug) == "1" ? true : false;
+	drawHeatmapEnabled = (config_data.draw_heat_map_enabled) == "1" ? true : false;
 	
-	var urlDBLimitReached = (configData.urlDBLimitReached) == "1" ? true : false;
-	var urlExcluded = (configData.urlExcluded) == "1" ? true : false;
-	var scheduleCheck = (configData.scheduleCheck) == "1" ? true : false;
-	saveClickOrTapEnabled = (configData.saveClickOrTapEnabled) == "1" ? true : false;
-	if (urlDBLimitReached == true || scheduleCheck == false || urlExcluded == true)
-		saveClickOrTapEnabled = false;
-	useHeatmapjs = (configData.useHeatmapjs) == "1" ? true : false;
-	
-	spotRadius = parseInt(configData.spotRadius);
-	hot = parseInt(configData.hotValue);
-	warm = hot / 2;
-	opacity = configData.spotOpacity;
-
 	// Check for drawHeatMap query param
-	var drawHeatMapQueryParam = urlHelper.getUrlParamByName(
-			window.location.href, 'drawHeatMap') === "true" ? true : false;
-	if (drawHeatMapQueryParam == false) {
+	var drawHeatmapQueryParam = utils.getUrlParamByName(window.location.href, 'drawHeatmap') === "true" ? true : false;
+	if (drawHeatmapQueryParam == false) {
 		// cannot enable drawing heat map without the query param set to true
-		drawHeatMapEnabled = false;
+		drawHeatmapEnabled = false;
 	}
-	role = configData.role;
-
+	
+	debug = (config_data.debug) == "1" ? true : false;
+	isHeatmap = (config_data.use_heatmapjs) == "1" ? true : false;
+	hot = parseInt(config_data.hot_value);
+	warm = hot / 2;
+	opacity = config_data.spot_opacity;
+	spotRadius = parseInt(config_data.spot_radius);
+	remoteEnabled = (config_data.remote_enabled) == "1" ? true : false;
+	
+	
 }
 
-
 /**
- * Sets up saving mouse clicks and touch screen taps
- * 
+ * Sets up save events
  */
-function setupSaving() {
-
-	// http://stackoverflow.com/questions/11406285/determine-and-bind-click-or-touch-event
-	if (('ontouchstart' in window) || (window.DocumentTouch && document instanceof DocumentTouch)) { // support touch screen taps
-		// based on http://www.gianlucaguarini.com/blog/detecting-the-tap-event-on-a-mobile-touch-device-using-javascript/
-		var touchData = {
-			started : null, // detect if a touch event is sarted
-			currrentX : 0,
-			currentY : 0,
-			previousX : 0,
-			previousY : 0,
-			touch : null
-		};
-
-		jQuery(document).on("touchstart", function(e) {
-			touchData.started = new Date().getTime();
-			var touch = e.originalEvent.touches[0];
-			touchData.previousX = touch.pageX;
-			touchData.previousY = touch.pageY;
-			touchData.touch = touch;
-		});
-
-		jQuery(document).on(
-				"touchend touchcancel",
-				function(e) {
-					var now = new Date().getTime();
-
-					// Detecting if after 200ms if in the same position.
-					// FIXME taps are not always recorded if the browser 
-					// takes over before the AJAX call is made. So this 
-					// means we will get some, and lose some.
-					if ((touchData.started !== null)
-							&& ((now - touchData.started) < 200)
-							&& (touchData.touch !== null)) {
-						var touch = touchData.touch;
-						var currentX = touch.pageX;
-						var currentY = touch.pageY;
-						if ((touchData.previousX === currentX)
-								&& (touchData.previousY === currentY)) {
-							saveClickOrTap(currentX, currentY, true);
-						}
-					}
-					touchData.started = null;
-					touchData.touch = null;
-				});
+function setupSaveEvents() {
+	// Page views
+	var savePageViews = (config_data.save_page_views) == "1" ? true : false;
+	if (savePageViews) {
+		events.setupSavePageViews();
 	}
 	
-	// support mouse clicks
-	jQuery(document).live('click', function(e) {
-		var event = e ? e : window.event;
-		var posX = 0;
-		var posY = 0;
-			if ((event.clientX || event.clientY) && document.body
-				&& document.body.scrollLeft != null) {
-			posX = event.clientX + document.body.scrollLeft;
-			posY = event.clientY + document.body.scrollTop;
-		}
-		if ((event.clientX || event.clientY) && document.compatMode == 'CSS1Compat'
-				&& document.documentElement
-				&& document.documentElement.scrollLeft != null) {
-			posX = event.clientX + document.documentElement.scrollLeft;
-			posY = event.clientY + document.documentElement.scrollTop;
-		}
-		if (event.pageX || event.pageY) {
-			posX = event.pageX;
-			posY = event.pageY;
-		}
-		
-		saveClickOrTap(posX, posY, false);
-	});
+	// Ajax actions
+	var saveAjaxActions = (config_data.save_ajax_actions) == "1" ? true : false;
+	if (saveAjaxActions) {
+		events.setupSaveAjaxActions();
+	}
 	
+	// Custom events
+	var saveCustomEvents = (config_data.save_custom_events) == "1" ? true : false;
+	if (saveCustomEvents) {
+		events.setupSaveCustomEvents();
+	}
+	
+	// Mouse clicks and touchscreen taps
+	var saveMouseClickAndTouchscreenTaps = (config_data.save_click_or_tap_enabled) == "1" ? true : false;
+	var urlDBLimitReached = (config_data.url_db_limit_reached) == "1" ? true : false;
+	var urlExcluded = (config_data.url_excluded) == "1" ? true : false;
+	var scheduleCheck = (config_data.schedule_check) == "1" ? true : false;
+	if (urlDBLimitReached == true || scheduleCheck == false || urlExcluded == true) {
+		saveMouseClickAndTouchscreenTaps = false;
+	}
+	if (saveMouseClickAndTouchscreenTaps) {
+		events.setupSaveMouseClickAndTouchScreenTapEvents();
+	}
 }
 
-
 /**
- * Adds a small information panel to the bottom right corner with width, 
- * height, zoom level and device pixel ratio
- */
-function setupInfoPanel() {
-	
-	jQuery("<div id='infoPanel'>" +
-			"Width: <div id='infoWidth' />px, " +
-			"Zoom: <div id='infoZoomLevel' />, " +
-			"DPR: <div id='infoDevPixRat' />, " +
-			"Browser: <div id='infoBrowser' />, " +
-			"OS: <div id='infoOS' />, " +
-			"Device: <div id='infoDevice' />" +
-			"</div>").appendTo("body");
-
-	// Add 1 to zIndex so it shows on top of the canvas
-	jQuery("#infoPanel").css("z-index", zIndex + 1);
-	jQuery("#infoPanel *").css("z-index", zIndex + 1);
-	
-	refreshInfoPanel();
-	
-	// get query params
-	var url = window.location.href;
-	var widthQueryParam = urlHelper.getUrlParamByName(url, "width");
-	var devicePixelRatioQueryParam = urlHelper.getUrlParamByName(url, "devicePixelRatio");
-	var zoomLevelQueryParam = urlHelper.getUrlParamByName(url, "zoomLevel");
-	// current data
-	var width = getWidth();
-	var zoomLevel = detectZoom.zoom();
-	var devicePixelRatio =  detectZoom.device();
-
-	var osFamilyQueryParam =  urlHelper.getUrlParamByName(url, "osFamily");
-	var browserFamilyQueryParam =  urlHelper.getUrlParamByName(url, "browserFamily");
-	var deviceQueryParam =  urlHelper.getUrlParamByName(url, "device");
-	
-	var message = "";
-	if (widthQueryParam !== undefined && widthQueryParam !== "" && width != widthQueryParam) {
-		message += "Target width is " + widthQueryParam + "px. ";
-	}
-	if (devicePixelRatioQueryParam != undefined && devicePixelRatioQueryParam !== "" && devicePixelRatio != devicePixelRatioQueryParam) {
-		message += "Target device pixel ratio is " + convertDecimalToRatio(devicePixelRatioQueryParam) + ". ";
-	}
-	if (zoomLevelQueryParam != undefined && zoomLevelQueryParam !== "" && zoomLevel != zoomLevelQueryParam) {
-		message += "Target zoom level is " + (parseInt(zoomLevelQueryParam) * 100) + "%. ";
-	}
-	if (osFamilyQueryParam !== undefined && osFamilyQueryParam !== "" && configData.osFamily != osFamilyQueryParam) {
-		message += "Target operating system is " + osFamilyQueryParam + ". ";
-	}
-	if (browserFamilyQueryParam !== undefined && browserFamilyQueryParam !== "" && configData.browserFamily != browserFamilyQueryParam) {
-		message += "Target browser is " + browserFamilyQueryParam + ". ";
-	}
-	if (deviceQueryParam !== undefined && deviceQueryParam !== "" && configData.device != deviceQueryParam) {
-		message += "Target device is " + deviceQueryParam + ".";
-	}
-	
-	if (message.length > 0)
-		message = "<p style='color: Orange;'>" + message + "</p>";
-		jQuery(message).appendTo("#infoPanel");
-	
-	// Update information on window resize
-	jQuery(window).resize(function() {
-		refreshInfoPanel();
-		
-	});
-}
-
-
-/**
- * Refreshes the information panel with current width, zoom level and device
- * pixel ration data
- */
-function refreshInfoPanel() {
-	var width = getWidth();
-	
-	jQuery("#infoWidth").html(width);		
-	var zoomLevel = detectZoom.zoom();
-	var devicePixelRatio = detectZoom.device();
-	jQuery("#infoZoomLevel").html(zoomLevel * 100 + "%");
-	jQuery("#infoDevPixRat").html(convertDecimalToRatio(devicePixelRatio));
-	jQuery("#infoBrowser").html(configData.browserFamily);
-	jQuery("#infoOS").html(configData.osFamily);
-	jQuery("#infoDevice").html(configData.device);
-	
-}
-
-
-/**
- * Setup and draw hot spots if option is enabled
- * 
+ * Sets up drawing heatmap
  */
 function setupDrawing() {
-
-	// Remove the WordPress admin bar and margin style
-	jQuery('#wpadminbar').remove();
-	var css = 'html { margin-top: 0px !important; } * html body { margin-top: 0px !important; }';
-	var head = document.head || document.getElementsByTagName('head')[0];
-	style = document.createElement('style');
-	style.type = 'text/css';
-	if (style.styleSheet){
-		style.styleSheet.cssText = css;
-	} else {
-		style.appendChild(document.createTextNode(css));
-	}
-	head.appendChild(style);
-
-	// Overlay canvas
-	initCanvas();
-	
-	// redraw heat map if window is resized
-	jQuery(window).resize(function() {
-		// TODO: don't do anything until a small delay
-
-		// remove canvas element and create it again to refresh
-		jQuery("#canvasContainer").remove();
-		jQuery("#infoPanel").remove();
-		setupInfoPanel();
+	if (drawHeatmapEnabled) {	
 		
-		initCanvas();
-
-		// redraw the heat map
-		drawHeatMap();
-	});
-	
-	setupInfoPanel();
-	
-	// Now draw the hot spots
-	drawHeatMap();
-}
-
-
-/**
- * Adds mouse click or touch screen tap coordinates to the server
- * 
- */
-function saveClickOrTap(posX, posY, isTap) {
-
-	// remove hash tags from URL
-	var url = window.location.href;
-	var hashIndex = url.indexOf('#');
-	if (hashIndex > 0) {
-		url = url.substring(0, hashIndex);
-	}
-
-	var width = getWidth();
-	
-	if (jQuery('#wpadminbar').length > 0) {
-		posY -= jQuery('#wpadminbar').height();
-	}
-	
-	var data = {
-		action : "save_click_or_tap",
-		nonce : configData.ajaxNonce,
-		x : posX,
-		y : posY,
-		url : url,
-		width : width,
-		isTap : isTap,
-		zoomLevel : detectZoom.zoom(),
-		devicePixelRatio : detectZoom.device(),
-		role : role
-	};
-
-	jQuery.post(configData.ajaxUrl, data, function(response) {
-		var jsonResponse = jQuery.parseJSON(response);
-		if (drawHeatMapEnabled === true && debug === true) {
-			if (useHeatmapjs) {
-				// if heatmap.js
-				heatmap.store.addDataPoint(posX, posY, 1);
-			} else {
-				var heatValue = jsonResponse.heatValue;
-				drawClickOrTap(posX, posY, heatValue);
-			}
-		}
-	});
-}
-
-
-/**
- * Draws heat map containing all mouse clicks and touch screen 
- * taps given a URL, width, zoom level and device pixel ratio.
- * 
- */
-function drawHeatMap() {	
-	jQuery("#loadingDialog").dialog('open');
-
-	// remove hash tags from URL
-	var url = window.location.href;
-	var hashIndex = url.indexOf('#');
-	if (hashIndex > 0) {
-		url = url.substring(0, hashIndex);
-	}
-	
-	var width = getWidth();
-	
-	var clickTapId = urlHelper.getUrlParamByName(url, "clickTapId");
-	var device = urlHelper.getUrlParamByName(url, "device");
-	var browserFamily = urlHelper.getUrlParamByName(url, "browserFamily");
-	var osFamily = urlHelper.getUrlParamByName(url, "osFamily");
+		utils.showLoadingDialog();
 		
-	var data = {
-		action : "retrieve_clicks_and_taps",
-		nonce : configData.ajaxNonce,
-		url : url,
-		width : width,
-		zoomLevel : detectZoom.zoom(),
-		devicePixelRatio : detectZoom.device(),
-		clickTapId : (clickTapId !== undefined && clickTapId !== "") ? clickTapId : null,
-		device : (device !== undefined && device !== "") ? device : null,
-		osFamily : (osFamily !== undefined && osFamily !== "") ? osFamily : null,
-		browserFamily : (browserFamily !== undefined && browserFamily !== "") ? browserFamily : null,
-	};
-	jQuery.post(configData.ajaxUrl, data, function(response) {
-		var jsonResponse = jQuery.parseJSON(response);
-
-		for ( var index in jsonResponse) {
-			var clickOrTapData = jsonResponse[index];
-			if (useHeatmapjs) {
-				heatmap.store.addDataPoint(clickOrTapData.x, clickOrTapData.y, 1);
-			} else {
-				// draw the mouse click or touch screen tap on the canvas
-				drawClickOrTap(clickOrTapData.x, clickOrTapData.y, 
-						clickOrTapData.heatValue);
-			}
-		}
+		drawing.init();
 		
-		jQuery("#loadingDialog").dialog('close');
-	});
-}
-
-
-/**
- * Draws a mouse click or touch screen tap on the canvas
- * 
- * @param posX
- * @param posY
- * @param heatValue
- * @returns
- */
-function drawClickOrTap(posX, posY, heatValue) {
-	var canvas = jQuery("#canvas").get(0);
-	var context = canvas.getContext("2d");
-	context.beginPath();
-	context.arc(posX, posY, spotRadius, 0, 2 * Math.PI);
-
-	/* 
-	 * Calculates RGB colour for corresponding heat value. From Green to Red, 
-	 * therefore Blue is always 0.
-	 * Green is cold, Orange is warm and Red is hot
-	 * Green is 0, 255, 0 and Red is 255, 0, 0. In between is 255, 255, 0
-	 */
-	var fillStyle = null;
-	if (heatValue === 0) { // green
-		fillStyle = "rgba(" + MIN_COLOUR + ", " + MAX_COLOUR + ", "
-				+ MIN_COLOUR + ", " + opacity + ")";
-	} else if (heatValue === warm) { // orange
-		fillStyle = "rgba(" + MAX_COLOUR + ", " + MAX_COLOUR + ", "
-				+ MIN_COLOUR + ", " + opacity + ")";
-	} else if (heatValue >= hot) { // red
-		fillStyle = "rgba(" + MAX_COLOUR + ", " + MIN_COLOUR + ", "
-				+ MIN_COLOUR + ", " + opacity + ")";
-	} else { // in between
-		if (heatValue > warm) { // more red
-			var someGreen = MAX_COLOUR
-					- (MAX_COLOUR * ((heatValue - warm) / warm));
-			fillStyle = "rgba(" + MAX_COLOUR + ", " + Math.round(someGreen)
-					+ ", " + MIN_COLOUR + ", " + opacity + ")";
-		} else { // more green
-			var someRed = MAX_COLOUR * (heatValue / warm);
-			fillStyle = "rgba(" + Math.round(someRed) + ", " + MAX_COLOUR
-					+ ", " + MIN_COLOUR + ", " + opacity + ")";
-		}
-	}
-
-	context.fillStyle = fillStyle;
-	context.fill();
-}
-
-
-/**
- * Creates and initialises the canvas
- * 
- */
-function initCanvas() {
-
-	var docWidth = jQuery(document).width();
-	var docHeight = jQuery(document).height();
-	
-	// Create a blank div where we are going to put the canvas into.
-	var canvasContainer = document.createElement('div');
-	document.body.appendChild(canvasContainer);
-	canvasContainer.setAttribute("id", "canvasContainer");
-	canvasContainer.style.left = "0px";
-	canvasContainer.style.top = "0px";
-	canvasContainer.style.zIndex = zIndex;
-	
-	if (useHeatmapjs) {
-		canvasContainer.style.width = docWidth + "px"; // "100%";
-		canvasContainer.style.height = docHeight + "px"; //"100%";
-		canvasContainer.style.position = "absolute";
-		 // heatmap configuration
-		var config = {
-			element : document.getElementById("canvasContainer"),
-			radius : spotRadius,
-			opacity : opacity * 100
-		};
-		// creates and initializes the heatmap
-		heatmap = h337.create(config);
-		heatmap.store.setDataSet({ max: hot, data : [] });
-	} else {
-		canvasContainer.style.position = "absolute";
-		canvasContainer.style.width = "100%";
-		canvasContainer.style.height = "100%";
-
-		
-		// create the canvas
-		var canvas = document.createElement("canvas");
-		canvas.setAttribute("id", "canvas");
-		canvas.style.width = docWidth;
-		canvas.style.height = docHeight;
-		canvas.width = docWidth;
-		canvas.height = docHeight;
-		canvas.style.overflow = 'visible';
-		canvas.style.position = 'absolute';
-		
-		canvasContainer.appendChild(canvas);		
-	}
-	
-	// set opacity for all elements so that hot spots are visible
-	jQuery("body *").each(function() {
-		// if current element already already has opacity < 1, leave as is
-		var opacity = jQuery(this).css("opacity");
-		if (opacity !== undefined && opacity === 1) {
-			jQuery(this).css({
-				opacity : 0.99
-			});
-		}
-		// check z-index to ensure heat map is overlayed on top of any element
-		var tempZIndex = jQuery(this).css("z-index");
-		if (tempZIndex != "auto" && parseInt(tempZIndex) > parseInt(zIndex)) {
-			zIndex = parseInt(tempZIndex) + 1;
-			var canvasContainer = jQuery("#canvasContainer");
-			canvasContainer.css("z-index", zIndex);
-		}
-	});
-}
-
-
-/**
- * Returns the inner width of the window, then subtracts vertical 
- * scrollbar width and adds any remaining horizontal scroll.
- * 
- * @returns width of web page
- */
-function getWidth() {
-	var width = 0;
-	//if ("ontouchstart" in window) { // Mobiles
-	//	// FIXME iOS does not flip dimensions when orientation is changed
-	if (window.innerWidth) {
-		if (typeof window.chrome === "object") { // hack for Chrome browser
-			width = self.outerWidth;
-		} else {
-			width = window.innerWidth;
-		}
-	} else if (document.documentElement
-			&& document.documentElement.clientWidth != 0) {
-		width = document.documentElement.clientWidth;
-	} else if (document.body) {
-		width = document.body.clientWidth;
-	}
-	
-	// Exclude vertical scrollbar width and add any remaining horizontal scroll
-	if (width > 0) {
-		width += getRemainingScrollWidth();
-		// do not add vertical scrollbar width for Firefox??????/
-		if (hasVerticalScrollbar()) { // && !jQuery.browser.mozilla) {
-			width -= getVerticalScrollbarWidth();
-		}
-	}
-	return width;
-}
-
-
-/**
- * Returns the remaining horizontal scroll width available. It does not include
- * the actual scrollbar.
- * 
- * @returns remaining scrolling width
- */
-function getRemainingScrollWidth() {
-	if ('scrollMaxX' in window) { // only supported by Firefox
-		return window.scrollMaxX;
-	} else {
-		return (document.documentElement.scrollWidth - document.documentElement.clientWidth);
-	}
-}
-
-
-/**
- * Calculates the vertical scrollbar width
- * 
- * @returns scrollbar width
- */
-function getVerticalScrollbarWidth() {
-
-	var scrollDiv = document.createElement("div");
-	scrollDiv.className = "scrollbar-measure";
-	scrollDiv.style.width = "100px";
-	scrollDiv.style.height = "100px";
-	scrollDiv.style.overflow = "scroll";
-	scrollDiv.style.position = "absolute";
-	scrollDiv.style.top = "-9999px";
-	document.body.appendChild(scrollDiv);
-
-	// Get the scrollbar width
-	var scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
-
-	// Delete the DIV 
-	document.body.removeChild(scrollDiv);
-	
-	return scrollbarWidth;
-}
-
-
-/**
- * Checks if a vertical scrollbar exists
- * 
- * @returns true if a vertical scrollbar exists, otherwise, false
- */
-function hasVerticalScrollbar() {
-	// Check if body height is higher than window height
-	if (jQuery(document).height() > jQuery(window).height()) { 
-		return true;
-	}
-	return false;
-}
-
-/**
- * Calculates the highest common factor between two numbers
- * 
- * @param a
- * @param b
- * @returns
- */
-function highestCommonFactor(a,b) {
-    if (b==0) return a;
-    return highestCommonFactor(b,a%b);
-}
-
-
-/**
- * Converts a decimal to a fraction that can be returned as a ratio
- * 
- * @param decimal i.e. 1.75
- */
-function convertDecimalToRatio(decimal) {
-	if (typeof decimal === "number") {
-		decimal = decimal.toString();
-	}
-	
-	var decimalArray = decimal.split(".");
-	// if a whole number
-	if (decimalArray.length !== 2) {
-		return decimal + ":1";
-	}
-	
-	var leftDecimalPart = decimalArray[0]; // 1
-	var rightDecimalPart = decimalArray[1]; // 75
-
-	var numerator = leftDecimalPart + rightDecimalPart; // 175
-	var denominator = Math.pow(10,rightDecimalPart.length); // 100
-	var factor = highestCommonFactor(numerator, denominator); // 25
-	denominator /= factor;
-	numerator /= factor;
-	
-	return numerator + ":" + denominator;
-
-}
-
-/**
- * Helper class to get the query string parameters from the URL
- */
-var urlHelper = new function() {
-
-	/**
-	 * Retrieves an array of URL query string parameters in order
-	 * @param url
-	 * @returns params
-	 */
-	this.getUrlParams = function(url) {
-		
-		// ignore hash # in URL when retrieving params
-	    var hashIndex = url.indexOf('#');
-	    if (hashIndex > 0) {
-	    	url = url.substring(0, hashIndex);
-	    }
-		
-		var params = [], hash;
-		if (url.indexOf("?") !== -1) {
-			var hashes = url.slice(url.indexOf('?') + 1).split('&');
-			for ( var i = 0; i < hashes.length; i++) {
-				hash = hashes[i].split('=');
-				params.push(hash[0]);
-				params[hash[0]] = hash[1];
-			}
-		}
-		return params;
-	};
-
-	
-	/**
-	 * Gets a URL query string parameter by name
-	 * 
-	 * @param url
-	 * @param name
-	 * @returns
-	 */
-	this.getUrlParamByName = function(url, name) {
-		return this.getUrlParams(url)[name];
-	};
-	
-};
-
-
-jQuery(document).ready(function() {	
-
-	var savePageLoads = (configData.savePageLoads) == "1" ? true : false;
-	var saveAjaxActions = (configData.saveAjaxActions) == "1" ? true : false;
-	var saveElementSelectors = (configData.saveElementSelectors) == "1" ? true : false;
-	
-	if (savePageLoads === true) {
-		// On page load, send a ping with url to the server
-		var urlPingData = {
-				action : "url_ping",
-				nonce : configData.ajaxNonce,
-				url : window.location.href
-			};
-		jQuery.post(configData.ajaxUrl, urlPingData, function(response) {
-				var jsonResponse = jQuery.parseJSON(response);
-				var addedId = jsonResponse.id;
-			});
-	}
-
-	if (saveAjaxActions === true) {
-		// Intercept all global AJAX responses and send a ping with ajax action to the server
-		// except for url_ping and ajax_ping
-		jQuery(document).ajaxSuccess(function(event, xhr, settings) {
-			var dataParts = settings.data.split("&");
-			var ajaxAction = dataParts[0].split("=")[1];
-			var temp = configData.ignoreAjaxActions[ajaxAction];
-			if (jQuery.inArray(ajaxAction, configData.ignoreAjaxActions) != -1)
-				return; // ignore this ajax call
+		// redraw heat map if window is resized
+		jQuery(window).resize(function() {
+			// TODO: don't do anything until a small delay
 			
-			var statusText = xhr.statusText;
-			
-			var ajaxPingData = {
-					action : "ajax_ping",
-					nonce : configData.ajaxNonce,
-					url : window.location.href,
-					ajaxAction : ajaxAction,
-					statusText : statusText
-				};
+			if (drawHeatmapEnabled) {	
+	
+				drawing.destroy();
 				
-			jQuery.post(configData.ajaxUrl, ajaxPingData, function(response) {
-				var jsonResponse = jQuery.parseJSON(response);
-				var addedId = jsonResponse.id;
-			});
+				drawing.init();
+		
+				// redraw the heat map
+				drawing.drawHeatmap();
+				
+				jQuery("#infoPanel").remove();
+				drawing.setupInfoPanel(false);
+				drawing.refreshInfoPanel();
+			}
 		});
-	}
-	
-	if (saveElementSelectors === true) {
-		function addElementSelectorPingEvent(elementSelector, isFormSubmit) {
-			if (isFormSubmit === true) {
-				event = "submit";
-			}
-			
-			jQuery(elementSelector).on(event, function(event) {
-				var elementSelectorPingData = {
-						action : "element_selector_ping",
-						nonce : configData.ajaxNonce,
-						url : window.location.href,
-						elementSelector : elementSelector
-					};
-				
-				jQuery.post(configData.ajaxUrl, elementSelectorPingData, function(response) {
-					var jsonResponse = jQuery.parseJSON(response);
-					var addedId = jsonResponse.id;
-				});
-			});
-		}
 		
-		// Element selectors on click and submits
-		for (var index in configData.elementSelectors) {
-			var elementSelector = configData.elementSelectors[index]['element_selector'];
-			var isFormSubmit = configData.elementSelectors[index]['is_form_submit'] == "1" ? true : false;
-			var event = "click";
-			
-			addElementSelectorPingEvent(elementSelector, isFormSubmit);
-		}
+		// Now draw the hot spots
+		drawing.drawHeatmap();
+		
+		// at then end, add info panel over the top
+		drawing.setupInfoPanel(true);
 	}
-});
+}
+
+/**
+ * This object is intended to be used to manually code custom events
+ */
+var hotspots = new function() {
+	/**
+	 * This function abstracts the user data for saving an event
+	 */
+	this.saveEvent = function(eventType, description, data) {
+		userId = config_data.user_id;
+		userEnvironmentId = config_data.user_environment_id;
+		
+		return events.saveEvent(userId, userEnvironmentId, eventType, description, '', '', '', data);
+	}
+};

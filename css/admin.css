@@ -1,46 +1,35 @@
-table.heatmapsdetails .column-url,table.heatmapdetail .column-url {
-	width: 20%;
-}
-
-input[type="checkbox"]+label.hut_role {
+input[type="checkbox"] + label.hut_role {
 	margin-right: 20px;
 }
 
-form#heat-maps-form select#url {
-	max-width: 300px;
+.hut-settings-form .button {
+	margin-right: 6px;
 }
 
-form#heat-maps-form .tablenav {
+
+.tablenav {
+	height: auto; 
 	min-height: 30px;
-	height: auto;
+}
+.tablenav label, .tablenav input, .tablenav select, .tablenav button {
+	margin-bottom: 5px;
+}
+.tablenav input, .tablenav select, .tablenav button {
+	margin-right: 5px;
 }
 
-.hut-columns-2 #summary-metabox {
-	width: 49%;
-	float: left;
-	min-height: 240px;
-}
 
-.hut-columns-2 #environment-metabox {
-	width: 49%;
-	float: right;
-	min-height: 240px;
-}
-
-.hut-columns-2 #summary-metabox.closed, .hut-columns-2 #environment-metabox.closed {
-	min-height: 0px;
-}
-
-.hut-columns-2 th {
-	font-weight: bold;
-}
 
 .report-container {
-	width: auto;
-	height: 300px;
-	padding: 20px;
-	padding-top: 10px;
-	padding-bottom: 10px;
+	width: 100%px;
+	height: 425px;
+}
+
+.report-wrapper {
+	padding: 10px 20px 20px 10px;
+	margin: 0px 0 10px 0;
+	box-sizing: border-box;
+	width: 100%;
 }
 
 body.admin-color-fresh .report-wrapper {
@@ -55,32 +44,27 @@ body.admin-color-classic .report-wrapper {
 	border: 1px solid #d1e5ee;
 }
 
-.report-wrapper {
-	margin-top: 20px;
-	margin-bottom: 20px;
-	width: 100%;
-	-webkit-border-radius: 3px;
-	border-radius: 3px;
-	width: 100%;
-}
-
 .flot-container {
 	width: 100%;
-}
-
-.hut-float-left {
-	float: left;
-	width: 49%;
-}
-
-.hut-float-right {
-	float: right;
-	width: 49%;
+	display: inline-block;
 }
 
 .report-placeholder {
+	margin: 10px;
 	width: 100%;
 	height: 100%;
 	font-size: 14px;
 	line-height: 1.2em;
+}
+
+#user-activity-summary-metabox { margin-top: 0px; margin-bottom: 0px; }
+
+#post-body #normal-sortables { min-height: 0px; }
+.tablenav .actions { padding: 0px 8px 0 0; }
+#website-summary-metabox, #poststuff { padding-top: 0px; }
+
+
+div.tablenav select, div.tablenav input[type="text"] {
+	max-width: 280px;
+	min-width: 100px;
 }
