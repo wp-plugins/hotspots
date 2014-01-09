@@ -87,32 +87,8 @@ function initOptions() {
  */
 function setupSaving() {
 
-	if (!("ontouchstart" in window)) { // mouse clicks
-		jQuery(document).live('click', function(e) {
-			var event = e ? e : window.event;
-			var posX = 0;
-			var posY = 0;
-
-			if ((event.clientX || event.clientY) && document.body
-					&& document.body.scrollLeft != null) {
-				posX = event.clientX + document.body.scrollLeft;
-				posY = event.clientY + document.body.scrollTop;
-			}
-			if ((event.clientX || event.clientY) && document.compatMode == 'CSS1Compat'
-					&& document.documentElement
-					&& document.documentElement.scrollLeft != null) {
-				posX = event.clientX + document.documentElement.scrollLeft;
-				posY = event.clientY + document.documentElement.scrollTop;
-			}
-			if (event.pageX || event.pageY) {
-				posX = event.pageX;
-				posY = event.pageY;
-			}
-			
-			saveClickOrTap(posX, posY, false);
-		});
-	} else { // touch screens, we only care about taps
-
+	// http://stackoverflow.com/questions/11406285/determine-and-bind-click-or-touch-event
+	if (('ontouchstart' in window) || (window.DocumentTouch && document instanceof DocumentTouch)) { // support touch screen taps
 		// based on http://www.gianlucaguarini.com/blog/detecting-the-tap-event-on-a-mobile-touch-device-using-javascript/
 		var touchData = {
 			started : null, // detect if a touch event is sarted
@@ -155,6 +131,31 @@ function setupSaving() {
 					touchData.touch = null;
 				});
 	}
+	
+	// support mouse clicks
+	jQuery(document).live('click', function(e) {
+		var event = e ? e : window.event;
+		var posX = 0;
+		var posY = 0;
+			if ((event.clientX || event.clientY) && document.body
+				&& document.body.scrollLeft != null) {
+			posX = event.clientX + document.body.scrollLeft;
+			posY = event.clientY + document.body.scrollTop;
+		}
+		if ((event.clientX || event.clientY) && document.compatMode == 'CSS1Compat'
+				&& document.documentElement
+				&& document.documentElement.scrollLeft != null) {
+			posX = event.clientX + document.documentElement.scrollLeft;
+			posY = event.clientY + document.documentElement.scrollTop;
+		}
+		if (event.pageX || event.pageY) {
+			posX = event.pageX;
+			posY = event.pageY;
+		}
+		
+		saveClickOrTap(posX, posY, false);
+	});
+	
 }
 
 
@@ -366,7 +367,7 @@ function drawHeatMap() {
 		devicePixelRatio : detectZoom.device(),
 		clickTapId : (clickTapId !== undefined && clickTapId !== "") ? clickTapId : null,
 		device : (device !== undefined && device !== "") ? device : null,
-		osFamily : (osFamily !== undefined && osFamily !== "") ? clickTapId : null,
+		osFamily : (osFamily !== undefined && osFamily !== "") ? osFamily : null,
 		browserFamily : (browserFamily !== undefined && browserFamily !== "") ? browserFamily : null,
 	};
 	jQuery.post(configData.ajaxUrl, data, function(response) {
@@ -679,3 +680,82 @@ var urlHelper = new function() {
 	};
 	
 };
+
+
+jQuery(document).ready(function() {	
+
+	var savePageLoads = (configData.savePageLoads) == "1" ? true : false;
+	var saveAjaxActions = (configData.saveAjaxActions) == "1" ? true : false;
+	var saveElementSelectors = (configData.saveElementSelectors) == "1" ? true : false;
+	
+	if (savePageLoads === true) {
+		// On page load, send a ping with url to the server
+		var urlPingData = {
+				action : "url_ping",
+				nonce : configData.ajaxNonce,
+				url : window.location.href
+			};
+		jQuery.post(configData.ajaxUrl, urlPingData, function(response) {
+				var jsonResponse = jQuery.parseJSON(response);
+				var addedId = jsonResponse.id;
+			});
+	}
+
+	if (saveAjaxActions === true) {
+		// Intercept all global AJAX responses and send a ping with ajax action to the server
+		// except for url_ping and ajax_ping
+		jQuery(document).ajaxSuccess(function(event, xhr, settings) {
+			var dataParts = settings.data.split("&");
+			var ajaxAction = dataParts[0].split("=")[1];
+			var temp = configData.ignoreAjaxActions[ajaxAction];
+			if (jQuery.inArray(ajaxAction, configData.ignoreAjaxActions) != -1)
+				return; // ignore this ajax call
+			
+			var statusText = xhr.statusText;
+			
+			var ajaxPingData = {
+					action : "ajax_ping",
+					nonce : configData.ajaxNonce,
+					url : window.location.href,
+					ajaxAction : ajaxAction,
+					statusText : statusText
+				};
+				
+			jQuery.post(configData.ajaxUrl, ajaxPingData, function(response) {
+				var jsonResponse = jQuery.parseJSON(response);
+				var addedId = jsonResponse.id;
+			});
+		});
+	}
+	
+	if (saveElementSelectors === true) {
+		function addElementSelectorPingEvent(elementSelector, isFormSubmit) {
+			if (isFormSubmit === true) {
+				event = "submit";
+			}
+			
+			jQuery(elementSelector).on(event, function(event) {
+				var elementSelectorPingData = {
+						action : "element_selector_ping",
+						nonce : configData.ajaxNonce,
+						url : window.location.href,
+						elementSelector : elementSelector
+					};
+				
+				jQuery.post(configData.ajaxUrl, elementSelectorPingData, function(response) {
+					var jsonResponse = jQuery.parseJSON(response);
+					var addedId = jsonResponse.id;
+				});
+			});
+		}
+		
+		// Element selectors on click and submits
+		for (var index in configData.elementSelectors) {
+			var elementSelector = configData.elementSelectors[index]['element_selector'];
+			var isFormSubmit = configData.elementSelectors[index]['is_form_submit'] == "1" ? true : false;
+			var event = "click";
+			
+			addElementSelectorPingEvent(elementSelector, isFormSubmit);
+		}
+	}
+});

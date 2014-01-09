@@ -1,5 +1,6 @@
 <?php
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'uaparser' . DIRECTORY_SEPARATOR . 'uaparser.php';
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'class-admin-tables.php';
 
 /**
  * Admin class
@@ -49,6 +50,13 @@ class HUT_Admin {
 			add_action( 'admin_menu', array( $this, 'add_admin_menus' ) );
 			add_action( 'admin_enqueue_scripts', array( $this, 'assets' ) );
 		}
+		
+		$this->user_tracking_tabs[HUT_Common::USERS_TAB] = 'Users';
+		$this->user_tracking_tabs[HUT_Common::USER_ACTIVITY_TAB] = 'User Activity';
+		$this->settings_tabs[HUT_Common::ELEMENT_SETTINGS_TAB] = 'Elements';
+		$this->user_tracking_tabs[HUT_Common::REPORTS_TAB] = 'Reports';
+		// TODO $this->plugin_settings_tabs[HUT_Common::STATISTICS_TAB] = 'Stats';
+		
 	
 		// Setup AJAX calls
 		$this->add_ajax_actions();
@@ -109,6 +117,54 @@ class HUT_Admin {
 		) ENGINE=InnoDB AUTO_INCREMENT=1;';
 		dbDelta( $create_url_filters_tbl_query );
 		
+		// URL ping table
+		$create_url_ping_tbl = 'CREATE TABLE '.$wpdb->prefix.HUT_Common::URL_PING_TBL_NAME.' (
+		'.HUT_Common::ID_COLUMN.' int(11) NOT NULL AUTO_INCREMENT,
+		'.HUT_Common::URL_COLUMN.' varchar(255),
+		'.HUT_Common::IP_ADDRESS_COLUMN.' varchar(255),
+		'.HUT_Common::RECORD_DATE_COLUMN.' DATETIME,
+		'.HUT_Common::SESSION_ID_COLUMN.' varchar(255),
+		PRIMARY KEY  ('.HUT_Common::ID_COLUMN.')
+		) ENGINE=InnoDB AUTO_INCREMENT=1;';
+		dbDelta( $create_url_ping_tbl );
+		
+		// AJAX ping table
+		$create_ajax_ping_tbl = 'CREATE TABLE '.$wpdb->prefix.HUT_Common::AJAX_PING_TBL_NAME.' (
+		'.HUT_Common::ID_COLUMN.' int(11) NOT NULL AUTO_INCREMENT,
+		'.HUT_Common::URL_COLUMN.' varchar(255),
+		'.HUT_Common::IP_ADDRESS_COLUMN.' varchar(255),
+		'.HUT_Common::RECORD_DATE_COLUMN.' DATETIME,
+		'.HUT_Common::AJAX_ACTION_COLUMN.' varchar(100),
+		'.HUT_Common::STATUS_TEXT_COLUMN.' varchar(100),
+		'.HUT_Common::SESSION_ID_COLUMN.' varchar(255),
+		PRIMARY KEY  ('.HUT_Common::ID_COLUMN.')
+		) ENGINE=InnoDB AUTO_INCREMENT=1;';
+		dbDelta( $create_ajax_ping_tbl );
+		
+		// Element table
+		$element_selector_tbl = 'CREATE TABLE '.$wpdb->prefix.HUT_Common::ELEMENT_SELECTOR_TBL_NAME.' (
+		'.HUT_Common::ID_COLUMN.' int(11) NOT NULL AUTO_INCREMENT,
+		'.HUT_Common::ELEMENT_SELECTOR_COLUMN.' varchar(255),
+		'.HUT_Common::URL_COLUMN.' varchar(255),
+		'.HUT_Common::NAME_COLUMN.' varchar(255),
+		'.HUT_Common::IS_FORM_SUBMIT_COLUMN. ' tinyint(1) DEFAULT 0,
+		'.HUT_Common::IS_TAP_COLUMN.' tinyint(1) DEFAULT 0,
+		PRIMARY KEY  ('.HUT_Common::ID_COLUMN.')
+		) ENGINE=InnoDB AUTO_INCREMENT=1;';
+		dbDelta( $element_selector_tbl );
+		
+		// Element ping table
+		$element_selector_ping_tbl = 'CREATE TABLE '.$wpdb->prefix.HUT_Common::ELEMENT_SELECTOR_PING_TBL_NAME.' (
+		'.HUT_Common::ID_COLUMN.' int(11) NOT NULL AUTO_INCREMENT,
+		'.HUT_Common::ELEMENT_SELECTOR_COLUMN.' varchar(255),
+		'.HUT_Common::URL_COLUMN.' varchar(255),
+		'.HUT_Common::IP_ADDRESS_COLUMN.' varchar(255),
+		'.HUT_Common::RECORD_DATE_COLUMN.' DATETIME,
+		'.HUT_Common::SESSION_ID_COLUMN.' varchar(255),
+		PRIMARY KEY  ('.HUT_Common::ID_COLUMN.')
+		) ENGINE=InnoDB AUTO_INCREMENT=1;';
+		dbDelta( $element_selector_ping_tbl );		
+		
 		add_option( HUT_Common::PLUGIN_VERSION_OPTION, HUT_Common::PLUGIN_VERSION, '', 'yes' );
 	}
 	
@@ -131,6 +187,10 @@ class HUT_Admin {
 		global $wpdb;
 		$wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . HUT_Common::CLICK_TAP_TBL_NAME );
 		$wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . HUT_URL_Filter_Table::URL_FILTER_TBL_NAME );
+		$wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . HUT_Common::URL_PING_TBL_NAME );
+		$wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . HUT_Common::AJAX_PING_TBL_NAME );
+		$wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . HUT_Common::ELEMENT_SELECTOR_PING_TBL_NAME );
+		$wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . HUT_Common::ELEMENT_SELECTOR_TBL_NAME );
 	}
 	
 	/**
@@ -147,7 +207,10 @@ class HUT_Admin {
 		$this->general_settings = array_merge( array(
 				HUT_Common::SAVE_CLICK_TAP_OPTION => true,
 				HUT_Common::DRAW_HEAT_MAP_ENABLED_OPTION => true,
-				HUT_Common::DEBUG_OPTION => false
+				HUT_Common::DEBUG_OPTION => false,
+				HUT_Common::SAVE_AJAX_ACTIONS_OPTION => true,
+				HUT_Common::SAVE_ELEMENT_SELECTORS_OPTION => true,
+				HUT_Common::SAVE_PAGE_LOADS_OPTION => true
 		), $this->general_settings );
 		
 		$this->schedule_settings = array_merge( array(
@@ -197,6 +260,11 @@ class HUT_Admin {
 		add_settings_field( HUT_Common::SAVE_CLICK_TAP_OPTION, 'Save mouse clicks and touch screen taps', array( &$this, 'field_save_click_tap' ), HUT_Common::GENERAL_SETTINGS_KEY, 'section_general' );
 		add_settings_field( HUT_Common::DRAW_HEAT_MAP_ENABLED_OPTION, 'Enable drawing heat map', array( &$this, 'field_draw_heat_map_enabled' ), HUT_Common::GENERAL_SETTINGS_KEY, 'section_general' );
 		add_settings_field( HUT_Common::DEBUG_OPTION, 'Debug', array( &$this, 'field_debug' ), HUT_Common::GENERAL_SETTINGS_KEY, 'section_general' );
+
+		add_settings_field( HUT_Common::SAVE_ELEMENT_SELECTORS_OPTION, 'Save element selectors', array( &$this, 'field_save_element_selectors' ), HUT_Common::GENERAL_SETTINGS_KEY, 'section_general' );
+		add_settings_field( HUT_Common::SAVE_AJAX_ACTIONS_OPTION, 'Save AJAX actions', array( &$this, 'field_save_ajax_actions' ), HUT_Common::GENERAL_SETTINGS_KEY, 'section_general' );
+		add_settings_field( HUT_Common::SAVE_PAGE_LOADS_OPTION, 'Save page loads', array( &$this, 'field_save_page_loads' ), HUT_Common::GENERAL_SETTINGS_KEY, 'section_general' );
+		
 	}
 	
 	/**
@@ -228,6 +296,25 @@ class HUT_Admin {
 		<?php 
 	}	
 		
+	function field_save_ajax_actions() {
+	?>
+		<input type="checkbox" name="<?php echo HUT_Common::GENERAL_SETTINGS_KEY; ?>[<?php echo HUT_Common::SAVE_AJAX_ACTIONS_OPTION; ?>]" value="true" <?php checked(true, $this->general_settings[HUT_Common::SAVE_AJAX_ACTIONS_OPTION], true); ?>/>
+		<p class="description">Turn on to start recording AJAX calls.</p>
+		<?php
+	}
+	function field_save_element_selectors() {
+		?>
+		<input type="checkbox" name="<?php echo HUT_Common::GENERAL_SETTINGS_KEY; ?>[<?php echo HUT_Common::SAVE_ELEMENT_SELECTORS_OPTION; ?>]" value="true" <?php checked(true, $this->general_settings[HUT_Common::SAVE_ELEMENT_SELECTORS_OPTION], true); ?>/>
+		<p class="description">Turn on to start recording element selectors.</p>
+		<?php
+	}
+	function field_save_page_loads() {
+		?>
+		<input type="checkbox" name="<?php echo HUT_Common::GENERAL_SETTINGS_KEY; ?>[<?php echo HUT_Common::SAVE_PAGE_LOADS_OPTION; ?>]" value="true" <?php checked(true, $this->general_settings[HUT_Common::SAVE_PAGE_LOADS_OPTION], true); ?>/>
+		<p class="description">Turn on to start recording page loads.</p>
+		<?php
+	}
+		
 	/**
 	 * Sanitize and validate General settings
 	 * 
@@ -253,6 +340,24 @@ class HUT_Admin {
 			$input[HUT_Common::DEBUG_OPTION] = true;
 		else 
 			$input[HUT_Common::DEBUG_OPTION] = false;
+		
+		// Save AJAX actions option
+		if ( isset( $input[HUT_Common::SAVE_AJAX_ACTIONS_OPTION] ) && $input[HUT_Common::SAVE_AJAX_ACTIONS_OPTION] == "true")
+			$input[HUT_Common::SAVE_AJAX_ACTIONS_OPTION] = true;
+		else
+			$input[HUT_Common::SAVE_AJAX_ACTIONS_OPTION] = false;
+		
+		// Save element selectors option
+		if ( isset( $input[HUT_Common::SAVE_ELEMENT_SELECTORS_OPTION] ) && $input[HUT_Common::SAVE_ELEMENT_SELECTORS_OPTION] == "true")
+			$input[HUT_Common::SAVE_ELEMENT_SELECTORS_OPTION] = true;
+		else
+			$input[HUT_Common::SAVE_ELEMENT_SELECTORS_OPTION] = false;
+		
+		// Save page loads option
+		if ( isset( $input[HUT_Common::SAVE_PAGE_LOADS_OPTION] ) && $input[HUT_Common::SAVE_PAGE_LOADS_OPTION] == "true")
+			$input[HUT_Common::SAVE_PAGE_LOADS_OPTION] = true;
+		else
+			$input[HUT_Common::SAVE_PAGE_LOADS_OPTION] = false;
 		
 		return $input;
 	}
@@ -787,6 +892,8 @@ class HUT_Admin {
 			$this->do_database_settings_tab();
 		else if ($tab == HUT_Common::HEAT_MAP_SETTINGS_TAB)
 			$this->do_heat_map_settings_tab();
+		else if ($tab == HUT_Common::ELEMENT_SETTINGS_TAB)
+			$this->do_element_settings_tab();
 	}
 	
 	/** 
@@ -860,6 +967,9 @@ class HUT_Admin {
 		$success_message = "";
 		try {
 			$rows = $wpdb->get_results( 'DELETE FROM '.$wpdb->prefix.HUT_Common::CLICK_TAP_TBL_NAME.' WHERE 1' );
+			$rows = $wpdb->get_results( 'DELETE FROM '.$wpdb->prefix.HUT_Common::AJAX_PING_TBL_NAME.' WHERE 1' );
+			$rows = $wpdb->get_results( 'DELETE FROM '.$wpdb->prefix.HUT_Common::URL_PING_TBL_NAME.' WHERE 1' );
+			$rows = $wpdb->get_results( 'DELETE FROM '.$wpdb->prefix.HUT_Common::ELEMENT_SELECTOR_PING_TBL_NAME.' WHERE 1' );
 			$success_message .= 'Database cleared successfully.';
 		} catch ( Exception $e ) {
 			$error_message .= 'An error has occured. ' . $e->getMessage();
@@ -1014,8 +1124,516 @@ class HUT_Admin {
 	
 		if ($tab == HUT_Common::HEAT_MAPS_TAB)
 			$this->do_heat_maps_tab();
+		else if ($tab == HUT_Common::USERS_TAB)
+			$this->do_users_tab();
+		else if ($tab == HUT_Common::USER_ACTIVITY_TAB)
+			$this->do_user_activity_tab();
+		else if ($tab == HUT_Common::REPORTS_TAB)
+			$this->do_reports_tab();
 	}
 	
+	/**
+	 * Statistics tab
+	 */
+	function do_statistics_tab() {
+		
+	}
+	
+	/**
+	 * Element selectors
+	 */
+	function do_element_settings_tab() {
+		echo '<h3>Element Settings</h3>';
+		if ( isset( $_POST['name']) && isset( $_POST['element_selector'] ) ) {
+			$name = $_POST['name'];
+			$element_selector = $_POST['element_selector'];
+	
+			$url = isset( $_POST['url'] ) ? trim( $_POST['url'] ) : '';
+			$url = HUT_Common::normalize_url( $url );
+			$url = addslashes($url);
+				
+			$is_form_submit = isset( $_POST['isFormSubmit'] ) ? true : false;
+				
+			$valid_input = true;
+			if ( strlen( trim( $element_selector ) ) == 0 ) {
+				echo '<div class="error"><p>A selector must be entered</p></div>';
+				$valid_input = false;
+			}
+			if ( strlen( trim( $name ) ) == 0) {
+				echo '<div class="error"><p>A name must be entered</p></div>';
+				$valid_input = false;
+			}
+				
+			if ($valid_input == true) {
+				global $wpdb;
+				try {
+					// first make sure the URL has not already been added
+					$query = 'SELECT * FROM '.$wpdb->prefix.HUT_Common::ELEMENT_SELECTOR_TBL_NAME . ' WHERE '. HUT_Common::ELEMENT_SELECTOR_INPUT .' = "' .$element_selector . '" AND url = "' . $url . '"';
+						
+					$count = $wpdb->query($query);
+	
+					if ($count > 0) {
+						echo '<div class="error"><p>Element selector already exists.</p></div>';
+					} else {
+						$wpdb->flush();
+						$results = $wpdb->insert( $wpdb->prefix.HUT_Common::ELEMENT_SELECTOR_TBL_NAME, array( 'element_selector' => $element_selector, 'name' => $name, 'url' => $url, 'is_form_submit' => $is_form_submit ) );
+						echo '<div class="success"><p>Element selector added successfully.</p></div>';
+					}
+				} catch ( Exception $e ) {
+					echo '<div class="error"><p>An error occurred. ' . $e->getMessage() . '</p></div>';
+				}
+			}
+	
+		}
+	
+		?>
+		<p>Element selectors can be used to track the areas of impressions (a mouse click or touch screen tap) and form submits. For example, a website may have a div container with id "my-sidebar" and you'd like to track how often a user makes an impression anywhere within this container. An element selector "div#my-sidebar" could be used to track this information. Element selectors can also be nested.</p>
+		<form method="post">
+			<table class="form-table">
+				<tbody>
+					<tr valign="top">
+						<th scope="row">Selector</th>
+						<td>
+							<input type="text" name="element_selector" id="element_selector" value="" />
+							<p class="description">Enter a jQuery element selector.</p>
+							<p class="description">Some useful examples for WordPress websites (if you are to use these check the HTML and modify the element selectors accordingly):<br />
+								ul.menu li - All menu items<br />
+								header - Header<br />
+								footer - Footer<br />
+								.widget - Widgets<br />
+								form.search-form - a search form<br />
+								input#name - Name input field<br />
+								form - All forms (form submit)</p>
+						</td>
+					</tr>
+					<tr valign="top">
+						<th scope="row">Name</th>
+						<td>
+							<input type="text" name="name" id="name" value="" />
+							<p class="description">Enter a name for the element selector. The name should describe the element's purpose such as "Contact form" or "Menu link".</p>
+						</td>
+					</tr>
+					<tr valign="top">
+						<th scope="row">Is form submit?</th>
+						<td>
+							<input type="checkbox" name="isFormSubmit" id="isFormSubmit" value="" />
+							<p class="description">Does the element trigger a form submit javaScript event? If you want to track an element click or tap instead of a submit, then leave this unchecked.</p>
+						</td>
+					</tr>
+					<tr valign="top">
+						<th scope="row">URL</th>
+						<td>
+							<input class="regular-text" type="text" name="url" id="url" value="" />&nbsp(Optional, leave empty to target all URLs)
+							<p class="description">You can enter a URL to target a specific page.</p>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<input type="submit" class="button button-secondary" value="Add Element Selector" />
+		</form>
+		
+		<br />
+			
+		<form method="post">
+			<?php 
+			$element_selector_table = new HUT_Element_Selector_Table();
+			$element_selector_table->prepare_items();
+			$element_selector_table->display();
+			?>
+		</form>
+		<?php 
+		
+	}
+		
+	/**
+	 * Reports tab
+	 */
+	function do_reports_tab() {
+		?>
+		<h3>Reports</h3>
+		<p><a href="#">Element Selector Report</a></p>
+		
+		<form method="post">
+			<?php 
+			$element_selector_report = new HUT_Element_Selector_Report_Table();
+			$element_selector_report->prepare_items();
+			$element_selector_report->display();
+			?>
+		</form>
+
+		<?php
+		global $wpdb;
+		
+		// Element selectors count
+		$query = 'SELECT count(*) as count, element_selector FROM '.$wpdb->prefix.HUT_Common::ELEMENT_SELECTOR_PING_TBL_NAME;
+		$query = HUT_Common::add_filters_to_query($query);
+		$query .= ' GROUP BY element_selector';
+		$rows = $wpdb->get_results($query);
+		$count_data = array();
+		foreach ($rows as $row) {
+			$element_selector = $row->element_selector;
+			$count = $row->count;
+			array_push($count_data, array($element_selector, $count));
+		}
+		
+		// Element selectors time graph
+		$query = 'SELECT DISTINCT DATE( record_date ) AS day, element_selector, count(*) as count FROM ' . $wpdb->prefix . HUT_Common::ELEMENT_SELECTOR_PING_TBL_NAME . ' ';
+		$query = HUT_Common::add_filters_to_query($query);
+		$query .= 'GROUP BY element_selector, day ORDER BY record_date DESC';
+		$rows = $wpdb->get_results($query);
+		$time_data = array();
+		foreach ($rows as $row) {
+			$day = $row->day;
+			$count = $row->count;
+			$element_selector = $row->element_selector;
+			// TODO if a day has no data, then make it 0 visitors. 
+			// Otherwise, it is not plotted on the graph as 0.
+			
+			$data = array();
+			if (isset($time_data[$element_selector]))
+				$data = $time_data[$element_selector];
+			
+			array_push($data, array((strtotime($day) * 1000), $count));
+			$time_data[$element_selector] = $data;
+		}
+		?>
+				
+		<script type="text/javascript">
+			jQuery(function() {	
+				// element selectors couunt graph
+				jQuery.plot("#element-selector-count-placeholder", [ <?php echo json_encode($count_data); ?> ], {
+					series: {
+						bars: {
+							show: true,
+							barWidth: 1,
+							align: "center"
+						}
+					},
+					xaxis: {
+						mode: "categories",
+						tickLength: 0
+					}
+				});
+
+				// element selectors time graph
+				<?php 
+				$datasets = '';
+				$index = 0;
+				$count = count($time_data);
+				foreach($time_data as $key => $value) {
+					
+					$options = 'label : "'. $key .'", lines: { show: true }, points: { show: true }';
+					
+					$datasets .= '{ data: ' . json_encode($value) . ', ' . $options . ' }';
+					if ($index < $count-1)
+						$datasets .= ', ';
+					$index++;
+				}
+				?>
+
+				// add markers for weekends on grid
+				function weekendAreas(axes) {
+					var markings = [];
+					var d = new Date(axes.xaxis.min);
+					// go to the first Saturday
+					d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 1) % 7))
+					d.setUTCSeconds(0);
+					d.setUTCMinutes(0);
+					d.setUTCHours(0);
+					var i = d.getTime();
+					// when we don't set yaxis, the rectangle automatically
+					// extends to infinity upwards and downwards
+					do {
+						markings.push({ xaxis: { from: i, to: i + 2 * 24 * 60 * 60 * 1000 } });
+						i += 7 * 24 * 60 * 60 * 1000;
+					} while (i < axes.xaxis.max);
+						return markings;
+				}
+				var datasets = [ <?php echo $datasets; ?> ];
+				var options = <?php echo '{ xaxis: { mode: "time", tickLength: 5, timeformat: "%y/%m/%d", minTickSize: [1, "day"] }, grid: { markings: weekendAreas } } '; ?>;
+				
+				jQuery.plot("#element-selector-time-placeholder", datasets, options );
+			});
+		</script>
+
+		<div class="flot-container">
+
+				<div class="report-wrapper hut-float-left">
+					<div class="report-container">
+						<div id="element-selector-count-placeholder" class="report-placeholder"></div>
+					</div>
+				</div>
+
+				<div class="report-wrapper hut-float-right">
+					<div class="report-container">
+						<div id="element-selector-time-placeholder" class="report-placeholder"></div>
+					</div>
+				</div>
+			
+		</div>
+		
+		<p class="description">Reports may not be 100% accurate. Nested element selectors can be used.</p>	
+		<p>Please suggest report ideas in the plugin <a href="http://wordpress.org/support/plugin/hotspots">support forum</a>. Thank you.</p>
+		<?php
+	}
+	
+	/**
+	 * Displays a tab for user activities
+	 */
+	function do_users_tab() {
+		if (isset($_POST[HUT_Common::START_DATE_SEARCH_INPUT]) && strlen(trim($_POST[HUT_Common::START_DATE_SEARCH_INPUT])) > 0) {
+			if (!HUT_Common::check_date_format($_POST[HUT_Common::START_DATE_SEARCH_INPUT]) && strlen(trim($_POST[HUT_Common::START_DATE_SEARCH_INPUT])) > 0) {
+				echo '<div class="error"><p>Invalid start date.</p></div>';
+			}
+		}
+		if (isset($_POST[HUT_Common::END_DATE_SEARCH_INPUT]) && strlen(trim($_POST[HUT_Common::END_DATE_SEARCH_INPUT])) > 0) {
+			if (!HUT_Common::check_date_format($_POST[HUT_Common::END_DATE_SEARCH_INPUT]) && strlen(trim($_POST[HUT_Common::END_DATE_SEARCH_INPUT])) > 0) {
+				echo '<div class="error"><p>Invalid end date</p></div>';
+			}
+		}
+		?>
+			
+		<h3>Users</h3>
+		<p>Search for users to view their activities.</p>
+		<form method="post">
+		
+			<?php 
+			$users_table = new HUT_Users_Table();
+			$users_table->prepare_items();
+			$users_table->display();
+		
+		?></form><?php
+	}
+	
+	/**
+	 * Displays a tab for user activities
+	 */
+	function do_user_activity_tab() {
+		
+		$ip_address = isset($_REQUEST["ip_address"]) ? $_REQUEST["ip_address"]  : '';
+		$session_id = isset($_REQUEST["session_id"]) ?  $_REQUEST["session_id"] : '';
+		
+		?>
+		<h3>User Activity</h3>
+		<form method="post">
+			<table class="form-table">
+				<tbody>
+					<tr valign="top">
+						<th scope="row">IP Address</th>
+						<td>
+							<input type="text" name="ip_address" id="ip_address" value="<?php echo $ip_address; ?>" />
+							<p class="description">Enter the IP address of the user.</p>
+						</td>
+					</tr>
+					<tr valign="top">
+						<th scope="row">Session ID</th>
+						<td>
+							<input type="text" name="session_id" id="session_id" value="<?php echo $session_id; ?>" />
+							<p class="description">Enter the Session ID of the user.</p>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<input type="submit" class="button button-primary" value="View User Activity" />
+		</form>
+		<p class="description">Navigate from the Users tab using the "View User Activity" action button to prefill the IP address and session ID inputs for a specific user.</p>
+		
+		<?php 
+		$this->display_user_activies($ip_address, $session_id);
+	}
+	
+
+	
+	/**
+	 * Displays user activities
+	 * 
+	 * @param unknown_type $ip_address
+	 */
+	function display_user_activies($ip_address, $session_id) {		
+		
+		$ip_address = isset($_REQUEST["ip_address"]) ? $_REQUEST["ip_address"]  : null;
+		$session_id = isset($_REQUEST["session_id"]) ?  $_REQUEST["session_id"] : null;
+		$start_date = null;
+		$end_date = null;
+		$url = null;
+		if ($ip_address == null || $session_id == null) {
+			if (isset($_POST[HUT_Common::START_DATE_SEARCH_INPUT]) && strlen(trim($_POST[HUT_Common::START_DATE_SEARCH_INPUT])) > 0) {
+				if (HUT_Common::check_date_format($_POST[HUT_Common::START_DATE_SEARCH_INPUT])) {
+					$start_date = date("Y-m-d H:i:s", strtotime($_POST[HUT_Common::START_DATE_SEARCH_INPUT])); // default yyyy-mm-dd format
+				}
+			}
+				
+			if (isset($_POST[HUT_Common::END_DATE_SEARCH_INPUT]) && strlen(trim($_POST[HUT_Common::END_DATE_SEARCH_INPUT])) > 0) {
+				if (HUT_Common::check_date_format($_POST[HUT_Common::END_DATE_SEARCH_INPUT])) {
+					list($yyyy, $mm, $dd) = explode('-', $_POST[HUT_Common::END_DATE_SEARCH_INPUT]);// default yyyy-mm-dd format
+					$end_date = date("Y-m-d H:i:s", mktime(23, 59, 59, $mm, $dd, $yyyy) );
+				}
+			}
+				
+			if (isset($_POST[HUT_Common::URL_SEARCH_INPUT]) && strlen(trim($_POST[HUT_Common::URL_SEARCH_INPUT])) > 0) {
+				$url = $_POST[HUT_Common::URL_SEARCH_INPUT];
+			}
+		}
+		$params = array('ip_address' => $ip_address, 'session_id' => $session_id, 'start_date' => $start_date, 'end_date' => $end_date, 'url' => $url);
+		
+		?>
+		
+		<div id="poststuff" class="">
+	        <div id="post-body" class="metabox-holder hut-columns-2">
+				<form  method="get" action="">
+                <?php wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false ); ?>
+                <?php wp_nonce_field('meta-box-order', 'meta-box-order-nonce', false ); ?>
+                <?php add_meta_box("summary-metabox", "Summary", array($this, "user_activity_summary_metabox"), "hut_user_tracking_page", "normal");?>
+                <?php add_meta_box("environment-metabox", "Environment", array($this, "user_activity_environment_metabox"), "hut_user_tracking_page", "normal");?>
+                <?php do_meta_boxes('hut_user_tracking_page','normal', $params);?>
+            </form>
+			</div>
+		</div>
+		
+		<?php 
+
+		$users_table = new HUT_User_Activity_Sequence_Table();
+		$users_table->prepare_items();
+		$users_table->display();
+	}
+	
+	function user_activity_summary_metabox($params) {
+		global $wpdb;
+		$start_date = $params['start_date'];
+		$end_date = $params['end_date'];
+		$ip_address = $params['ip_address'];
+		$session_id = $params['session_id'];
+		$url = $params['url'];
+		
+		$summary_query = 'SELECT ip_address, session_id, record_date as r, record_date FROM ( SELECT * FROM ' . $wpdb->prefix . HUT_Common::URL_PING_TBL_NAME . ' ';
+		$summary_query .= 'WHERE ';		
+		if ($session_id && $ip_address)
+			$summary_query .= 'session_id = "' . $session_id . '" AND ip_address = "' . $ip_address . '"';
+		else if ($session_id)
+			$summary_query .= 'session_id = "' . $session_id . '"';
+		else
+			$summary_query .= 'ip_address = "' . $ip_address . '"';
+		
+		$summary_query .= 'ORDER BY ' . HUT_Common::RECORD_DATE_COLUMN . ' DESC ) AS a GROUP BY ' . HUT_Common::IP_ADDRESS_COLUMN . ', session_id ORDER BY r DESC';
+		$rows = $wpdb->get_results( $summary_query );
+		
+		// user login and role
+		$user_query = 'SELECT user_login, role FROM '.$wpdb->prefix.HUT_Common::CLICK_TAP_TBL_NAME . ' where '. HUT_Common::IP_ADDRESS_COLUMN .' = "' .$ip_address . '" AND ' . HUT_Common::SESSION_ID_COLUMN . ' = "' . $session_id . '"';
+		$user_login = $wpdb->get_col($user_query, 0);
+		$user_role =  $wpdb->get_col($user_query, 1);
+		if (isset($user_login) && is_array($user_login) && count($user_login) > 0)
+			$user_login = $user_login[0];
+		else
+			$user_login = '';
+		global $wp_roles;
+		if ( ! isset( $wp_roles) )
+			$wp_roles = new WP_Roles();
+		$roles = $wp_roles->get_names();
+		if (count($user_role) > 0 && $user_role[0] != null)
+			$user_role = $roles[$user_role[0]];
+		else
+			$user_role = '';
+		
+		// page view count
+		$page_hits_count_query = 'SELECT * FROM '.$wpdb->prefix.HUT_Common::URL_PING_TBL_NAME . ' where '. HUT_Common::IP_ADDRESS_COLUMN .' = "' .$ip_address . '" AND ' . HUT_Common::SESSION_ID_COLUMN . ' = "' . $session_id . '"';
+		$page_hits_count = $wpdb->query($page_hits_count_query);
+		
+		// ajax action count
+		$ajax_action_count_query = 'SELECT * FROM '.$wpdb->prefix.HUT_Common::AJAX_PING_TBL_NAME . ' where '. HUT_Common::IP_ADDRESS_COLUMN .' = "' .$ip_address . '" AND ' . HUT_Common::SESSION_ID_COLUMN . ' = "' . $session_id . '"';
+		$ajax_action_count = $wpdb->query($ajax_action_count_query);
+		
+		// click tap count
+		$click_tap_count_query = 'SELECT * FROM '.$wpdb->prefix.HUT_Common::CLICK_TAP_TBL_NAME . ' where '. HUT_Common::IP_ADDRESS_COLUMN .' = "' .$ip_address . '" AND ' . HUT_Common::SESSION_ID_COLUMN . ' = "' . $session_id . '"';
+		$click_tap_count = $wpdb->query($click_tap_count_query);
+		
+		// elements
+		$element_count_query = 'SELECT * FROM '.$wpdb->prefix.HUT_Common::ELEMENT_SELECTOR_PING_TBL_NAME . ' where '. HUT_Common::IP_ADDRESS_COLUMN .' = "' .$ip_address . '" AND ' . HUT_Common::SESSION_ID_COLUMN . ' = "' . $session_id . '"';
+		$element_count = $wpdb->query($element_count_query);
+		
+		if (count($rows) > 0) {
+			?>
+			<table class="form-table">
+				<tbody>
+					<tr valign="top">
+						<th scope="row">IP Address</th>
+						<td><?php echo $rows[0]->ip_address; ?></td>
+						<th scope="row">Session ID</th>
+						<td><?php echo $rows[0]->session_id; ?></td>
+					</tr>
+					<tr valign="top">
+						<th scope="row">User</th>
+						<td><?php echo $user_login; ?></td>
+						<th scope="row">Last Page Hit Date</th>
+						<td><?php echo date("F j, Y, g:i a", strtotime($rows[0]->record_date)); ?></td>
+					</tr>
+					<tr valign="top">
+						<th scope="row">Page Hits</th>
+						<td><?php echo $page_hits_count; ?></td>
+						<th scope="row">AJAX Actions</th>
+						<td><?php echo $ajax_action_count; ?></td>
+					</tr>
+					<tr valign="top">
+						<th scope="row">Clicks/Taps</th>
+						<td><?php echo $click_tap_count; ?></td>
+						<th scope="row">Element Selectors</th>
+						<td><?php echo $element_count; ?></td>
+					</tr>
+					<tr valign="top">
+						<th scope="row">Role</th>
+						<td><?php echo $user_role; ?></td>
+						<th scope="row"></th>
+						<td></td>
+					</tr>
+				</tbody>
+			</table>
+			<?php
+		} else {
+			echo '<p>No data found.</p>';
+		}
+	}
+	
+	
+	function user_activity_environment_metabox($params) {
+		global $wpdb;
+		$start_date = $params['start_date'];
+		$end_date = $params['end_date'];
+		$ip_address = $params['ip_address'];
+		$session_id = $params['session_id'];
+		$url = $params['url'];
+		$query = 'SELECT zoom_level, width, device_pixel_ratio, browser_family, browser_version, device, os_family, os_version FROM  ' . $wpdb->prefix.HUT_Common::CLICK_TAP_TBL_NAME . ' WHERE ' . HUT_Common::IP_ADDRESS_COLUMN. ' = "' . $ip_address . '" AND ' . HUT_Common::SESSION_ID_COLUMN . ' = "' . $session_id . '" GROUP BY zoom_level, width, device_pixel_ratio, browser_family, browser_version, device, os_family, os_version';
+		$rows = $wpdb->get_results( $query );
+
+			
+		if (count($rows) > 0) {
+			?>
+			<table class="form-table">
+				<tbody>
+					<tr valign="top">
+						<th scope="row">Zoom Level</th>
+						<td><?php echo (100 * $rows[0]->zoom_level); ?>%</td>
+						<th scope="row">Width</th>
+						<td><?php echo $rows[0]->width; ?>px</td>
+					</tr>
+					<tr valign="top">
+						<th scope="row">Device Pixel Ratio</th>
+						<td><?php echo HUT_Common::convert_decimalto_ratio($rows[0]->device_pixel_ratio); ?></td>
+						<th scope="row">Browser</th>
+						<td><?php echo $rows[0]->browser_family . ' ' . $rows[0]->browser_version; ?></td>
+					</tr>
+					<tr valign="top">
+						<th scope="row">Device</th>
+						<td><?php echo $rows[0]->device; ?></td>
+						<th scope="row">Operating System</th>
+						<td><?php echo $rows[0]->os_family . ' ' . $rows[0]->os_version; ?></td>
+					</tr>
+				</tbody>
+			</table>
+			<?php
+		} else {
+			echo '<p>No data found.</p>';
+		}
+	}
+
 	/**
 	 * Admin assets
 	 *
@@ -1036,7 +1654,17 @@ class HUT_Admin {
 			wp_enqueue_script('jquery-ui-datepicker');
 			wp_enqueue_script('jquery-ui-timepicker');
 			wp_enqueue_style('jquery-style', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/smoothness/jquery-ui.css');
+			
+			// flot
+			wp_enqueue_script( 'flot', plugins_url( 'js/flot/jquery.flot.js', __FILE__ ), array( 'jquery' ) );
+			wp_enqueue_script( 'flot-categories', plugins_url( 'js/flot/jquery.flot.categories.js', __FILE__ ), array( 'jquery', 'flot' ) );
+			wp_enqueue_script( 'flot-time', plugins_url( 'js/flot/jquery.flot.time.js', __FILE__ ), array( 'jquery', 'flot' ) );
+				
 		}
+		
+		wp_enqueue_script('common');
+	    wp_enqueue_script('wp-lists');
+	    wp_enqueue_script('postbox');
 	}
 	
 	/**
@@ -1051,6 +1679,15 @@ class HUT_Admin {
 			add_action( 'wp_ajax_retrieve_clicks_and_taps',  array( $this, 'retrieve_clicks_and_taps' ) );
 			add_action( 'wp_ajax_nopriv_save_click_or_tap',  array( $this, 'save_click_or_tap' ) );
 			add_action( 'wp_ajax_nopriv_retrieve_clicks_and_taps',  array( $this, 'retrieve_clicks_and_taps' ) );
+		
+			add_action( 'wp_ajax_url_ping', array( $this, 'url_ping' ) );
+			add_action( 'wp_ajax_nopriv_url_ping',  array( $this, 'url_ping' ) );
+			add_action( 'wp_ajax_ajax_ping', array( $this, 'ajax_ping' ) );
+			add_action( 'wp_ajax_nopriv_ajax_ping',  array( $this, 'ajax_ping' ) );
+			add_action( 'wp_ajax_form_submit_ping', array( $this, 'form_submit_ping' ) );
+			add_action( 'wp_ajax_nopriv_form_submit_ping',  array( $this, 'form_submit_ping' ) );
+			add_action( 'wp_ajax_element_selector_ping', array( $this, 'element_selector_ping' ) );
+			add_action( 'wp_ajax_nopriv_element_selector_ping',  array( $this, 'element_selector_ping' ) );
 		}
 	}
 
@@ -1314,579 +1951,122 @@ class HUT_Admin {
 		}
 	
 		die();
-	}	
-}
-
-
-
-
-if (!class_exists('WP_List_Table')){
-	require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
-}
-
-
-
-
-
-/**
- * A table for filtering heat map details
- *
- * @author dpowney
- *
- */
-class HUT_Heat_Maps_Table extends WP_List_Table {
-
-	/**
-	 * Constructor
-	 */
-	function __construct() {
-		parent::__construct( array(
-				'singular'=> 'Heat Map Detail',
-				'plural' => 'Heat Maps Details',
-				'ajax'	=> false
-		) );
 	}
-
-	/** (non-PHPdoc)
-	 * @see WP_List_Table::extra_tablenav()
+	
+	
+	/**
+	 * Record URL ping
 	 */
-	function extra_tablenav( $which ) {
-		if ( $which == "top" ){
-			$browser_family = isset($_SESSION['browser_family']) ? $_SESSION['browser_family'] : '';
-			$os_family = isset($_SESSION['os_family']) ? $_SESSION['os_family'] : '';
-			$device = isset($_SESSION['device']) ? $_SESSION['device'] : '';
-			$url= isset($_SESSION['url']) ? $_SESSION['url'] : '';
-			$width = isset($_SESSION['width']) ? $_SESSION['width'] : '';
-			$zoom_level= isset($_SESSION['zoom_level']) ? $_SESSION['zoom_level'] : '';
-			$device_pixel_ratio= isset($_SESSION['device_pixel_ratio']) ? $_SESSION['device_pixel_ratio'] : '';
-			$show_uaparser= isset($_SESSION['show_uaparser']) ? $_SESSION['show_uaparser'] : false;
-
+	function url_ping() {
+		$ajaxNonce = $_POST['nonce'];
+	
+		if ( wp_verify_nonce( $ajaxNonce, HUT_Common::PLUGIN_ID.'-nonce' ) ) {
 			global $wpdb;
-			
-			// URL
-			$query = 'SELECT DISTINCT ' . HUT_Common::URL_COLUMN . ' FROM '.$wpdb->prefix. HUT_Common::CLICK_TAP_TBL_NAME;
-			$rows = $wpdb->get_results($query);
-			echo '<label for="url">URL</label>';
-			echo '&nbsp;<select name="url" id="url">';
-			echo '<option value="">All</option>';
-			foreach ($rows as $row) {
-				$current_url = stripslashes($row->url);
-				$selected = '';
-				if ($current_url == $url)
-					$selected = ' selected="selected"';
-				echo '<option value="' . addslashes($current_url) . '"' . $selected . '>' . $current_url . '</option>';
-			}
-			echo '</select>';
-			
-			// Width
-			$query = 'SELECT DISTINCT width FROM '.$wpdb->prefix. HUT_Common::CLICK_TAP_TBL_NAME;
-			$rows = $wpdb->get_results($query);
-			echo '&nbsp;&nbsp;<label for="width">Width</label>';
-			echo '&nbsp;<select name="width" id="width">';
-			echo '<option value="">All</option>';
-			foreach ($rows as $row) {
-				$current_width= $row->width;
-				$selected = '';
-				if ($current_width == $width)
-					$selected = ' selected="selected"';
-				echo '<option value="' . $current_width . '"' . $selected . '>' . $current_width . 'px</option>';
-			}
-			echo '</select>';
 				
-			// Device Pixel Ratio
-			$query = 'SELECT DISTINCT device_pixel_ratio FROM '.$wpdb->prefix. HUT_Common::CLICK_TAP_TBL_NAME;
-			$rows = $wpdb->get_results($query);
-			echo '&nbsp;&nbsp;<label for="device_pixel_ratio">Device Pixel Ratio</label>';
-			echo '&nbsp;<select name="device_pixel_ratio" id="device_pixel_ratio">';
-			echo '<option value="">All</option>';
-			foreach ($rows as $row) {
-				$current_device_pixel_ratio= $row->device_pixel_ratio;
-				$selected = '';
-				if ($current_device_pixel_ratio == $device_pixel_ratio)
-					$selected = ' selected="selected"';
-				echo '<option value="' . $current_device_pixel_ratio . '"' . $selected . '>' . HUT_Common::convert_decimalto_ratio($current_device_pixel_ratio) . '</option>';
+			$url = '';
+			if ( isset($_POST['url']) ) {
+				$url = HUT_Common::normalize_url( $_POST['url'] );
 			}
-			echo '</select>';
+			$ip_address = HUT_Common::get_IP_address();
 				
-			// Zoom level
-			$query = 'SELECT DISTINCT zoom_level FROM '.$wpdb->prefix. HUT_Common::CLICK_TAP_TBL_NAME;
-			$rows = $wpdb->get_results($query);
-			echo '&nbsp;&nbsp;<label for="zoom_level">Zoom Level</label>';
-			echo '&nbsp;<select name="zoom_level" id="zoom_level">';
-			echo '<option value="">All</option>';
-			foreach ($rows as $row) {
-				$current_zoom_level = $row->zoom_level;
-				$selected = '';
-				if ($current_zoom_level == $zoom_level)
-					$selected = ' selected="selected"';
-				echo '<option value="' . $current_zoom_level . '"' . $selected . '>' . ($current_zoom_level * 100). '%</option>';
-			}
-			echo '</select>';
+			$rowsAffected = $wpdb->insert( $wpdb->prefix . HUT_Common::URL_PING_TBL_NAME,
+					array(
+							HUT_Common::URL_COLUMN => $url,
+							HUT_Common::IP_ADDRESS_COLUMN => $ip_address,
+							HUT_Common::RECORD_DATE_COLUMN => current_time('mysql'),
+							HUT_Common::SESSION_ID_COLUMN => session_id()
+					)
+			);
+			$id = $wpdb->insert_id;
+			$response = array('id' => $id);
 				
-			// Browser
-			$query = 'SELECT DISTINCT browser_family FROM '.$wpdb->prefix. HUT_Common::CLICK_TAP_TBL_NAME;
-			$rows = $wpdb->get_results($query);
-			echo '&nbsp;&nbsp;<label for="browser_family">Internet Browser</label>';
-			echo '&nbsp;<select name="browser_family" id="browser_family">';
-			echo '<option value="">All</option>';
-			foreach ($rows as $row) {
-				$current_browser_family = $row->browser_family;
-				$selected = '';
-				if ($current_browser_family == $browser_family)
-					$selected = ' selected="selected"';
-				echo '<option value="' . $current_browser_family . '"' . $selected . '>' . $current_browser_family . '</option>';
-			}
-			echo '</select>';
-			
-			// Operating System
-			$query = 'SELECT DISTINCT os_family FROM '.$wpdb->prefix. HUT_Common::CLICK_TAP_TBL_NAME;
-			$rows = $wpdb->get_results($query);
-			echo '&nbsp;&nbsp;<label for="os_family">Operating System</label>';
-			echo '&nbsp;<select name="os_family" id="os_family">';
-			echo '<option value="">All</option>';
-			foreach ($rows as $row) {
-				$current_os_family = $row->os_family;
-				$selected = '';
-				if ($current_os_family == $os_family)
-					$selected = ' selected="selected"';
-				echo '<option value="' . $current_os_family . '"' . $selected . '>' . $current_os_family . '</option>';
-			}
-			echo '</select>';
-			
-			// Device
-			$query = 'SELECT DISTINCT device FROM '.$wpdb->prefix. HUT_Common::CLICK_TAP_TBL_NAME;
-			$rows = $wpdb->get_results($query);
-			echo '&nbsp;&nbsp;<label for="device">Device</label>';
-			echo '&nbsp;<select name="device" id="device">';
-			echo '<option value="">All</option>';
-			foreach ($rows as $row) {
-				$current_device = $row->device;
-				$selected = '';
-				if ($current_device == $device)
-					$selected = ' selected="selected"';
-				echo '<option value="' . $current_device . '"' . $selected . '>' . $current_device . '</option>';
-			}
-			echo '</select>';
-			
-			echo '<input type="checkbox" name="show_uaparser" id="show_uaparser" ' . checked(true, $show_uaparser, false) . '/>';
-			echo '&nbsp;<label for="show_uaparser">Include browser, OS & device columns</label>';
-			
-			echo '&nbsp;&nbsp;<input type="submit" class="button" value="Filter" />';
-			
+			echo json_encode($response);
 		}
-		if ( $which == "bottom" ){
-		}
-	}
-
-	/**
-	 * (non-PHPdoc)
-	 * @see WP_List_Table::get_columns()
-	 */
-	function get_columns() {
-		return $columns= array(
-			'id' => __('ID'),
-			'url' => __('URL'),
-			'width' => __('Width'),
-			'count' => __('Clicks & Taps'),
-			'zoom_level' => __('Zoom Level'),
-			'device_pixel_ratio' => __('Device Pixel Ratio'),
-			'browser_family' => __('Internet Browser'),
-			'os_family' => 'Operating System',
-			'device' => __('Device'),
-			'action' => __('Action')
-				
-		);
-	}
-
-	/**
-	 * Resets the session object if a POST has been made
-	 */
-	function reset_session_object() {
-
-		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-			$browser_family = isset($_POST["browser_family"]) ? $_POST["browser_family"]  : '';
-			$os_family = isset($_POST["os_family"]) ? $_POST["os_family"]  : '';
-			$device = isset($_POST["device"]) ? $_POST["device"]  : '';
-			$url = isset($_POST["url"]) ? stripslashes($_POST["url"])  : '';
-			$width = isset($_POST["width"]) ? $_POST["width"]  : '';
-			$zoom_level = isset($_POST["zoom_level"]) ? $_POST["zoom_level"]  : '';
-			$device_pixel_ratio = isset($_POST["device_pixel_ratio"]) ? $_POST["device_pixel_ratio"]  : '';
-			$show_uaparser = false;
-			if (isset($_POST["show_uaparser"])) {
-				$show_uaparser = ($_POST["show_uaparser"] == "on") ? true  : false;
-			}
-			
-			$_SESSION['browser_family'] = $browser_family;
-			$_SESSION['os_family'] = $os_family;
-			$_SESSION['device'] = $device;
-			$_SESSION['url'] = $url;
-			$_SESSION['width'] = $width;
-			$_SESSION['zoom_level'] = $zoom_level;
-			$_SESSION['device_pixel_ratio'] = $device_pixel_ratio;
-			$_SESSION['show_uaparser'] = $show_uaparser;
-		}
-	}
-
-	/**
-	 * (non-PHPdoc)
-	 * @see WP_List_Table::prepare_items()
-	 */
-	function prepare_items() {
-		$this->reset_session_object();
-		
-		$show_uaparser= isset($_SESSION['show_uaparser']) ? $_SESSION['show_uaparser'] : false;
-
-		global $wpdb;
-
-		// Register the columns
-		$columns = $this->get_columns();
-		
-		$hidden = array('id');
-		if ($show_uaparser == false)
-			$hidden = array('id', 'browser_family', 'os_family', 'device');
-			
-		$sortable = $this->get_sortable_columns();
-		$this->_column_headers = array($columns, $hidden, $sortable);
-		
-		// Query params
-		$browser_family = isset($_SESSION['browser_family']) ? $_SESSION['browser_family'] : '';
-		$os_family = isset($_SESSION['os_family']) ? $_SESSION['os_family'] : '';
-		$device = isset($_SESSION['device']) ? $_SESSION['device'] : '';
-		$url= isset($_SESSION['url']) ? $_SESSION['url'] : '';
-		$width = isset($_SESSION['width']) ? $_SESSION['width'] : '';
-		$zoom_level= isset($_SESSION['zoom_level']) ? $_SESSION['zoom_level'] : '';
-		$device_pixel_ratio= isset($_SESSION['device_pixel_ratio']) ? $_SESSION['device_pixel_ratio'] : '';
-		
-		// get table data
-		$query = 'SELECT id, url, width, device_pixel_ratio, zoom_level, COUNT(*) AS count ';
-		if ($show_uaparser)
-			$query .= ', browser_family, os_family, device';
-		$query .= ' FROM '.$wpdb->prefix.HUT_Common::CLICK_TAP_TBL_NAME.' WHERE 1';
-		if ($url != null) {
-			$query .= ' AND url = "'. $url . '"';
-		}
-		if ($show_uaparser) {
-			if ($browser_family != null) {
-				$query .= ' AND browser_family = "' . $browser_family . '"';
-			}
-			if ($os_family != null) {
-				$query .= ' AND os_family = "' . $os_family . '"';
-			}
-			if ($device != null) {
-				$query .= ' AND device = "' . $device . '"';
-			}
-		}
-		if ($width != null) {
-			$query .= ' AND width = "' . $width . '"';
-		}
-		if ($device_pixel_ratio != null) {
-			$query .= ' AND device_pixel_ratio = "' . $device_pixel_ratio . '"';
-		}
-		if ($zoom_level != null) {
-			$query .= ' AND zoom_level = "' . $zoom_level . '"';
-		}
-		$query .= ' GROUP BY url, width, device_pixel_ratio, zoom_level';
-		if ($show_uaparser)
-			$query .= ', browser_family, os_family, device';
-		$query .= ' ORDER BY count DESC';
-		
-		// pagination
-		$item_count = $wpdb->query($query); //return the total number of affected rows
-		$items_per_page = 25;
-		// Ensure paging is reset on filter submit by checking HTTP method as well
-		$page_num = !empty($_GET["paged"]) && ($_SERVER['REQUEST_METHOD'] != 'POST') ? mysql_real_escape_string($_GET["paged"]) : '';
-		if (empty($page_num) || !is_numeric($page_num) || $page_num<=0 ) {
-			$page_num = 1;
-		}
-		$total_pages = ceil($item_count/$items_per_page);
-		// adjust the query to take pagination into account
-		if (!empty($page_num) && !empty($items_per_page)) {
-			$offset=($page_num-1)*$items_per_page;
-			$query .= ' LIMIT ' .(int)$offset. ',' .(int)$items_per_page;
-		}
-		$this->set_pagination_args( array( "total_items" => $item_count, "total_pages" => $total_pages, "per_page" => $items_per_page ) );
-		
-		$this->items =  $wpdb->get_results($query, ARRAY_A);
-	}
-
-	/**
-	 * Default column
-	 * @param unknown_type $item
-	 * @param unknown_type $column_name
-	 * @return unknown|mixed
-	 */
-	function column_default( $item, $column_name ) {
-		switch( $column_name ) {
-			case 'id' :
-			case 'browser_family':
-			case 'os_family':
-			case 'device':
-				echo $item[ $column_name ];
-				break;
-			case 'url':
-			case 'count':
-			case 'width':
-			case 'device_pixel_ratio':
-			case 'zoom_level':
-				return $item[ $column_name ];
-				break;
-			case 'action':
-				// Hidden input for target data
-				$id = $item[ 'id' ];
-				$url = $item[ 'url' ];
-				echo '<input type="hidden" id="' . $id . '-url" name="' . $id . '-url" value="' . addslashes($url) . '"></input>';
-				$width = $item[ 'width' ];
-				echo '<input type="hidden" id="' . $id . '-width" name="' . $id . '-width" value="' . $width . '"></input>';
-				$device_pixel_ratio = $item[ 'device_pixel_ratio' ];
-				echo '<input type="hidden" id="' . $id . '-device_pixel_ratio" name="' . $id . '-device_pixel_ratio" value="' . $device_pixel_ratio . '"></input>';
-				$zoom_level = $item[ 'zoom_level' ];
-				echo '<input type="hidden" id="' . $id . '-zoom_level" name="' . $id . '-zoom_level" value="' . $zoom_level . '"></input>';
-				if (isset($item[ 'browser_family' ])) {
-					$browser_family = $item[ 'browser_family' ];
-					echo '<input type="hidden" id="' . $id . '-browser_family" name="' . $id . '-browser_family" value="' . $browser_family . '"></input>';
-				}
-				if (isset($item[ 'os_family' ])) {
-					$os_family = $item[ 'os_family' ];
-					echo '<input type="hidden" id="' . $id . '-os_family" name="' . $id . '-os_family" value="' . $os_family . '"></input>';
-				}
-				if (isset($item[ 'device' ])) {
-					$device = $item[ 'device' ];
-					echo '<input type="hidden" id="' . $id . '-device" name="' . $id . '-device" value="' . $device . '"></input>';
-				}
-				// View heat map button
-				echo '<input id="' . $id .'" type="button" class="button view-heat-map-button" value="View Heat Map" />';
-
-						
-			break;
-			default:
-				return print_r( $item, true ) ;
-		}
+		die();
 	}
 	
 	/**
-	 * device pixel ratio column
-	 * @param unknown_type $item
-	 * @return string
+	 * Record AJAX ping
 	 */
-	function column_device_pixel_ratio($item){
-		echo HUT_Common::convert_decimalto_ratio($item['device_pixel_ratio']);
-	}
+	function ajax_ping() {
+		$ajaxNonce = $_POST['nonce'];
 	
-	/**
-	 * zoom level column
-	 * @param unknown_type $item
-	 * @return string
-	 */
-	function column_zoom_level($item){
-		echo (100 * $item['zoom_level']) . '%';
-	}
-	
-	/**
-	 * width column
-	 * @param unknown_type $item
-	 * @return string
-	 */
-	function column_width($item){
-		echo $item['width'] . 'px';
-	}
-
-	/**
-	 *
-	 * @param unknown_type $item
-	 */
-	function column_count($item) {
-		// get widths for url, and create a select
-		$totalCount = $item['count'];
-		$url = $item['url'];
-		$device_pixel_ratio = $item['device_pixel_ratio'];
-		$zoom_level = $item['zoom_level'];
-		$width = $item['width'];
-		
-		global $wpdb;
-		$query = 'SELECT * FROM '.$wpdb->prefix.HUT_Common::CLICK_TAP_TBL_NAME.' WHERE ' . HUT_Common::IS_TAP_COLUMN . ' = 1';
-		$query .= ' AND url = "' . $url . '" AND device_pixel_ratio = "' .  $device_pixel_ratio . '" AND zoom_level = "' . $zoom_level . '"';
-		$query .= ' AND width = "' . $width . '"';
-		
-		if (isset($item[ 'browser_family' ]))
-			$query .= ' AND browser_family = "' . $item[ 'browser_family' ] . '"';
-		if (isset($item[ 'os_family' ]))
-			$query .= ' AND os_family = "' . $item[ 'os_family' ] . '"';
-		if (isset($item[ 'device' ]))
-			$query .= ' AND device = "' . $item[ 'device' ] . '"';
-
-		$tapCount = $wpdb->query($query); //return the total number of affected rows
-		
-		echo ($totalCount - $tapCount) . ' clicks and ' . $tapCount . ' taps';
-	}
-	
-	/**
-	 * count column
-	 * @param unknown_type $item
-	 * @return string
-	 */
-	function column_url($item){
-		$url = $item['url'];
-		echo stripslashes($url);
-	}
-}
-
-
-/**
- * HUT_URL_Filter_Table class used for whitelist or blacklist filtering of URL's
- *
- * @author dpowney
- * @since 2.0
- */
-class HUT_URL_Filter_Table extends WP_List_Table {
-
-	const
-	URL_COLUMN 						= 'url',
-	ID_COLUMN 						= 'id',
-	CHECKBOX_COLUMN 				= 'cb',
-	URL_LABEL 						= 'URL',
-	ID_LABEL 						= "ID",
-	DELETE_CHECKBOX 				= 'delete[]',
-	URL_FILTER_TBL_NAME 			= 'hut_url_filter',
-	DELETE_BULK_ACTION_NAME			= 'delete',
-	DELETE_BULK_ACTION_LABEL		= 'Delete';
-
-
-	/**
-	 * Constructor
-	 */
-	function __construct() {
-		parent::__construct( array(
-				'singular'=> 'URL Filter Table',
-				'plural' => 'URL Filter Table',
-				'ajax'	=> false
-		) );
-	}
-
-	/**
-	 * (non-PHPdoc)
-	 * @see WP_List_Table::extra_tablenav()
-	 */
-	function extra_tablenav( $which ) {
-		if ( $which == "top" ){
-			//echo '<br />';
-		}
-		if ( $which == "bottom" ){
-			echo '<br />';
-		}
-	}
-
-	/**
-	 * (non-PHPdoc)
-	 * @see WP_List_Table::get_columns()
-	 */
-	function get_columns() {
-		return $columns= array(
-				HUT_URL_Filter_Table::CHECKBOX_COLUMN => '<input type="checkbox" />',
-				HUT_URL_Filter_Table::URL_COLUMN =>__(HUT_URL_Filter_Table::URL_LABEL),
-				HUT_URL_Filter_Table::ID_COLUMN => __('')
-		);
-	}
-
-	/**
-	 * (non-PHPdoc)
-	 * @see WP_List_Table::prepare_items()
-	 */
-	function prepare_items() {
-		global $wpdb;
-
-		// Process any bulk actions first
-		$this->process_bulk_action();
-
-		// Register the columns
-		$columns = $this->get_columns();
-		$hidden = array(HUT_URL_Filter_Table::ID_COLUMN );
-		$sortable = $this->get_sortable_columns();
-		$this->_column_headers = array($columns, $hidden, $sortable);
-
-		// get table data
-		$query = 'SELECT * FROM '.$wpdb->prefix.HUT_URL_Filter_Table::URL_FILTER_TBL_NAME;
-
-		// pagination
-		$item_count = $wpdb->query( $query ); //return the total number of affected rows
-		$items_per_page = 10;
-		$page_num = !empty($_GET["paged"]) ? mysql_real_escape_string($_GET["paged"]) : '';
-		if ( empty( $page_num ) || !is_numeric( $page_num ) || $page_num <= 0 ) {
-			$page_num = 1;
-		}
-		$total_pages = ceil( $item_count / $items_per_page );
-		// adjust the query to take pagination into account
-		if ( !empty( $page_num ) && !empty( $items_per_page ) ) {
-			$offset=($page_num-1)*$items_per_page;
-			$query .= ' LIMIT ' .(int) $offset. ',' .(int) $items_per_page;
-		}
-		$this->set_pagination_args( array( "total_items" => $item_count, "total_pages" => $total_pages, "per_page" => $items_per_page ) );
-
-
-
-		$this->items = $wpdb->get_results( $query, ARRAY_A );
-	}
-
-	/**
-	 * Default column
-	 * @param unknown_type $item
-	 * @param unknown_type $column_name
-	 * @return unknown|mixed
-	 */
-	function column_default( $item, $column_name ) {
-		switch( $column_name ) {
-			case HUT_URL_Filter_Table::CHECKBOX_COLUMN :
-			case HUT_URL_Filter_Table::ID_COLUMN :
-			case HUT_URL_Filter_Table::URL_COLUMN :
-				return $item[ $column_name ];
-			default:
-				return print_r( $item, true ) ;
-		}
-	}
-
-	/**
-	 * description column
-	 * @param unknown_type $item
-	 * @return string
-	 */
-	function column_url( $item ){
-		echo stripslashes( $item[HUT_URL_Filter_Table::URL_COLUMN] );
-	}
-
-	/**
-	 * checkbox column
-	 * @param unknown_type $item
-	 * @return string
-	 */
-	function column_cb( $item ) {
-		return sprintf(
-				'<input type="checkbox" name="'.HUT_URL_Filter_Table::DELETE_CHECKBOX.'" value="%s" />', $item[HUT_URL_Filter_Table::ID_COLUMN]
-		);
-	}
-	/**
-	 * (non-PHPdoc)
-	 * @see WP_List_Table::get_bulk_actions()
-	 */
-	function get_bulk_actions() {
-		$actions = array(
-				HUT_URL_Filter_Table::DELETE_BULK_ACTION_NAME => HUT_URL_Filter_Table::DELETE_BULK_ACTION_LABEL
-		);
-		return $actions;
-	}
-
-	/**
-	 * Handles bulk actions
-	 */
-	function process_bulk_action() {
-		if ($this->current_action() === HUT_URL_Filter_Table::DELETE_BULK_ACTION_NAME) {
+		if ( wp_verify_nonce( $ajaxNonce, HUT_Common::PLUGIN_ID.'-nonce' ) ) {
 			global $wpdb;
-
-			$checked = ( is_array( $_REQUEST['delete'] ) ) ? $_REQUEST['delete'] : array( $_REQUEST['delete'] );
-				
-			foreach($checked as $id) {
-				$query = "DELETE FROM ". $wpdb->prefix.HUT_URL_Filter_Table::URL_FILTER_TBL_NAME . " WHERE " .  HUT_URL_Filter_Table::ID_COLUMN . " = " . $id;
-				$results = $wpdb->query( $query );
+	
+			$url = '';
+			if ( isset($_POST['url']) ) {
+				$url = HUT_Common::normalize_url( $_POST['url'] );
 			}
+			$ip_address = HUT_Common::get_IP_address();
+			$ajax_action = '';
+			if ( isset($_POST['ajaxAction']) ) {
+				$ajax_action = $_POST['ajaxAction'];
+			}
+			$status_text = '';
+			if ( isset($_POST['statusText']) ) {
+				$status_text = $_POST['statusText'];
+			}
+	
+			$rowsAffected = $wpdb->insert( $wpdb->prefix . HUT_Common::AJAX_PING_TBL_NAME,
+					array(
+							HUT_Common::URL_COLUMN => $url,
+							HUT_Common::IP_ADDRESS_COLUMN => $ip_address,
+							HUT_Common::RECORD_DATE_COLUMN => current_time('mysql'),
+							HUT_Common::AJAX_ACTION_COLUMN => $ajax_action,
+							HUT_Common::STATUS_TEXT_COLUMN => $status_text,
+							HUT_Common::SESSION_ID_COLUMN => session_id()
+					)
+			);
+			$id = $wpdb->insert_id;
+			$response = array('id' => $id);
+	
+			echo json_encode($response);
 		}
+		die();
+	}
+	
+	/**
+	 * Record Element selector ping
+	 */
+	function element_selector_ping() {
+		$ajaxNonce = $_POST['nonce'];
+	
+		if ( wp_verify_nonce( $ajaxNonce, HUT_Common::PLUGIN_ID.'-nonce' ) ) {
+			global $wpdb;
+	
+			$url = '';
+			if ( isset($_POST['url']) ) {
+				$url = HUT_Common::normalize_url( $_POST['url'] );
+			}
+			$ip_address = HUT_Common::get_IP_address();
+			$element_selector = '';
+			if ( isset($_POST['elementSelector']) ) {
+				$element_selector = $_POST['elementSelector'];
+			}
+			
+			// TODO Do we want to pass isFormSubmit in AJAX call? Currently it is not needed
+			/* $is_form_submit = false;
+			if ( isset($_POST['is_form_submit']) ) {
+			$is_form_submit = $_POST['is_form_submit'];
+			}*/
+	
+			$rowsAffected = $wpdb->insert( $wpdb->prefix . HUT_Common::ELEMENT_SELECTOR_PING_TBL_NAME,
+					array(
+							HUT_Common::URL_COLUMN => $url,
+							HUT_Common::IP_ADDRESS_COLUMN => $ip_address,
+							HUT_Common::RECORD_DATE_COLUMN => current_time('mysql'),
+							HUT_Common::ELEMENT_SELECTOR_COLUMN => $element_selector,
+							HUT_Common::SESSION_ID_COLUMN => session_id(),
+							//HUT_Common::IS_FORM_SUBMIT_COLUMN => $is_form_submit
+					)
+			);
+			$id = $wpdb->insert_id;
+			$response = array('id' => $id);
+	
+			echo json_encode($response);
+		}
+		die();
 	}
 }
 

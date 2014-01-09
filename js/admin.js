@@ -78,3 +78,14 @@ jQuery(document).ready(function() {
 	onchangeUAParser();
 	
 });
+
+
+jQuery(document).ready(function() {	
+	jQuery('.date-field').datepicker({
+        dateFormat : 'yy-mm-dd'
+    });
+});
+
+jQuery(document).ready(function($){$(".if-js-closed").removeClass("if-js-closed").addClass("closed");
+	postboxes.add_postbox_toggles( 'apmbt');
+});
