@@ -1,4 +1,4 @@
-=== Hotspots Analytics ===
+=== Hotspots Analytics - Heatmaps, User Activity & Custom Event Tracking ===
 Contributors: dpowney
 Donate link: http://www.danielpowney.com/donate
 Tags: mouse click, tap, touch, click, usability, heat map, tracker, analytic, analytics, user, track, tracking, impression, funnel, conversion, link, responsive, device, Google
@@ -30,7 +30,7 @@ Here's a demo in debug mode: http://danielpowney.com/hotspots-analytics?drawHeat
 = Heatmaps =
 Heatmaps can be launched from the WordPress admin plugin page by clicking on the "View Heatmap” button or by adding the query string parameter drawHeatmap=true to your website URL ( i.e. http://danielpowney.com?drawHeatmap=true). There are different heatmaps for each page, page widht, browser, operating system and device to cater for responsive web design and for filtering. 
 
-When the heatmap is displayed, a HTML5 canvas drawing is overlayed on the website. An additional information panel is also provided at the bottom right of the screen which provides the current page width, browser, device etc… If you resize the page width, a different heatmap will be displayed. A width allowance setting can be changed to allow for some overlap in page widths.
+When the heatmap is displayed, a HTML5 canvas drawing is overlayed on the website. An additional information panel is also provided at the bottom right of the screen which provides the current page width, browser, device etc... If you resize the page width, a different heatmap will be displayed. A width allowance setting can be changed to allow for some overlap in page widths.
 
 = User Activity =
 
