@@ -16,14 +16,14 @@ Hotspots Analytics is the most advanced free analytics plugin for WordPress webs
 
 The key features of the plugin are:
 
-* Heatmaps of mouse clicks and touch screen taps overlayed on your webpage (You can launch the heatmap for a page from wp-admin or simply add ?drawHeatmap=true to the URL)
-* Different heatmaps are drawn to cater for responsive web design
-* Each page on your website has it's own heatmap
-* Track user activity including page views, AJAX actions, mouse clicks, touchscreen taps and custom JavaScript events
-* It's free and there's no sign up or registration required!
-* All data is stored on your own WordPress database
-* All data is viewed in your WordPress admin. No need to go to a third party website.
-* To be able to view the heatmaps, your WordPress theme must be HTML5 compliant and you need to use an Internet browser which supports HTML5 canvas.
+*   Heatmaps of mouse clicks and touch screen taps overlayed on your webpage (You can launch the heatmap for a page from wp-admin or simply add ?drawHeatmap=true to the URL)
+*   Different heatmaps are drawn to cater for responsive web design
+*   Each page on your website has it's own heatmap
+*   Track user activity including page views, AJAX actions, mouse clicks, touchscreen taps and custom JavaScript events
+*   It's free and there's no sign up or registration required!
+*   All data is stored on your own WordPress database
+*   All data is viewed in your WordPress admin. No need to go to a third party website.
+*   To be able to view the heatmaps, your WordPress theme must be HTML5 compliant and you need to use an Internet browser which supports HTML5 canvas.
 
 Here's a demo in debug mode: http://danielpowney.com/hotspots-analytics?drawHeatmap=true
 
@@ -38,9 +38,9 @@ A comprehensive summary of all user activity on your website can be viewed inclu
 
 = Reports =
 There are various reports which provide statistics and graphs of all user activity on your website. Each report can be filtered for different devices, browsers, operating systems, page widths and within a period of time (today, yesterday, last week, last 30 days or last 60 days). The following are some examples of reports that can be generated:
-* Graph and count of all page views, page hits, mouse clicks, touch screen taps, AJAX actions and custom events,
-* Averages and total count of all page views, page hits, mouse clicks, touch screen taps, AJAX actions and custom events per users and pages,
-* Compare a graph and count of multiple custom events which can be used to determine which are more popular or easy to use,
+*   Graph and count of all page views, page hits, mouse clicks, touch screen taps, AJAX actions and custom events,
+*   Averages and total count of all page views, page hits, mouse clicks, touch screen taps, AJAX actions and custom events per users and pages,
+*   Compare a graph and count of multiple custom events which can be used to determine which are more popular or easy to use,
 
 = Custom Events =
 
