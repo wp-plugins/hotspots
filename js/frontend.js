@@ -6,7 +6,6 @@ var warm = hot / 2; // default is 10
 var opacity = 0.2; // default is 0.2
 var isHeatmap = false; // for heatmap.js
 var debug = false;
-var remoteEnabled = false;
 
 jQuery(window).load(function() {	
 	
@@ -37,10 +36,7 @@ function initOptions() {
 	hot = parseInt(config_data.hot_value);
 	warm = hot / 2;
 	opacity = config_data.spot_opacity;
-	spotRadius = parseInt(config_data.spot_radius);
-	remoteEnabled = (config_data.remote_enabled) == "1" ? true : false;
-	
-	
+	spotRadius = parseInt(config_data.spot_radius);	
 }
 
 /**
@@ -59,12 +55,6 @@ function setupSaveEvents() {
 		events.setupSaveAjaxActions();
 	}
 	
-	// Custom events
-	var saveCustomEvents = (config_data.save_custom_events) == "1" ? true : false;
-	if (saveCustomEvents) {
-		events.setupSaveCustomEvents();
-	}
-	
 	// Mouse clicks and touchscreen taps
 	var saveMouseClickAndTouchscreenTaps = (config_data.save_click_or_tap_enabled) == "1" ? true : false;
 	var urlDBLimitReached = (config_data.url_db_limit_reached) == "1" ? true : false;
@@ -75,6 +65,12 @@ function setupSaveEvents() {
 	}
 	if (saveMouseClickAndTouchscreenTaps) {
 		events.setupSaveMouseClickAndTouchScreenTapEvents();
+	}
+	
+	// Custom events
+	var saveCustomEvents = (config_data.save_custom_events) == "1" ? true : false;
+	if (saveCustomEvents) {
+		events.setupSaveCustomEvents();
 	}
 }
 

@@ -11,7 +11,7 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATO
  * @author dpowney
  *
  */
-class HUT_Custom_Event_Table extends WP_List_Table {
+class HA_Custom_Event_Table extends WP_List_Table {
 	const
 	CHECKBOX_COLUMN 				= 'cb',
 	DELETE_CHECKBOX 				= 'delete[]',
@@ -49,13 +49,13 @@ class HUT_Custom_Event_Table extends WP_List_Table {
 	 */
 	function get_columns() {
 		return $columns= array(
-				HUT_Custom_Event_Table::CHECKBOX_COLUMN => '<input type="checkbox" />',
-				HUT_Common::ID_COLUMN => __(''),
-				HUT_Common::CUSTOM_EVENT_COLUMN => __('Custom Event jQuery Selector'),
-				HUT_Common::EVENT_TYPE_COLUMN => __('Event Type'),
-				HUT_Common::DESCRIPTION_COLUMN => __('Description'),
-				HUT_Common::IS_FORM_SUBMIT_COLUMN => __('Form Submit'),
-				HUT_Common::URL_COLUMN => __('Page URL')
+				HA_Custom_Event_Table::CHECKBOX_COLUMN => '<input type="checkbox" />',
+				HA_Common::ID_COLUMN => __(''),
+				HA_Common::CUSTOM_EVENT_COLUMN => __('Custom Event jQuery Selector'),
+				HA_Common::EVENT_TYPE_COLUMN => __('Event Type'),
+				HA_Common::DESCRIPTION_COLUMN => __('Description'),
+				HA_Common::IS_FORM_SUBMIT_COLUMN => __('Form Submit'),
+				HA_Common::URL_COLUMN => __('Page URL')
 		);
 	}
 	
@@ -71,12 +71,12 @@ class HUT_Custom_Event_Table extends WP_List_Table {
 	
 		// Register the columns
 		$columns = $this->get_columns();
-		$hidden = array(HUT_Common::ID_COLUMN );
+		$hidden = array(HA_Common::ID_COLUMN );
 		$sortable = $this->get_sortable_columns();
 		$this->_column_headers = array($columns, $hidden, $sortable);
 	
 		// get table data
-		$query = 'SELECT * FROM '.$wpdb->prefix.HUT_Common::CUSTOM_EVENT_TBL_NAME;
+		$query = 'SELECT * FROM '.$wpdb->prefix.HA_Common::CUSTOM_EVENT_TBL_NAME;
 	
 		// pagination
 		$item_count = $wpdb->query( $query ); //return the total number of affected rows
@@ -104,19 +104,19 @@ class HUT_Custom_Event_Table extends WP_List_Table {
 	 */
 	function column_default( $item, $column_name ) {
 		switch( $column_name ) {
-			case HUT_Common::ID_COLUMN :
-			case HUT_Common::EVENT_TYPE_COLUMN :
-			case HUT_Common::DESCRIPTION_COLUMN :
-			case HUT_Common::CUSTOM_EVENT_COLUMN : {
+			case HA_Common::ID_COLUMN :
+			case HA_Common::EVENT_TYPE_COLUMN :
+			case HA_Common::DESCRIPTION_COLUMN :
+			case HA_Common::CUSTOM_EVENT_COLUMN : {
 				echo $item[ $column_name ];
 				break;
 			}
-			case HUT_Common::IS_FORM_SUBMIT_COLUMN : {
+			case HA_Common::IS_FORM_SUBMIT_COLUMN : {
 				echo ($item[ $column_name ] == 0) ? 'false' : 'true';
 				break;
 			}
-			case HUT_Common::URL_COLUMN :
-			case HUT_Custom_Event_Table::CHECKBOX_COLUMN :
+			case HA_Common::URL_COLUMN :
+			case HA_Custom_Event_Table::CHECKBOX_COLUMN :
 				return $item[ $column_name ];
 			default:
 				return print_r( $item, true ) ;
@@ -139,7 +139,7 @@ class HUT_Custom_Event_Table extends WP_List_Table {
 	 */
 	function column_cb( $item ) {
 		return sprintf(
-				'<input type="checkbox" name="'.HUT_Custom_Event_Table::DELETE_CHECKBOX.'" value="%s" />', $item[HUT_Common::ID_COLUMN]
+				'<input type="checkbox" name="'.HA_Custom_Event_Table::DELETE_CHECKBOX.'" value="%s" />', $item[HA_Common::ID_COLUMN]
 		);
 	}
 	
@@ -149,7 +149,7 @@ class HUT_Custom_Event_Table extends WP_List_Table {
 	 */
 	function get_bulk_actions() {
 		$actions = array(
-				HUT_Custom_Event_Table::DELETE_BULK_ACTION_NAME => 'Delete'
+				HA_Custom_Event_Table::DELETE_BULK_ACTION_NAME => 'Delete'
 		);
 		return $actions;
 	}
@@ -158,13 +158,13 @@ class HUT_Custom_Event_Table extends WP_List_Table {
 	 * Handles bulk actions
 	 */
 	function process_bulk_action() {
-		if ($this->current_action() === HUT_Custom_Event_Table::DELETE_BULK_ACTION_NAME) {
+		if ($this->current_action() === HA_Custom_Event_Table::DELETE_BULK_ACTION_NAME) {
 			global $wpdb;
 	
 			$checked = ( is_array( $_REQUEST['delete'] ) ) ? $_REQUEST['delete'] : array( $_REQUEST['delete'] );
 	
 			foreach($checked as $id) {
-				$query = "DELETE FROM ". $wpdb->prefix.HUT_Common::CUSTOM_EVENT_TBL_NAME . " WHERE " .  HUT_Common::ID_COLUMN . " = " . $id;
+				$query = "DELETE FROM ". $wpdb->prefix.HA_Common::CUSTOM_EVENT_TBL_NAME . " WHERE " .  HA_Common::ID_COLUMN . " = " . $id;
 				$results = $wpdb->query( $query );
 			}
 		}

@@ -21,7 +21,7 @@ var events = new function() {
 			if (settings.data) {
 				var dataParts = settings.data.split("&");
 				ajaxAction = dataParts[0].split("=")[1];
-			} else if (remoteEnabled) {
+			} else if (settings.url) {
 				ajaxAction = utils.getUrlParamByName(settings.url, "action");
 			} else {
 				// cannot get ajax action
@@ -64,7 +64,7 @@ var events = new function() {
 			this.setupSaveMouseClickEvent(selector, eventType, description);
 		}
 		if (isFormSubmit) {
-			jQuery(customEvent).on("submit", function(event) {				
+			jQuery(selector).submit(function() {				
 				events.saveEvent(config_data.user_id, config_data.user_environment_id, eventType, description , null, null, false, selector);
 			});
 		}

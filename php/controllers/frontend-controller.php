@@ -11,7 +11,7 @@ require_once dirname( __FILE__ ) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARA
  * @author dpowney
  *
  */
-class HUT_Frontend_Controller {
+class HA_Frontend_Controller {
 
 	// TODO make this an option
 	private $ignore_ajax_actions = array('save_user_event', 'retrieve_user_events');
@@ -45,25 +45,25 @@ class HUT_Frontend_Controller {
 
 		$root_relative_path = '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR;
 
-		wp_enqueue_style( 'hut_frontend-style' , plugins_url( $root_relative_path . 'css' . DIRECTORY_SEPARATOR . 'frontend.css', __FILE__ ) );
-		wp_enqueue_script( 'hut_heatmap', plugins_url( $root_relative_path . 'js' .  DIRECTORY_SEPARATOR . 'heatmap' . DIRECTORY_SEPARATOR . 'heatmap.js', __FILE__ ), array(), false, true );
-		wp_enqueue_script( 'hut_modernizer', plugins_url( $root_relative_path . 'js' .  DIRECTORY_SEPARATOR . 'modernizer' . DIRECTORY_SEPARATOR . 'modernizer.custom.730.js', __FILE__ ), array(), false, true );
-		wp_enqueue_script( 'hut_utils', plugins_url( $root_relative_path . 'js' . DIRECTORY_SEPARATOR . 'utils.js', __FILE__ ), array( 'jquery', 'hut_heatmap', 'hut_modernizer' ), false, true );
-		wp_enqueue_script( 'hut_drawing', plugins_url( $root_relative_path . 'js' . DIRECTORY_SEPARATOR . 'drawing.js', __FILE__ ), array( 'jquery', 'hut_heatmap', 'hut_modernizer', 'hut_utils' ), false, true );
-		wp_enqueue_script( 'hut_events', plugins_url( $root_relative_path . 'js' . DIRECTORY_SEPARATOR . 'events.js', __FILE__ ), array( 'jquery', 'hut_heatmap', 'hut_modernizer', 'hut_utils', 'hut_drawing' ), false, true );
-		wp_enqueue_script( 'hut_frontend-script', plugins_url( $root_relative_path . 'js' . DIRECTORY_SEPARATOR . 'frontend.js', __FILE__ ), array( 'jquery', 'hut_heatmap', 'hut_modernizer', 'hut_utils', 'hut_drawing', 'hut_events' ), false, true );
+		wp_enqueue_style( 'ha_frontend-style' , plugins_url( $root_relative_path . 'css' . DIRECTORY_SEPARATOR . 'frontend.css', __FILE__ ) );
+		wp_enqueue_script( 'ha_heatmap', plugins_url( $root_relative_path . 'js' .  DIRECTORY_SEPARATOR . 'heatmap' . DIRECTORY_SEPARATOR . 'heatmap.js', __FILE__ ), array(), false, true );
+		wp_enqueue_script( 'ha_modernizer', plugins_url( $root_relative_path . 'js' .  DIRECTORY_SEPARATOR . 'modernizer' . DIRECTORY_SEPARATOR . 'modernizer.custom.730.js', __FILE__ ), array(), false, true );
+		wp_enqueue_script( 'ha_utils', plugins_url( $root_relative_path . 'js' . DIRECTORY_SEPARATOR . 'utils.js', __FILE__ ), array( 'jquery', 'ha_heatmap', 'ha_modernizer' ), false, true );
+		wp_enqueue_script( 'ha_drawing', plugins_url( $root_relative_path . 'js' . DIRECTORY_SEPARATOR . 'drawing.js', __FILE__ ), array( 'jquery', 'ha_heatmap', 'ha_modernizer', 'ha_utils' ), false, true );
+		wp_enqueue_script( 'ha_events', plugins_url( $root_relative_path . 'js' . DIRECTORY_SEPARATOR . 'events.js', __FILE__ ), array( 'jquery', 'ha_heatmap', 'ha_modernizer', 'ha_utils', 'ha_drawing' ), false, true );
+		wp_enqueue_script( 'ha_frontend-script', plugins_url( $root_relative_path . 'js' . DIRECTORY_SEPARATOR . 'frontend.js', __FILE__ ), array( 'jquery', 'ha_heatmap', 'ha_modernizer', 'ha_utils', 'ha_drawing', 'ha_events' ), false, true );
 
 		// for loading dialog
 		wp_enqueue_script('jquery-ui-dialog');
 		wp_enqueue_style('jquery-style', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/smoothness/jquery-ui.css');
 		
-		$this->data_services = new HUT_Local_Data_Services();
+		$this->data_services = new HA_Local_Data_Services();
 		
-		do_action('hut_frontend_controller_assets', $this);
+		do_action('ha_frontend_controller_assets', $this);
 		
 		$config_array = $this->construct_config_array();
 
-		wp_localize_script( 'hut_frontend-script', HUT_Common::CONFIG_DATA, $config_array );
+		wp_localize_script( 'ha_frontend-script', HA_Common::CONFIG_DATA, $config_array );
 	}
 
 
@@ -73,21 +73,21 @@ class HUT_Frontend_Controller {
 	 */
 	function construct_config_array() {
 
-		$current_url = HUT_Common::get_current_url();	
+		$current_url = HA_Common::get_current_url();	
 
 		$config_array = array(
 				'ajax_url' => admin_url( 'admin-ajax.php' ),
-				'ajax_nonce' => wp_create_nonce( HUT_Common::PLUGIN_ID.'-nonce' ),
+				'ajax_nonce' => wp_create_nonce( HA_Common::PLUGIN_ID.'-nonce' ),
 				'ignore_ajax_actions' => $this->ignore_ajax_actions,
-				'plugin_version' => HUT_Common::PLUGIN_VERSION
+				'plugin_version' => HA_Common::PLUGIN_VERSION
 		);
 
-		$ip_address = HUT_Common::get_ip_address();
+		$ip_address = HA_Common::get_ip_address();
 		$session_id = session_id();
 		
 		// get or create user details and user environment details
-		$user_details = HUT_Common::get_user_details($ip_address, $session_id, true, $this->data_services);
-		$user_environment_details = HUT_Common::get_user_environment_details($user_details['user_id'], true, $this->data_services);
+		$user_details = HA_Common::get_user_details($ip_address, $session_id, true, $this->data_services);
+		$user_environment_details = HA_Common::get_user_environment_details($user_details['user_id'], true, $this->data_services);
 		
 		$config_array = array_merge($config_array, $user_environment_details);
 		$config_array = array_merge($config_array, $user_details);
@@ -99,7 +99,6 @@ class HUT_Frontend_Controller {
 		$config_array = array_merge($config_array, $this->get_heat_map_settings());
 		$config_array = array_merge($config_array, $this->get_url_db_limit_check($current_url));
 		$config_array = array_merge($config_array, $this->get_url_filters_settings());
-		$config_array = array_merge($config_array, $this->get_remote_settings());
 
 		return $config_array;
 	}
@@ -114,15 +113,15 @@ class HUT_Frontend_Controller {
 	 * Check URL db limit option
 	 */
 	function get_url_db_limit_check($url) {
-		$database_settings = get_option(HUT_Common::DATABASE_SETTINGS_KEY);
+		$database_settings = get_option(HA_Common::DATABASE_SETTINGS_KEY);
 
 
 		// check URL db limit option
-		$url_db_limit = $database_settings[ HUT_Common::URL_DB_LIMIT_OPTION ];
+		$url_db_limit = $database_settings[ HA_Common::URL_DB_LIMIT_OPTION ];
 		$url_db_limit_reached = 0;
 		if ( $url_db_limit != '' ) {
 			global $wpdb;
-			$query = 'SELECT * FROM '. $wpdb->prefix.HUT_Common::USER_EVENT_TBL_NAME . ' WHERE ' . HUT_Common::URL_COLUMN . ' = "' . $url . '"';
+			$query = 'SELECT * FROM '. $wpdb->prefix.HA_Common::USER_EVENT_TBL_NAME . ' WHERE ' . HA_Common::URL_COLUMN . ' = "' . $url . '"';
 			$wpdb->query( $query );
 			$count = $wpdb->num_rows;
 			if ( $count >= $url_db_limit ) {
@@ -138,32 +137,32 @@ class HUT_Frontend_Controller {
 	 * @return
 	 */
 	function get_url_filters_settings() {
-		$url_filter_settings = get_option(HUT_Common::URL_FILTERS_SETTINGS_KEY);
+		$url_filter_settings = get_option(HA_Common::URL_FILTERS_SETTINGS_KEY);
 
-		return array('filter_type' => $url_filter_settings[ HUT_Common::FILTER_TYPE_OPTION ]);
+		return array('filter_type' => $url_filter_settings[ HA_Common::FILTER_TYPE_OPTION ]);
 	}
 
 	/**
 	 * Check options if applying filters
 	 */
 	function get_url_excluded($current_url) {
-		$url_filter_settings = get_option(HUT_Common::URL_FILTERS_SETTINGS_KEY);
-		$apply_URL_filters = $url_filter_settings[ HUT_Common::APPLY_URL_FILTERS_OPTION ];
+		$url_filter_settings = get_option(HA_Common::URL_FILTERS_SETTINGS_KEY);
+		$apply_URL_filters = $url_filter_settings[ HA_Common::APPLY_URL_FILTERS_OPTION ];
 
-		$general_settings = get_option(HUT_Common::GENERAL_SETTINGS_KEY);
-		$draw_heat_map_enabled = $general_settings[ HUT_Common::DRAW_HEAT_MAP_ENABLED_OPTION ];
-		$save_click_or_tap_enabled = $general_settings[ HUT_Common::SAVE_CLICK_TAP_OPTION ];
+		$general_settings = get_option(HA_Common::GENERAL_SETTINGS_KEY);
+		$draw_heat_map_enabled = $general_settings[ HA_Common::DRAW_HEAT_MAP_ENABLED_OPTION ];
+		$save_click_or_tap_enabled = $general_settings[ HA_Common::SAVE_CLICK_TAP_OPTION ];
 
 		$url_excluded = 0;
 		// Also check if at least one of the options is true to improve performance
 		if ( $apply_URL_filters == true && ( $draw_heat_map_enabled == true || $save_click_or_tap_enabled == true ) ) {
 			// check if enabled
-			$filter_type = $url_filter_settings[ HUT_Common::FILTER_TYPE_OPTION ];
+			$filter_type = $url_filter_settings[ HA_Common::FILTER_TYPE_OPTION ];
 
 			// get url list
-			$url_filters_list = preg_split("/[\r\n,]+/", $url_filter_settings[HUT_Common::URL_FILTERS_LIST_OPTION], -1, PREG_SPLIT_NO_EMPTY);
+			$url_filters_list = preg_split("/[\r\n,]+/", $url_filter_settings[HA_Common::URL_FILTERS_LIST_OPTION], -1, PREG_SPLIT_NO_EMPTY);
 
-			if ( $filter_type == HUT_Common::BLACKLIST_VALUE ) { // excludes
+			if ( $filter_type == HA_Common::BLACKLIST_VALUE ) { // excludes
 				foreach ($url_filters_list as $url) {
 					$url = trim($url, '&#13;&#10;');
 					
@@ -200,7 +199,7 @@ class HUT_Frontend_Controller {
 	function get_custom_events($url) {
 		global $wpdb;
 		$custom_events = array();
-		$query = 'SELECT * FROM ' . $wpdb->prefix.HUT_Common::CUSTOM_EVENT_TBL_NAME . ' WHERE ' . HUT_Common::URL_COLUMN. ' = "' . $url . '" OR ' . HUT_Common::URL_COLUMN . ' = ""';
+		$query = 'SELECT * FROM ' . $wpdb->prefix.HA_Common::CUSTOM_EVENT_TBL_NAME . ' WHERE ' . HA_Common::URL_COLUMN. ' = "' . $url . '" OR ' . HA_Common::URL_COLUMN . ' = ""';
 		$rows = $wpdb->get_results($query);
 		foreach ($rows as $row) {
 			array_push($custom_events, array(
@@ -220,7 +219,7 @@ class HUT_Frontend_Controller {
 	 * @return
 	 */
 	function get_schedule_check() {
-		$schedule_settings = get_option(HUT_Common::SCHEDULE_SETTINGS_KEY);
+		$schedule_settings = get_option(HA_Common::SCHEDULE_SETTINGS_KEY);
 
 		$schedule_check = 1;
 		// from server or to user - get_date_from_gmt
@@ -228,7 +227,7 @@ class HUT_Frontend_Controller {
 		$today = strtotime( get_gmt_from_date( get_date_from_gmt( date("Y-m-d H:i:s") ) ) );
 
 		// scheduled start date
-		$scheduled_start_date = $schedule_settings[ HUT_Common::SCHEDULED_START_DATE_OPTION ];
+		$scheduled_start_date = $schedule_settings[ HA_Common::SCHEDULED_START_DATE_OPTION ];
 		if ( isset($scheduled_start_date) && ! empty( $scheduled_start_date ) ) {
 
 			$scheduled_start_date_parts = explode(' ', get_date_from_gmt( $scheduled_start_date) );
@@ -245,7 +244,7 @@ class HUT_Frontend_Controller {
 		}
 
 		// scheduled end date
-		$scheduled_end_date = $schedule_settings[ HUT_Common::SCHEDULED_END_DATE_OPTION ];
+		$scheduled_end_date = $schedule_settings[ HA_Common::SCHEDULED_END_DATE_OPTION ];
 		if ( $scheduled_start_date != 0 && isset($scheduled_end_date) && ! empty($scheduled_end_date) ) {
 
 			$scheduled_end_date_parts = explode(' ', get_date_from_gmt( $scheduled_end_date) );
@@ -264,49 +263,34 @@ class HUT_Frontend_Controller {
 	}
 
 	function get_general_settings() {
-		$general_settings = get_option(HUT_Common::GENERAL_SETTINGS_KEY);
+		$general_settings = get_option(HA_Common::GENERAL_SETTINGS_KEY);
 
 		return array(
-				'draw_heat_map_enabled' => $general_settings[ HUT_Common::DRAW_HEAT_MAP_ENABLED_OPTION ],
-				'save_click_or_tap_enabled' => $general_settings[ HUT_Common::SAVE_CLICK_TAP_OPTION ],
-				'debug' => $general_settings[ HUT_Common::DEBUG_OPTION ],
-				'save_ajax_actions' =>  $general_settings[ HUT_Common::SAVE_AJAX_ACTIONS_OPTION ],
-				'save_custom_events' => $general_settings[ HUT_Common::SAVE_CUSTOM_EVENTS_OPTION ],
-				'save_page_views' => $general_settings[ HUT_Common::SAVE_PAGE_VIEWS_OPTION ]
+				'draw_heat_map_enabled' => $general_settings[ HA_Common::DRAW_HEAT_MAP_ENABLED_OPTION ],
+				'save_click_or_tap_enabled' => $general_settings[ HA_Common::SAVE_CLICK_TAP_OPTION ],
+				'debug' => $general_settings[ HA_Common::DEBUG_OPTION ],
+				'save_ajax_actions' =>  $general_settings[ HA_Common::SAVE_AJAX_ACTIONS_OPTION ],
+				'save_custom_events' => $general_settings[ HA_Common::SAVE_CUSTOM_EVENTS_OPTION ],
+				'save_page_views' => $general_settings[ HA_Common::SAVE_PAGE_VIEWS_OPTION ]
 		);
 
 	}
 
 	function get_heat_map_settings() {
-		$heat_map_settings = get_option(HUT_Common::HEAT_MAP_SETTINGS_KEY);
+		$heat_map_settings = get_option(HA_Common::HEAT_MAP_SETTINGS_KEY);
 
 		return array(
-				'hot_value' => $heat_map_settings[HUT_Common::HOT_VALUE_OPTION],
-				'spot_opacity' =>  $heat_map_settings[ HUT_Common::SPOT_OPACITY_OPTION ],
-				'spot_radius' =>  $heat_map_settings[ HUT_Common::SPOT_RADIUS_OPTION ],
-				'use_heatmapjs' => $heat_map_settings[ HUT_Common::USE_HEATMAPJS_OPTION ],
-				'ignore_width' => $heat_map_settings[ HUT_Common::IGNORE_WIDTH_OPTION ],
-				'width_allowance' => $heat_map_settings[ HUT_Common::WIDTH_ALLOWANCE_OPTION ],
-				'ignore_device' => $heat_map_settings[ HUT_Common::IGNORE_DEVICE_OPTION ],
-				'ignore_os' => $heat_map_settings[ HUT_Common::IGNORE_OS_OPTION ],
-				'ignore_browser' => $heat_map_settings[ HUT_Common::IGNORE_BROWSER_OPTION ],
-				'hide_roles' => $heat_map_settings[ HUT_Common::HIDE_ROLES_OPTION ]
+				'hot_value' => $heat_map_settings[HA_Common::HOT_VALUE_OPTION],
+				'spot_opacity' =>  $heat_map_settings[ HA_Common::SPOT_OPACITY_OPTION ],
+				'spot_radius' =>  $heat_map_settings[ HA_Common::SPOT_RADIUS_OPTION ],
+				'use_heatmapjs' => $heat_map_settings[ HA_Common::USE_HEATMAPJS_OPTION ],
+				'ignore_width' => $heat_map_settings[ HA_Common::IGNORE_WIDTH_OPTION ],
+				'width_allowance' => $heat_map_settings[ HA_Common::WIDTH_ALLOWANCE_OPTION ],
+				'ignore_device' => $heat_map_settings[ HA_Common::IGNORE_DEVICE_OPTION ],
+				'ignore_os' => $heat_map_settings[ HA_Common::IGNORE_OS_OPTION ],
+				'ignore_browser' => $heat_map_settings[ HA_Common::IGNORE_BROWSER_OPTION ],
+				'hide_roles' => $heat_map_settings[ HA_Common::HIDE_ROLES_OPTION ]
 		);
-	}
-	
-	function get_remote_settings() {
-		$remote_settings = get_option(HUT_Common::REMOTE_SETTINGS_KEY);
-		$remote_url = $remote_settings[ HUT_Common::REMOTE_URL_OPTION ];
-		$api_key = $remote_settings[ HUT_Common::REMOTE_API_KEY_OPTION ];
-		$remote_enabled = HUT_Common::is_remote_enabled($remote_url, $api_key);
-		
-		return array(
-				'remote_enabled' => $remote_enabled,
-				'remote_api_key' => base64_encode($api_key),
-				'remote_url' => $remote_url
-			);
-		
-	
 	}
 
 }

@@ -7,17 +7,17 @@ require_once dirname( __FILE__ ) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARA
 require_once dirname( __FILE__ ) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'tables' . DIRECTORY_SEPARATOR . 'users-table.php';
 require_once dirname( __FILE__ ) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'tables' . DIRECTORY_SEPARATOR . 'user-activity-table.php';
 
-class HUT_Admin_Page_View {
+class HA_Admin_Page_View {
 	
 	
 	public static function settings_page($tabs) {
-		$current_tab = isset( $_GET['tab'] ) ? $_GET['tab'] : HUT_Common::GENERAL_SETTINGS_TAB;
+		$current_tab = isset( $_GET['tab'] ) ? $_GET['tab'] : HA_Common::GENERAL_SETTINGS_TAB;
 		?>
 		<div class="wrap">
 			<?php 
 			
-			HUT_Admin_Page_View::page_header('Settings');
-			HUT_Admin_Page_View::show_page_tabs(HUT_Common::SETTINGS_PAGE_SLUG, $tabs, $current_tab);
+			HA_Admin_Page_View::page_header('Settings');
+			HA_Admin_Page_View::show_page_tabs(HA_Common::SETTINGS_PAGE_SLUG, $tabs, $current_tab);
 			
 			if ( isset( $_GET['updated'] ) && isset( $_GET['page'] ) ) {
 				add_settings_error('general', 'settings_updated', __('Settings saved.'), 'updated');
@@ -25,38 +25,33 @@ class HUT_Admin_Page_View {
 			
 			settings_errors();
 			
-			if ($current_tab == HUT_Common::GENERAL_SETTINGS_TAB)
-				HUT_Admin_Page_View::show_settings_form(HUT_Common::GENERAL_SETTINGS_KEY);
-			else if ($current_tab == HUT_Common::SCHEDULE_SETTINGS_TAB)
-				HUT_Admin_Page_View::show_settings_form(HUT_Common::SCHEDULE_SETTINGS_KEY);
-			else if ($current_tab == HUT_Common::HEAT_MAP_SETTINGS_TAB)
-				HUT_Admin_Page_View::show_settings_form(HUT_Common::HEAT_MAP_SETTINGS_KEY);
-			else if ($current_tab == HUT_Common::URL_FILTERS_SETTINGS_TAB) {
-				HUT_Admin_Page_View::show_settings_form(HUT_Common::URL_FILTERS_SETTINGS_KEY);
-			} else if ($current_tab == HUT_Common::REMOTE_SETTINGS_TAB) {
+			if ($current_tab == HA_Common::GENERAL_SETTINGS_TAB)
+				HA_Admin_Page_View::show_settings_form(HA_Common::GENERAL_SETTINGS_KEY);
+			else if ($current_tab == HA_Common::SCHEDULE_SETTINGS_TAB)
+				HA_Admin_Page_View::show_settings_form(HA_Common::SCHEDULE_SETTINGS_KEY);
+			else if ($current_tab == HA_Common::HEAT_MAP_SETTINGS_TAB)
+				HA_Admin_Page_View::show_settings_form(HA_Common::HEAT_MAP_SETTINGS_KEY);
+			else if ($current_tab == HA_Common::URL_FILTERS_SETTINGS_TAB) {
+				HA_Admin_Page_View::show_settings_form(HA_Common::URL_FILTERS_SETTINGS_KEY);
+			} else if ($current_tab == HA_Common::REMOTE_SETTINGS_TAB) {
+	
+				do_action('remote_settings_view');
+				
+				if (!class_exists('HARC_Remote_Settings_View')) {
 				?>
-				<form method="post" name="<?php echo HUT_Common::REMOTE_SETTINGS_KEY; ?>" action="options.php" class="hut-settings-form">
+					<h3>Remote Client Settings</h3>
+					<p> This plugin makes additional AJAX requests for each event (mouse click, touch screen tap, page view, AJAX action and custom events) which increases the load on your server and impacts performance. You can setup some remote settings to direct all events to be saved and managed on a remote WordPress website, so that performance is not impacted. For more 
+					informatiom, <a href="http://danielpowney.com/downloads/hotspots-analytics-remote-bundle">click here</a>.</p>
+				<?php 
+				}
+				
+			} else if ($current_tab == HA_Common::DATABASE_SETTINGS_TAB) {
+				?>
+				<form method="post" name="<?php echo HA_Common::DATABASE_SETTINGS_KEY; ?>" action="options.php" class="hut-settings-form">
 					<?php
 					wp_nonce_field( 'update-options' );
-					settings_fields( HUT_Common::REMOTE_SETTINGS_KEY );
-					do_settings_sections( HUT_Common::REMOTE_SETTINGS_KEY );
-					?>
-					<p class="submit">
-						<?php 
-						submit_button(null, 'primary', 'submit', false, null);
-						submit_button('Test Remote Connection', 'secondary', 'test-connection', false, null);
-						?>
-					</p>
-					<input type="hidden" name="test-connection-flag" id="test-connection-flag" value="false" />
-				</form>
-				<?php
-			} else if ($current_tab == HUT_Common::DATABASE_SETTINGS_TAB) {
-				?>
-				<form method="post" name="<?php echo HUT_Common::DATABASE_SETTINGS_KEY; ?>" action="options.php" class="hut-settings-form">
-					<?php
-					wp_nonce_field( 'update-options' );
-					settings_fields( HUT_Common::DATABASE_SETTINGS_KEY );
-					do_settings_sections( HUT_Common::DATABASE_SETTINGS_KEY );
+					settings_fields( HA_Common::DATABASE_SETTINGS_KEY );
+					do_settings_sections( HA_Common::DATABASE_SETTINGS_KEY );
 					?>
 					<p class="submit">
 						<?php 
@@ -67,7 +62,7 @@ class HUT_Admin_Page_View {
 					<input type="hidden" name="clear-database-flag" id="clear-database-flag" value="false" />
 				</form>
 				<?php
-			} else if ($current_tab == HUT_Common::CUSTOM_EVENTS_SETTINGS_TAB) {
+			} else if ($current_tab == HA_Common::CUSTOM_EVENTS_SETTINGS_TAB) {
 				echo '<h3>Custom Events</h3>';
 				if ( isset( $_POST['eventType']) && isset( $_POST['customEvent'])) {
 					$event_type = isset($_POST['eventType']) ? $_POST['eventType'] : '';
@@ -75,7 +70,7 @@ class HUT_Admin_Page_View {
 					$description = isset($_POST['description']) ? $_POST['description'] : '';
 				
 					$url = isset( $_POST['url'] ) ? trim( $_POST['url'] ) : '';
-					$url = HUT_Common::normalize_url( $url );
+					$url = HA_Common::normalize_url( $url );
 					$url = addslashes($url);
 				
 					$is_form_submit = isset( $_POST['isFormSubmit'] ) ? true : false;
@@ -95,14 +90,14 @@ class HUT_Admin_Page_View {
 					if ($valid_input == true) {
 						global $wpdb;
 						try {
-							$results = $wpdb->insert( $wpdb->prefix.HUT_Common::CUSTOM_EVENT_TBL_NAME, array( 
-									HUT_Common::DESCRIPTION_COLUMN => $description,
-									HUT_Common::CUSTOM_EVENT_COLUMN => $custom_event, 
-									HUT_Common::EVENT_TYPE_COLUMN => $event_type, 
-									HUT_Common::URL_COLUMN => $url, 
-									HUT_Common::IS_FORM_SUBMIT_COLUMN => $is_form_submit,
-									HUT_Common::IS_MOUSE_CLICK_COLUMN => $is_mouse_click,
-									HUT_Common::IS_TOUCHSCREEN_TAP_COLUMN => $is_touchscreen_tap ) );
+							$results = $wpdb->insert( $wpdb->prefix.HA_Common::CUSTOM_EVENT_TBL_NAME, array( 
+									HA_Common::DESCRIPTION_COLUMN => $description,
+									HA_Common::CUSTOM_EVENT_COLUMN => $custom_event, 
+									HA_Common::EVENT_TYPE_COLUMN => $event_type, 
+									HA_Common::URL_COLUMN => $url, 
+									HA_Common::IS_FORM_SUBMIT_COLUMN => $is_form_submit,
+									HA_Common::IS_MOUSE_CLICK_COLUMN => $is_mouse_click,
+									HA_Common::IS_TOUCHSCREEN_TAP_COLUMN => $is_touchscreen_tap ) );
 							echo '<div class="success"><p>Custom event added successfully.</p></div>';
 						} catch ( Exception $e ) {
 							echo '<div class="error"><p>An error occurred. ' . $e->getMessage() . '</p></div>';
@@ -166,7 +161,7 @@ class HUT_Admin_Page_View {
 							
 				<form method="post">
 					<?php 
-					$custom_event_table = new HUT_Custom_Event_Table();
+					$custom_event_table = new HA_Custom_Event_Table();
 					$custom_event_table->prepare_items();
 					$custom_event_table->display();
 					?>
@@ -184,61 +179,61 @@ class HUT_Admin_Page_View {
 		?>
 		<div class="wrap">
 			<?php 
-			HUT_Admin_Page_View::page_header('Heatmaps');
+			HA_Admin_Page_View::page_header('Heatmaps');
 			?>
 			<form method="post">
 				<?php
-				$hut_heatmaps_table = new HUT_Heatmaps_Table();
-				$hut_heatmaps_table->prepare_items();
-				$hut_heatmaps_table->display();
+				$ha_heatmaps_table = new HA_Heatmaps_Table();
+				$ha_heatmaps_table->prepare_items();
+				$ha_heatmaps_table->display();
 				?>
 			</form>
 		</div>
 		
 		<?php
-		HUT_Admin_Page_View::show_donate_link();
+		HA_Admin_Page_View::show_donate_link();
 	}
 	
 	public static function users_page($tabs) {
-		$current_tab = isset( $_GET['tab'] ) ? $_GET['tab'] : HUT_Common::USERS_TAB;
+		$current_tab = isset( $_GET['tab'] ) ? $_GET['tab'] : HA_Common::USERS_TAB;
 		?>
 		<div class="wrap">
 			<?php 
-			HUT_Admin_Page_View::page_header('Users');
-			HUT_Admin_Page_View::show_page_tabs(HUT_Common::USERS_PAGE_SLUG, $tabs, $current_tab);
+			HA_Admin_Page_View::page_header('Users');
+			HA_Admin_Page_View::show_page_tabs(HA_Common::USERS_PAGE_SLUG, $tabs, $current_tab);
 			
-			if ($current_tab == HUT_Common::USERS_TAB) {
-				HUT_Admin_Page_View::show_users_tab();
-			} else if ($current_tab == HUT_Common::USER_ACTIVITY_TAB) {
-				HUT_Admin_Page_View::show_user_activity_tab();
+			if ($current_tab == HA_Common::USERS_TAB) {
+				HA_Admin_Page_View::show_users_tab();
+			} else if ($current_tab == HA_Common::USER_ACTIVITY_TAB) {
+				HA_Admin_Page_View::show_user_activity_tab();
 			}
 			?>
 		</div>
 		
 		<?php
-		HUT_Admin_Page_View::show_donate_link();
+		HA_Admin_Page_View::show_donate_link();
 	}
 	
 	public static function reports_page($tabs) {
-		$current_tab = isset( $_GET['tab'] ) ? $_GET['tab'] : HUT_Common::SUMMARY_REPORT_TAB;
+		$current_tab = isset( $_GET['tab'] ) ? $_GET['tab'] : HA_Common::SUMMARY_REPORT_TAB;
 		?>
 		<div class="wrap">
 			<?php 
-			HUT_Admin_Page_View::page_header('Reports');
-			HUT_Admin_Page_View::show_page_tabs(HUT_Common::REPORTS_PAGE_SLUG, $tabs, $current_tab);
+			HA_Admin_Page_View::page_header('Reports');
+			HA_Admin_Page_View::show_page_tabs(HA_Common::REPORTS_PAGE_SLUG, $tabs, $current_tab);
 			
-			if ($current_tab == HUT_Common::CUSTOM_EVENT_REPORT_TAB) {
-				HUT_Report_View::show_custom_events_report_tab();
-			} else if ($current_tab == HUT_Common::EVENTS_REPORT_TAB) {
-				HUT_Report_View::show_events_report_tab();
-			} else if ($current_tab == HUT_Common::SUMMARY_REPORT_TAB) {
-				HUT_Report_View::show_summary_report_tab();
+			if ($current_tab == HA_Common::CUSTOM_EVENT_REPORT_TAB) {
+				HA_Report_View::show_custom_events_report_tab();
+			} else if ($current_tab == HA_Common::EVENTS_REPORT_TAB) {
+				HA_Report_View::show_events_report_tab();
+			} else if ($current_tab == HA_Common::SUMMARY_REPORT_TAB) {
+				HA_Report_View::show_summary_report_tab();
 			}
 			?>
 		</div>
 		
 		<?php
-		HUT_Admin_Page_View::show_donate_link();
+		HA_Admin_Page_View::show_donate_link();
 	}
 	
 	public static function show_page_tabs($page, $tabs, $current_tab) {
@@ -258,9 +253,9 @@ class HUT_Admin_Page_View {
 		?>
 		<form method="post">
 			<?php 
-			$hut_users_table = new HUT_Users_Table();
-			$hut_users_table->prepare_items();
-			$hut_users_table->display();
+			$ha_users_table = new HA_Users_Table();
+			$ha_users_table->prepare_items();
+			$ha_users_table->display();
 			?>
 		</form>
 		<?php
@@ -270,7 +265,7 @@ class HUT_Admin_Page_View {
 		<form method="post">
 			<div class="tablenav top">
 				<?php 
-				$query_helper = new HUT_Query_Helper();
+				$query_helper = new HA_Query_Helper();
 				$filters = array(
 						'ip_address' => true,
 						'session_id' => true,
@@ -288,18 +283,18 @@ class HUT_Admin_Page_View {
 				?>
 			</div>
 			<div id="poststuff" class="">
-		        <div id="post-body" class="metabox-holder hut-columns-2">
+		        <div id="post-body" class="metabox-holder">
 	                <?php wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false ); ?>
 	                <?php wp_nonce_field('meta-box-order', 'meta-box-order-nonce', false ); ?>
-	                <?php add_meta_box("user-activity-summary-metabox", "Summary", array('HUT_Report_View', "user_activity_summary_metabox"), HUT_Common::REPORTS_PAGE_SLUG, "normal");?>
-	                <?php do_meta_boxes(HUT_Common::REPORTS_PAGE_SLUG,'normal', array());?>
+	                <?php add_meta_box("user-activity-summary-metabox", "Summary", array('HA_Report_View', "user_activity_summary_metabox"), HA_Common::REPORTS_PAGE_SLUG, "normal");?>
+	                <?php do_meta_boxes(HA_Common::REPORTS_PAGE_SLUG,'normal', array());?>
 	
 				</div>
 			</div>
 			<?php 
-			$hut_user_activity_table = new HUT_User_Activity_Table();
-			$hut_user_activity_table->prepare_items();
-			$hut_user_activity_table->display();
+			$user_activity_table = new HA_User_Activity_Table();
+			$user_activity_table->prepare_items();
+			$user_activity_table->display();
 			?>
 		</form>
 		<?php

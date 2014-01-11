@@ -6,7 +6,6 @@ require_once dirname( __FILE__ ) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARA
 require_once dirname( __FILE__ ) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'heatmap-settings-view.php';
 require_once dirname( __FILE__ ) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'url-filters-settings-view.php';
 require_once dirname( __FILE__ ) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'database-settings-view.php';
-require_once dirname( __FILE__ ) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'remote-settings-view.php';
 require_once dirname( __FILE__ ) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-page-view.php';
 require_once dirname( __FILE__ ) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'services' . DIRECTORY_SEPARATOR . 'local-data-services.php';
 
@@ -16,7 +15,7 @@ require_once dirname( __FILE__ ) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARA
  * @author dpowney
  *
  */
-class HUT_Admin_Controller {
+class HA_Admin_Controller {
 	
 	public $settings_tabs = array();
 	public $users_tabs = array();
@@ -28,7 +27,6 @@ class HUT_Admin_Controller {
 	public $schedule_settings = array();
 	public $database_settings = array();
 	private $url_filters_settings = array();
-	private $remote_settings = array();
 	
 	private $data_services = null;
 	
@@ -56,22 +54,21 @@ class HUT_Admin_Controller {
 		add_action( 'admin_init', array( &$this, 'register_heat_map_settings' ) );
 		add_action( 'admin_init', array( &$this, 'register_url_filters_settings' ) );
 		add_action( 'admin_init', array( &$this, 'register_database_settings' ) );
-		add_action( 'admin_init', array( &$this, 'register_remote_settings' ) );
 
-		$this->settings_tabs[HUT_Common::GENERAL_SETTINGS_TAB] = 'General';
-		$this->settings_tabs[HUT_Common::SCHEDULE_SETTINGS_TAB] = 'Schedule';
-		$this->settings_tabs[HUT_Common::HEAT_MAP_SETTINGS_TAB] = 'Heatmap';
-		$this->settings_tabs[HUT_Common::URL_FILTERS_SETTINGS_TAB] = 'URL Filters';
-		$this->settings_tabs[HUT_Common::DATABASE_SETTINGS_TAB] = 'Database';
-		$this->settings_tabs[HUT_Common::CUSTOM_EVENTS_SETTINGS_TAB] = 'Custom Events';
-		$this->settings_tabs[HUT_Common::REMOTE_SETTINGS_TAB] = 'Remote Client';
+		$this->settings_tabs[HA_Common::GENERAL_SETTINGS_TAB] = 'General';
+		$this->settings_tabs[HA_Common::SCHEDULE_SETTINGS_TAB] = 'Schedule';
+		$this->settings_tabs[HA_Common::HEAT_MAP_SETTINGS_TAB] = 'Heatmap';
+		$this->settings_tabs[HA_Common::URL_FILTERS_SETTINGS_TAB] = 'URL Filters';
+		$this->settings_tabs[HA_Common::DATABASE_SETTINGS_TAB] = 'Database';
+		$this->settings_tabs[HA_Common::CUSTOM_EVENTS_SETTINGS_TAB] = 'Custom Events';
+		$this->settings_tabs[HA_Common::REMOTE_SETTINGS_TAB] = 'Remote Client';
 		
-		$this->users_tabs[HUT_Common::USERS_TAB] = 'Users';
-		$this->users_tabs[HUT_Common::USER_ACTIVITY_TAB] = 'User Activity';
+		$this->users_tabs[HA_Common::USERS_TAB] = 'Users';
+		$this->users_tabs[HA_Common::USER_ACTIVITY_TAB] = 'User Activity';
 		
-		$this->reports_tabs[HUT_Common::SUMMARY_REPORT_TAB] = 'Summary';
-		$this->reports_tabs[HUT_Common::EVENTS_REPORT_TAB] = 'Events';
-		$this->reports_tabs[HUT_Common::CUSTOM_EVENT_REPORT_TAB] = 'Custom Events';
+		$this->reports_tabs[HA_Common::SUMMARY_REPORT_TAB] = 'Summary';
+		$this->reports_tabs[HA_Common::EVENTS_REPORT_TAB] = 'Events';
+		$this->reports_tabs[HA_Common::CUSTOM_EVENT_REPORT_TAB] = 'Custom Events';
 		
 		// Create settings page, add JavaScript and CSS
 		if( is_admin() ) {
@@ -82,9 +79,9 @@ class HUT_Admin_Controller {
 		// Setup AJAX calls
 		$this->add_ajax_actions();
 		
-		$this->data_services = new HUT_Local_Data_Services();
+		$this->data_services = new HA_Local_Data_Services();
 		
-		do_action('hut_admin_controller_assets', $this);
+		do_action('ha_admin_controller_assets', $this);
 	}
 
 	/**
@@ -122,57 +119,57 @@ class HUT_Admin_Controller {
 		 */
 		
 		// Create database tables
-		$query = 'CREATE TABLE '.$wpdb->prefix.HUT_Common::USER_TBL_NAME.' (
-		'.HUT_Common::ID_COLUMN.' int(11) NOT NULL AUTO_INCREMENT,
-		'.HUT_Common::IP_ADDRESS_COLUMN.' varchar(255),
-		'.HUT_Common::SESSION_ID_COLUMN.' varchar(255),
-		'.HUT_Common::USER_ROLE_COLUMN.' varchar(255) DEFAULT "",
-		'.HUT_Common::USERNAME_COLUMN.' varchar(255) DEFAULT "",
-		'.HUT_Common::LAST_UPDT_DATE_COLUMN.' DATETIME,
-		PRIMARY KEY  ('.HUT_Common::ID_COLUMN.')
+		$query = 'CREATE TABLE '.$wpdb->prefix.HA_Common::USER_TBL_NAME.' (
+		'.HA_Common::ID_COLUMN.' int(11) NOT NULL AUTO_INCREMENT,
+		'.HA_Common::IP_ADDRESS_COLUMN.' varchar(255),
+		'.HA_Common::SESSION_ID_COLUMN.' varchar(255),
+		'.HA_Common::USER_ROLE_COLUMN.' varchar(255) DEFAULT "",
+		'.HA_Common::USERNAME_COLUMN.' varchar(255) DEFAULT "",
+		'.HA_Common::LAST_UPDT_DATE_COLUMN.' DATETIME,
+		PRIMARY KEY  ('.HA_Common::ID_COLUMN.')
 		) ENGINE=InnoDB AUTO_INCREMENT=1;';
 		dbDelta( $query );
 		
-		$query = 'CREATE TABLE '.$wpdb->prefix.HUT_Common::USER_ENV_TBL_NAME.' (
-		'.HUT_Common::ID_COLUMN.' int(11) NOT NULL AUTO_INCREMENT,
-		'.HUT_Common::USER_ID_COLUMN.' int(11) NOT NULL,
-		'.HUT_Common::BROWSER_COLUMN.' varchar(255),
-		'.HUT_Common::OS_COLUMN.' varchar(255),
-		'.HUT_Common::DEVICE_COLUMN.' varchar(255),
-		'.HUT_Common::LAST_UPDT_DATE_COLUMN.' DATETIME,
-		PRIMARY KEY  ('.HUT_Common::ID_COLUMN.')
+		$query = 'CREATE TABLE '.$wpdb->prefix.HA_Common::USER_ENV_TBL_NAME.' (
+		'.HA_Common::ID_COLUMN.' int(11) NOT NULL AUTO_INCREMENT,
+		'.HA_Common::USER_ID_COLUMN.' int(11) NOT NULL,
+		'.HA_Common::BROWSER_COLUMN.' varchar(255),
+		'.HA_Common::OS_COLUMN.' varchar(255),
+		'.HA_Common::DEVICE_COLUMN.' varchar(255),
+		'.HA_Common::LAST_UPDT_DATE_COLUMN.' DATETIME,
+		PRIMARY KEY  ('.HA_Common::ID_COLUMN.')
 		) ENGINE=InnoDB AUTO_INCREMENT=1;';
 		dbDelta( $query );
 		
 		// User event table
-		$query = 'CREATE TABLE '.$wpdb->prefix.HUT_Common::USER_EVENT_TBL_NAME.' (
-		'.HUT_Common::ID_COLUMN.' int(11) NOT NULL AUTO_INCREMENT,
-		'.HUT_Common::USER_ID_COLUMN.' int(11) NOT NULL,
-		'.HUT_Common::USER_ENV_ID_COLUMN.' int(11) NOT NULL,
-		'.HUT_Common::EVENT_TYPE_COLUMN.' varchar(50) NOT NULL,
-		'.HUT_Common::URL_COLUMN.' varchar(255) NOT NULL,
-		'.HUT_Common::X_COORD_COLUMN.' int(11),
-		'.HUT_Common::Y_COORD_COLUMN.' int(11),
-		'.HUT_Common::PAGE_WIDTH_COLUMN.' int(11),
-		'.HUT_Common::RECORD_DATE_COLUMN.' DATETIME,
-		'.HUT_Common::DATA_COLUMN.' varchar(255),
-		'.HUT_Common::DESCRIPTION_COLUMN.' varchar(255),
-		'.HUT_Common::LAST_UPDT_DATE_COLUMN.' DATETIME,
-		PRIMARY KEY  ('.HUT_Common::ID_COLUMN.')
+		$query = 'CREATE TABLE '.$wpdb->prefix.HA_Common::USER_EVENT_TBL_NAME.' (
+		'.HA_Common::ID_COLUMN.' int(11) NOT NULL AUTO_INCREMENT,
+		'.HA_Common::USER_ID_COLUMN.' int(11) NOT NULL,
+		'.HA_Common::USER_ENV_ID_COLUMN.' int(11) NOT NULL,
+		'.HA_Common::EVENT_TYPE_COLUMN.' varchar(50) NOT NULL,
+		'.HA_Common::URL_COLUMN.' varchar(255) NOT NULL,
+		'.HA_Common::X_COORD_COLUMN.' int(11),
+		'.HA_Common::Y_COORD_COLUMN.' int(11),
+		'.HA_Common::PAGE_WIDTH_COLUMN.' int(11),
+		'.HA_Common::RECORD_DATE_COLUMN.' DATETIME,
+		'.HA_Common::DATA_COLUMN.' varchar(255),
+		'.HA_Common::DESCRIPTION_COLUMN.' varchar(255),
+		'.HA_Common::LAST_UPDT_DATE_COLUMN.' DATETIME,
+		PRIMARY KEY  ('.HA_Common::ID_COLUMN.')
 		) ENGINE=InnoDB AUTO_INCREMENT=1;';
 		dbDelta( $query );
 		
 		// Custom event table
-		$query = 'CREATE TABLE '.$wpdb->prefix.HUT_Common::CUSTOM_EVENT_TBL_NAME.' (
-		'.HUT_Common::ID_COLUMN.' int(11) NOT NULL AUTO_INCREMENT,
-		'.HUT_Common::EVENT_TYPE_COLUMN.' varchar(255),
-		'.HUT_Common::DESCRIPTION_COLUMN.' varchar(255),
-		'.HUT_Common::CUSTOM_EVENT_COLUMN.' varchar(255),
-		'.HUT_Common::URL_COLUMN.' varchar(255),
-		'.HUT_Common::IS_FORM_SUBMIT_COLUMN. ' tinyint(1) DEFAULT 0,
-		'.HUT_Common::IS_MOUSE_CLICK_COLUMN. ' tinyint(1) DEFAULT 1,
-		'.HUT_Common::IS_TOUCHSCREEN_TAP_COLUMN. ' tinyint(1) DEFAULT 0,
-		PRIMARY KEY  ('.HUT_Common::ID_COLUMN.')
+		$query = 'CREATE TABLE '.$wpdb->prefix.HA_Common::CUSTOM_EVENT_TBL_NAME.' (
+		'.HA_Common::ID_COLUMN.' int(11) NOT NULL AUTO_INCREMENT,
+		'.HA_Common::EVENT_TYPE_COLUMN.' varchar(255),
+		'.HA_Common::DESCRIPTION_COLUMN.' varchar(255),
+		'.HA_Common::CUSTOM_EVENT_COLUMN.' varchar(255),
+		'.HA_Common::URL_COLUMN.' varchar(255),
+		'.HA_Common::IS_FORM_SUBMIT_COLUMN. ' tinyint(1) DEFAULT 0,
+		'.HA_Common::IS_MOUSE_CLICK_COLUMN. ' tinyint(1) DEFAULT 1,
+		'.HA_Common::IS_TOUCHSCREEN_TAP_COLUMN. ' tinyint(1) DEFAULT 0,
+		PRIMARY KEY  ('.HA_Common::ID_COLUMN.')
 		) ENGINE=InnoDB AUTO_INCREMENT=1;';
 		dbDelta( $query );
 
@@ -184,86 +181,78 @@ class HUT_Admin_Controller {
 	 */
 	public static function uninstall_plugin() {
 		// Delete options
-		delete_option( HUT_Common::GENERAL_SETTINGS_KEY ) ;
-		delete_option( HUT_Common::URL_FILTERS_SETTINGS_KEY );
-		delete_option( HUT_Common::HEAT_MAP_SETTINGS_KEY );
-		delete_option( HUT_Common::SCHEDULE_SETTINGS_KEY );
-		delete_option( HUT_Common::DATABASE_SETTINGS_KEY );
-		delete_option( HUT_Common::REMOTE_SETTINGS_KEY );
+		delete_option( HA_Common::GENERAL_SETTINGS_KEY ) ;
+		delete_option( HA_Common::URL_FILTERS_SETTINGS_KEY );
+		delete_option( HA_Common::HEAT_MAP_SETTINGS_KEY );
+		delete_option( HA_Common::SCHEDULE_SETTINGS_KEY );
+		delete_option( HA_Common::DATABASE_SETTINGS_KEY );
 
 		// Plugin version
-		delete_option( HUT_Common::PLUGIN_VERSION_OPTION );
+		delete_option( HA_Common::PLUGIN_VERSION_OPTION );
 		
 		// Drop tables
 		global $wpdb;
-		$wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . HUT_Common::USER_ENV_TBL_NAME );
-		$wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . HUT_Common::USER_EVENT_TBL_NAME );
-		$wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . HUT_Common::USER_TBL_NAME );
-		$wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . HUT_Common::CUSTOM_EVENT_TBL_NAME );
+		$wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . HA_Common::USER_ENV_TBL_NAME );
+		$wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . HA_Common::USER_EVENT_TBL_NAME );
+		$wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . HA_Common::USER_TBL_NAME );
+		$wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . HA_Common::CUSTOM_EVENT_TBL_NAME );
 	}
 
 	/**
 	 * Retrieve settings from DB and sets default options if not set
 	 */
 	function load_settings() {
-		$this->general_settings = (array) get_option( HUT_Common::GENERAL_SETTINGS_KEY );
-		$this->url_filters_settings = (array) get_option( HUT_Common::URL_FILTERS_SETTINGS_KEY );
-		$this->heat_map_settings = (array) get_option( HUT_Common::HEAT_MAP_SETTINGS_KEY );
-		$this->database_settings = (array) get_option( HUT_Common::DATABASE_SETTINGS_KEY );
-		$this->schedule_settings = (array) get_option( HUT_Common::SCHEDULE_SETTINGS_KEY );
-		$this->remote_settings = (array) get_option( HUT_Common::REMOTE_SETTINGS_KEY );
+		$this->general_settings = (array) get_option( HA_Common::GENERAL_SETTINGS_KEY );
+		$this->url_filters_settings = (array) get_option( HA_Common::URL_FILTERS_SETTINGS_KEY );
+		$this->heat_map_settings = (array) get_option( HA_Common::HEAT_MAP_SETTINGS_KEY );
+		$this->database_settings = (array) get_option( HA_Common::DATABASE_SETTINGS_KEY );
+		$this->schedule_settings = (array) get_option( HA_Common::SCHEDULE_SETTINGS_KEY );
+		$this->remote_settings = (array) get_option( HA_Common::REMOTE_SETTINGS_KEY );
 		
 
 		// Merge with defaults
 		$this->general_settings = array_merge( array(
-				HUT_Common::SAVE_CLICK_TAP_OPTION => true,
-				HUT_Common::DRAW_HEAT_MAP_ENABLED_OPTION => true,
-				HUT_Common::DEBUG_OPTION => false,
-				HUT_Common::SAVE_AJAX_ACTIONS_OPTION => true,
-				HUT_Common::SAVE_CUSTOM_EVENTS_OPTION => true,
-				HUT_Common::SAVE_PAGE_VIEWS_OPTION => true
+				HA_Common::SAVE_CLICK_TAP_OPTION => true,
+				HA_Common::DRAW_HEAT_MAP_ENABLED_OPTION => true,
+				HA_Common::DEBUG_OPTION => false,
+				HA_Common::SAVE_AJAX_ACTIONS_OPTION => true,
+				HA_Common::SAVE_CUSTOM_EVENTS_OPTION => true,
+				HA_Common::SAVE_PAGE_VIEWS_OPTION => true
 		), $this->general_settings );
 
 		$this->schedule_settings = array_merge( array(
-				HUT_Common::SCHEDULED_START_DATE_OPTION => '',
-				HUT_Common::SCHEDULED_END_DATE_OPTION => '',
+				HA_Common::SCHEDULED_START_DATE_OPTION => '',
+				HA_Common::SCHEDULED_END_DATE_OPTION => '',
 		), $this->schedule_settings );
 
 		$this->database_settings = array_merge( array(
-				HUT_Common::URL_DB_LIMIT_OPTION => ''
+				HA_Common::URL_DB_LIMIT_OPTION => ''
 		), $this->database_settings );
 
 		$this->heat_map_settings = array_merge( array(
-				HUT_Common::USE_HEATMAPJS_OPTION => false,
-				HUT_Common::HOT_VALUE_OPTION => 20,
-				HUT_Common::SPOT_OPACITY_OPTION => 0.2,
-				HUT_Common::SPOT_RADIUS_OPTION => 8,
-				HUT_Common::IGNORE_WIDTH_OPTION => false,
-				HUT_Common::IGNORE_DEVICE_OPTION => false,
-				HUT_Common::IGNORE_OS_OPTION => false,
-				HUT_Common::IGNORE_BROWSER_OPTION => false,
-				HUT_Common::WIDTH_ALLOWANCE_OPTION => 6,
-				HUT_Common::HIDE_ROLES_OPTION => null
+				HA_Common::USE_HEATMAPJS_OPTION => false,
+				HA_Common::HOT_VALUE_OPTION => 20,
+				HA_Common::SPOT_OPACITY_OPTION => 0.2,
+				HA_Common::SPOT_RADIUS_OPTION => 8,
+				HA_Common::IGNORE_WIDTH_OPTION => false,
+				HA_Common::IGNORE_DEVICE_OPTION => false,
+				HA_Common::IGNORE_OS_OPTION => false,
+				HA_Common::IGNORE_BROWSER_OPTION => false,
+				HA_Common::WIDTH_ALLOWANCE_OPTION => 6,
+				HA_Common::HIDE_ROLES_OPTION => null
 		), $this->heat_map_settings );
 
 		$this->url_filters_settings = array_merge( array(
-				HUT_Common::APPLY_URL_FILTERS_OPTION => false,
-				HUT_Common::FILTER_TYPE_OPTION => HUT_Common::WHITELIST_VALUE,
-				HUT_Common::URL_FILTERS_LIST_OPTION => ''
+				HA_Common::APPLY_URL_FILTERS_OPTION => false,
+				HA_Common::FILTER_TYPE_OPTION => HA_Common::WHITELIST_VALUE,
+				HA_Common::URL_FILTERS_LIST_OPTION => ''
 		), $this->url_filters_settings );
-		
 
-		$this->remote_settings = array_merge( array(
-				HUT_Common::REMOTE_URL_OPTION => '',
-				HUT_Common::REMOTE_API_KEY_OPTION => ''
-		), $this->remote_settings );
-
-		update_option(HUT_Common::GENERAL_SETTINGS_KEY, $this->general_settings);
-		update_option(HUT_Common::SCHEDULE_SETTINGS_KEY, $this->schedule_settings);
-		update_option(HUT_Common::DATABASE_SETTINGS_KEY, $this->database_settings);
-		update_option(HUT_Common::HEAT_MAP_SETTINGS_KEY, $this->heat_map_settings);
-		update_option(HUT_Common::URL_FILTERS_SETTINGS_KEY, $this->url_filters_settings);
-		update_option(HUT_Common::REMOTE_SETTINGS_KEY, $this->remote_settings);
+		update_option(HA_Common::GENERAL_SETTINGS_KEY, $this->general_settings);
+		update_option(HA_Common::SCHEDULE_SETTINGS_KEY, $this->schedule_settings);
+		update_option(HA_Common::DATABASE_SETTINGS_KEY, $this->database_settings);
+		update_option(HA_Common::HEAT_MAP_SETTINGS_KEY, $this->heat_map_settings);
+		update_option(HA_Common::URL_FILTERS_SETTINGS_KEY, $this->url_filters_settings);
 	}
 
 	/**
@@ -272,41 +261,41 @@ class HUT_Admin_Controller {
 	 * @since 2.0
 	 */
 	public function add_admin_menus() {
-		add_menu_page( __( 'Hotspots', HUT_Common::PLUGIN_ID ), __( 'Hotspots', HUT_Common::PLUGIN_ID ), 'manage_options', HUT_Common::HEATMAPS_PAGE_SLUG, array( &$this, 'heatmaps_page' ), 'dashicons-marker', null );
+		add_menu_page( __( 'Hotspots', HA_Common::PLUGIN_ID ), __( 'Hotspots', HA_Common::PLUGIN_ID ), 'manage_options', HA_Common::HEATMAPS_PAGE_SLUG, array( &$this, 'heatmaps_page' ), 'dashicons-marker', null );
 		
-		add_submenu_page(HUT_Common::HEATMAPS_PAGE_SLUG,'','','manage_options',HUT_Common::HEATMAPS_PAGE_SLUG, array( &$this, 'heatmaps_page' ));
-		add_submenu_page(HUT_Common::HEATMAPS_PAGE_SLUG,'Heatmaps','Heatmaps','manage_options',HUT_Common::HEATMAPS_PAGE_SLUG, array( &$this, 'heatmaps_page' ));
-		add_submenu_page(HUT_Common::HEATMAPS_PAGE_SLUG,'Users','Users','manage_options',HUT_Common::USERS_PAGE_SLUG, array( &$this, 'users_page' ));
-		add_submenu_page(HUT_Common::HEATMAPS_PAGE_SLUG,'Reports','Reports','manage_options',HUT_Common::REPORTS_PAGE_SLUG, array( &$this, 'reports_page' ));
-		add_submenu_page(HUT_Common::HEATMAPS_PAGE_SLUG, 'Settings','Settings','manage_options', HUT_Common::SETTINGS_PAGE_SLUG, array( &$this, 'settings_page' ));
+		add_submenu_page(HA_Common::HEATMAPS_PAGE_SLUG,'','','manage_options',HA_Common::HEATMAPS_PAGE_SLUG, array( &$this, 'heatmaps_page' ));
+		add_submenu_page(HA_Common::HEATMAPS_PAGE_SLUG,'Heatmaps','Heatmaps','manage_options',HA_Common::HEATMAPS_PAGE_SLUG, array( &$this, 'heatmaps_page' ));
+		add_submenu_page(HA_Common::HEATMAPS_PAGE_SLUG,'Users','Users','manage_options',HA_Common::USERS_PAGE_SLUG, array( &$this, 'users_page' ));
+		add_submenu_page(HA_Common::HEATMAPS_PAGE_SLUG,'Reports','Reports','manage_options',HA_Common::REPORTS_PAGE_SLUG, array( &$this, 'reports_page' ));
+		add_submenu_page(HA_Common::HEATMAPS_PAGE_SLUG, 'Settings','Settings','manage_options', HA_Common::SETTINGS_PAGE_SLUG, array( &$this, 'settings_page' ));
 	}
 
 	/**
 	 * Displays the Heatmaps page
 	 */
 	function heatmaps_page() {
-		echo HUT_Admin_Page_View::heatmaps_page();
+		echo HA_Admin_Page_View::heatmaps_page();
 	}
 	
 	/**
 	 * Displays the Users page
 	 */
 	function users_page() {
-		echo HUT_Admin_Page_View::users_page($this->users_tabs);
+		echo HA_Admin_Page_View::users_page($this->users_tabs);
 	}
 	
 	/**
 	 * Displays the Reports page
 	 */
 	function reports_page() {
-		echo HUT_Admin_Page_View::reports_page($this->reports_tabs);
+		echo HA_Admin_Page_View::reports_page($this->reports_tabs);
 	}
 	
 	/**
 	 * Displays the Settings plugin page
 	 */
 	function settings_page() {
-		echo HUT_Admin_Page_View::settings_page($this->settings_tabs);
+		echo HA_Admin_Page_View::settings_page($this->settings_tabs);
 	}
 
 	/**
@@ -317,16 +306,16 @@ class HUT_Admin_Controller {
 	public function assets() {
 		$config_array = array(
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-				'ajaxNonce' => wp_create_nonce( HUT_Common::PLUGIN_ID.'-nonce' )
+				'ajaxNonce' => wp_create_nonce( HA_Common::PLUGIN_ID.'-nonce' )
 		);
 		wp_enqueue_script( 'jquery' );
 
 		$root_relative_path = '..' . DIRECTORY_SEPARATOR . '.. ' . DIRECTORY_SEPARATOR;
 		
 		if ( is_admin() ) {
-			wp_enqueue_style( HUT_Common::PLUGIN_ID.'-admin-style', plugins_url( $root_relative_path . 'css' . DIRECTORY_SEPARATOR . 'admin.css', __FILE__ ) );
-			wp_enqueue_script( HUT_Common::PLUGIN_ID.'-admin-script', plugins_url( $root_relative_path . 'js' . DIRECTORY_SEPARATOR . 'admin.js', __FILE__ ), array( 'jquery' ) );
-			wp_localize_script( HUT_Common::PLUGIN_ID.'-admin-script', HUT_Common::CONFIG_DATA, $config_array );
+			wp_enqueue_style( HA_Common::PLUGIN_ID.'-admin-style', plugins_url( $root_relative_path . 'css' . DIRECTORY_SEPARATOR . 'admin.css', __FILE__ ) );
+			wp_enqueue_script( HA_Common::PLUGIN_ID.'-admin-script', plugins_url( $root_relative_path . 'js' . DIRECTORY_SEPARATOR . 'admin.js', __FILE__ ), array( 'jquery' ) );
+			wp_localize_script( HA_Common::PLUGIN_ID.'-admin-script', HA_Common::CONFIG_DATA, $config_array );
 
 			wp_enqueue_script('jquery-ui-datepicker');
 			wp_enqueue_script('jquery-ui-timepicker');
@@ -351,29 +340,29 @@ class HUT_Admin_Controller {
 	 * Register the General settings
 	 */
 	function register_general_settings() {
-		register_setting( HUT_Common::GENERAL_SETTINGS_KEY, HUT_Common::GENERAL_SETTINGS_KEY, array( 'HUT_General_Settings_View', 'sanitize_general_settings' ) );
+		register_setting( HA_Common::GENERAL_SETTINGS_KEY, HA_Common::GENERAL_SETTINGS_KEY, array( 'HA_General_Settings_View', 'sanitize_general_settings' ) );
 	
-		add_settings_section( 'section_general', 'General Settings', array( 'HUT_General_Settings_View', 'section_general_desc' ), HUT_Common::GENERAL_SETTINGS_KEY );
+		add_settings_section( 'section_general', 'General Settings', array( 'HA_General_Settings_View', 'section_general_desc' ), HA_Common::GENERAL_SETTINGS_KEY );
 	
-		add_settings_field( HUT_Common::SAVE_CLICK_TAP_OPTION, 'Save mouse clicks and touchscreen taps', array( 'HUT_General_Settings_View', 'field_save_click_tap' ), HUT_Common::GENERAL_SETTINGS_KEY, 'section_general' );
-		add_settings_field( HUT_Common::DRAW_HEAT_MAP_ENABLED_OPTION, 'Enable drawing heatmap', array( 'HUT_General_Settings_View', 'field_draw_heat_map_enabled' ), HUT_Common::GENERAL_SETTINGS_KEY, 'section_general' );
-		add_settings_field( HUT_Common::DEBUG_OPTION, 'Debug', array( 'HUT_General_Settings_View', 'field_debug' ), HUT_Common::GENERAL_SETTINGS_KEY, 'section_general' );
+		add_settings_field( HA_Common::SAVE_CLICK_TAP_OPTION, 'Save mouse clicks and touchscreen taps', array( 'HA_General_Settings_View', 'field_save_click_tap' ), HA_Common::GENERAL_SETTINGS_KEY, 'section_general' );
+		add_settings_field( HA_Common::DRAW_HEAT_MAP_ENABLED_OPTION, 'Enable drawing heatmap', array( 'HA_General_Settings_View', 'field_draw_heat_map_enabled' ), HA_Common::GENERAL_SETTINGS_KEY, 'section_general' );
+		add_settings_field( HA_Common::DEBUG_OPTION, 'Debug', array( 'HA_General_Settings_View', 'field_debug' ), HA_Common::GENERAL_SETTINGS_KEY, 'section_general' );
 	
-		add_settings_field( HUT_Common::SAVE_CUSTOM_EVENTS_OPTION, 'Save Custom Events', array( 'HUT_General_Settings_View', 'field_save_custom_events' ), HUT_Common::GENERAL_SETTINGS_KEY, 'section_general' );
-		add_settings_field( HUT_Common::SAVE_AJAX_ACTIONS_OPTION, 'Save AJAX Actions', array( 'HUT_General_Settings_View', 'field_save_ajax_actions' ), HUT_Common::GENERAL_SETTINGS_KEY, 'section_general' );
-		add_settings_field( HUT_Common::SAVE_PAGE_VIEWS_OPTION, 'Save Page Views', array( 'HUT_General_Settings_View', 'field_save_page_views' ), HUT_Common::GENERAL_SETTINGS_KEY, 'section_general' );
+		add_settings_field( HA_Common::SAVE_CUSTOM_EVENTS_OPTION, 'Save Custom Events', array( 'HA_General_Settings_View', 'field_save_custom_events' ), HA_Common::GENERAL_SETTINGS_KEY, 'section_general' );
+		add_settings_field( HA_Common::SAVE_AJAX_ACTIONS_OPTION, 'Save AJAX Actions', array( 'HA_General_Settings_View', 'field_save_ajax_actions' ), HA_Common::GENERAL_SETTINGS_KEY, 'section_general' );
+		add_settings_field( HA_Common::SAVE_PAGE_VIEWS_OPTION, 'Save Page Views', array( 'HA_General_Settings_View', 'field_save_page_views' ), HA_Common::GENERAL_SETTINGS_KEY, 'section_general' );
 	}
 	
 	/**
 	 * Register the Schedule settings
 	 */
 	function register_schedule_settings() {
-		register_setting( HUT_Common::SCHEDULE_SETTINGS_KEY, HUT_Common::SCHEDULE_SETTINGS_KEY, array( 'HUT_Schedule_Settings_View', 'sanitize_schedule_settings' ) );
+		register_setting( HA_Common::SCHEDULE_SETTINGS_KEY, HA_Common::SCHEDULE_SETTINGS_KEY, array( 'HA_Schedule_Settings_View', 'sanitize_schedule_settings' ) );
 	
-		add_settings_section( 'section_schedule', 'Schedule Settings', array( 'HUT_Schedule_Settings_View', 'section_schedule_desc' ), HUT_Common::SCHEDULE_SETTINGS_KEY );
+		add_settings_section( 'section_schedule', 'Schedule Settings', array( 'HA_Schedule_Settings_View', 'section_schedule_desc' ), HA_Common::SCHEDULE_SETTINGS_KEY );
 	
-		add_settings_field( HUT_Common::SCHEDULED_START_DATE_OPTION, 'Scheduled start date & time', array( 'HUT_Schedule_Settings_View', 'field_scheduled_start_date' ), HUT_Common::SCHEDULE_SETTINGS_KEY, 'section_schedule' );
-		add_settings_field( HUT_Common::SCHEDULED_END_DATE_OPTION, 'Scheduled end date & time', array( 'HUT_Schedule_Settings_View', 'field_scheduled_end_date' ), HUT_Common::SCHEDULE_SETTINGS_KEY, 'section_schedule' );
+		add_settings_field( HA_Common::SCHEDULED_START_DATE_OPTION, 'Scheduled start date & time', array( 'HA_Schedule_Settings_View', 'field_scheduled_start_date' ), HA_Common::SCHEDULE_SETTINGS_KEY, 'section_schedule' );
+		add_settings_field( HA_Common::SCHEDULED_END_DATE_OPTION, 'Scheduled end date & time', array( 'HA_Schedule_Settings_View', 'field_scheduled_end_date' ), HA_Common::SCHEDULE_SETTINGS_KEY, 'section_schedule' );
 	}
 	
 	/**
@@ -381,19 +370,19 @@ class HUT_Admin_Controller {
 	 */
 	function register_heat_map_settings() {
 	
-		register_setting( HUT_Common::HEAT_MAP_SETTINGS_KEY, HUT_Common::HEAT_MAP_SETTINGS_KEY, array( 'HUT_Heatmap_Settings_View', 'sanitize_heat_map_settings' ) );
+		register_setting( HA_Common::HEAT_MAP_SETTINGS_KEY, HA_Common::HEAT_MAP_SETTINGS_KEY, array( 'HA_Heatmap_Settings_View', 'sanitize_heat_map_settings' ) );
 	
-		add_settings_section( 'section_heat_map', 'Heatmap Settings', array( 'HUT_Heatmap_Settings_View', 'section_heat_map_desc' ), HUT_Common::HEAT_MAP_SETTINGS_KEY );
-		add_settings_field( HUT_Common::USE_HEATMAPJS_OPTION, 'Use heatmap.js', array( 'HUT_Heatmap_Settings_View', 'field_heatmapjs' ), HUT_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
-		add_settings_field( HUT_Common::HOT_VALUE_OPTION, 'Hot value', array( 'HUT_Heatmap_Settings_View', 'field_hot_value' ), HUT_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
-		add_settings_field( HUT_Common::SPOT_RADIUS_OPTION, 'Spot radius', array( 'HUT_Heatmap_Settings_View', 'field_spot_radius' ), HUT_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
-		add_settings_field( HUT_Common::SPOT_OPACITY_OPTION, 'Spot opacity', array( 'HUT_Heatmap_Settings_View', 'field_spot_opacity' ), HUT_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
-		add_settings_field( HUT_Common::IGNORE_WIDTH_OPTION, 'Ignore width', array( 'HUT_Heatmap_Settings_View', 'field_ignore_width' ), HUT_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
-		add_settings_field( HUT_Common::IGNORE_DEVICE_OPTION, 'Ignore device', array( 'HUT_Heatmap_Settings_View', 'field_ignore_device' ), HUT_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
-		add_settings_field( HUT_Common::IGNORE_BROWSER_OPTION, 'Ignore browser', array( 'HUT_Heatmap_Settings_View', 'field_ignore_browser' ), HUT_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
-		add_settings_field( HUT_Common::IGNORE_OS_OPTION, 'Ignore operating system', array( 'HUT_Heatmap_Settings_View', 'field_ignore_os' ), HUT_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
-		add_settings_field( HUT_Common::WIDTH_ALLOWANCE_OPTION, 'Width allowance', array( 'HUT_Heatmap_Settings_View', 'field_width_allowance' ), HUT_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
-		add_settings_field( HUT_Common::HIDE_ROLES_OPTION, 'Hide roles', array( 'HUT_Heatmap_Settings_View', 'field_hide_roles' ), HUT_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
+		add_settings_section( 'section_heat_map', 'Heatmap Settings', array( 'HA_Heatmap_Settings_View', 'section_heat_map_desc' ), HA_Common::HEAT_MAP_SETTINGS_KEY );
+		add_settings_field( HA_Common::USE_HEATMAPJS_OPTION, 'Use heatmap.js', array( 'HA_Heatmap_Settings_View', 'field_heatmapjs' ), HA_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
+		add_settings_field( HA_Common::HOT_VALUE_OPTION, 'Hot value', array( 'HA_Heatmap_Settings_View', 'field_hot_value' ), HA_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
+		add_settings_field( HA_Common::SPOT_RADIUS_OPTION, 'Spot radius', array( 'HA_Heatmap_Settings_View', 'field_spot_radius' ), HA_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
+		add_settings_field( HA_Common::SPOT_OPACITY_OPTION, 'Spot opacity', array( 'HA_Heatmap_Settings_View', 'field_spot_opacity' ), HA_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
+		add_settings_field( HA_Common::IGNORE_WIDTH_OPTION, 'Ignore width', array( 'HA_Heatmap_Settings_View', 'field_ignore_width' ), HA_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
+		add_settings_field( HA_Common::IGNORE_DEVICE_OPTION, 'Ignore device', array( 'HA_Heatmap_Settings_View', 'field_ignore_device' ), HA_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
+		add_settings_field( HA_Common::IGNORE_BROWSER_OPTION, 'Ignore browser', array( 'HA_Heatmap_Settings_View', 'field_ignore_browser' ), HA_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
+		add_settings_field( HA_Common::IGNORE_OS_OPTION, 'Ignore operating system', array( 'HA_Heatmap_Settings_View', 'field_ignore_os' ), HA_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
+		add_settings_field( HA_Common::WIDTH_ALLOWANCE_OPTION, 'Width allowance', array( 'HA_Heatmap_Settings_View', 'field_width_allowance' ), HA_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
+		add_settings_field( HA_Common::HIDE_ROLES_OPTION, 'Hide roles', array( 'HA_Heatmap_Settings_View', 'field_hide_roles' ), HA_Common::HEAT_MAP_SETTINGS_KEY, 'section_heat_map' );
 	
 	}
 	
@@ -401,13 +390,13 @@ class HUT_Admin_Controller {
 	 * Register the URL Filter settings
 	 */
 	function register_url_filters_settings() {
-		register_setting( HUT_Common::URL_FILTERS_SETTINGS_KEY, HUT_Common::URL_FILTERS_SETTINGS_KEY, array( 'HUT_URL_Filters_Settings_View', 'sanitize_url_filters_settings' ) );
+		register_setting( HA_Common::URL_FILTERS_SETTINGS_KEY, HA_Common::URL_FILTERS_SETTINGS_KEY, array( 'HA_URL_Filters_Settings_View', 'sanitize_url_filters_settings' ) );
 	
-		add_settings_section( 'section_url_filters', 'URL Filter Settings', array( 'HUT_URL_Filters_Settings_View', 'section_url_filters_desc' ), HUT_Common::URL_FILTERS_SETTINGS_KEY );
+		add_settings_section( 'section_url_filters', 'URL Filter Settings', array( 'HA_URL_Filters_Settings_View', 'section_url_filters_desc' ), HA_Common::URL_FILTERS_SETTINGS_KEY );
 	
-		add_settings_field( HUT_Common::APPLY_URL_FILTERS_OPTION, 'Apply URL filters', array( 'HUT_URL_Filters_Settings_View', 'field_apply_url_filters' ), HUT_Common::URL_FILTERS_SETTINGS_KEY, 'section_url_filters' );
-		add_settings_field( HUT_Common::FILTER_TYPE_OPTION, 'Filter type', array( 'HUT_URL_Filters_Settings_View', 'field_filter_type' ), HUT_Common::URL_FILTERS_SETTINGS_KEY, 'section_url_filters' );
-		add_settings_field( HUT_Common::URL_FILTERS_LIST_OPTION, 'URL List', array( 'HUT_URL_Filters_Settings_View', 'field_url_filters_list' ), HUT_Common::URL_FILTERS_SETTINGS_KEY, 'section_url_filters' );
+		add_settings_field( HA_Common::APPLY_URL_FILTERS_OPTION, 'Apply URL filters', array( 'HA_URL_Filters_Settings_View', 'field_apply_url_filters' ), HA_Common::URL_FILTERS_SETTINGS_KEY, 'section_url_filters' );
+		add_settings_field( HA_Common::FILTER_TYPE_OPTION, 'Filter type', array( 'HA_URL_Filters_Settings_View', 'field_filter_type' ), HA_Common::URL_FILTERS_SETTINGS_KEY, 'section_url_filters' );
+		add_settings_field( HA_Common::URL_FILTERS_LIST_OPTION, 'URL List', array( 'HA_URL_Filters_Settings_View', 'field_url_filters_list' ), HA_Common::URL_FILTERS_SETTINGS_KEY, 'section_url_filters' );
 	}
 	
 	/**
@@ -415,22 +404,12 @@ class HUT_Admin_Controller {
 	 */
 	function register_database_settings() {
 	
-		register_setting( HUT_Common::DATABASE_SETTINGS_KEY, HUT_Common::DATABASE_SETTINGS_KEY, array( 'HUT_Database_Settings_View', 'sanitize_database_settings' ) );
+		register_setting( HA_Common::DATABASE_SETTINGS_KEY, HA_Common::DATABASE_SETTINGS_KEY, array( 'HA_Database_Settings_View', 'sanitize_database_settings' ) );
 	
-		add_settings_section( 'section_database', 'Database Settings', array( 'HUT_Database_Settings_View', 'section_database_desc' ), HUT_Common::DATABASE_SETTINGS_KEY );
+		add_settings_section( 'section_database', 'Database Settings', array( 'HA_Database_Settings_View', 'section_database_desc' ), HA_Common::DATABASE_SETTINGS_KEY );
 	
-		add_settings_field( HUT_Common::URL_DB_LIMIT_OPTION, 'URL database limit', array( 'HUT_Database_Settings_View', 'field_url_db_limit' ), HUT_Common::DATABASE_SETTINGS_KEY, 'section_database' );
+		add_settings_field( HA_Common::URL_DB_LIMIT_OPTION, 'URL database limit', array( 'HA_Database_Settings_View', 'field_url_db_limit' ), HA_Common::DATABASE_SETTINGS_KEY, 'section_database' );
 	}	
-	
-	function register_remote_settings() {
-		register_setting( HUT_Common::REMOTE_SETTINGS_KEY, HUT_Common::REMOTE_SETTINGS_KEY, array( 'HUT_Remote_Settings_View', 'sanitize_remote_settings' ) );
-		
-		add_settings_section( 'section_remote', 'Remote Client Settings', array( 'HUT_Remote_Settings_View', 'section_remote_desc' ), HUT_Common::REMOTE_SETTINGS_KEY );
-		
-		add_settings_field( HUT_Common::REMOTE_URL_OPTION, 'Remote URL', array( 'HUT_Remote_Settings_View', 'field_remote_url' ), HUT_Common::REMOTE_SETTINGS_KEY, 'section_remote' );
-		add_settings_field( HUT_Common::REMOTE_API_KEY_OPTION, 'Remote API Key', array( 'HUT_Remote_Settings_View', 'field_remote_api_key' ), HUT_Common::REMOTE_SETTINGS_KEY, 'section_remote' );
-		
-	}
 	
 	/**
 	 * Register AJAX actions
@@ -458,12 +437,12 @@ class HUT_Admin_Controller {
 		$ajax_nonce = $_GET['nonce'];
 		
 		$response = array();
-		if ( wp_verify_nonce( $ajax_nonce, HUT_Common::PLUGIN_ID .'-nonce' ) ) {
+		if ( wp_verify_nonce( $ajax_nonce, HA_Common::PLUGIN_ID .'-nonce' ) ) {
 			
 			$response = array('status' => 'OK', 'message' => '');
 			
 			// GET parameters
-			$url = isset($_GET['url']) ? HUT_Common::normalize_url(urldecode($_GET['url'])) : null;
+			$url = isset($_GET['url']) ? HA_Common::normalize_url(urldecode($_GET['url'])) : null;
 			$ignore_width = isset($_GET['ignoreWidth']) && $_GET['ignoreWidth'] == "true" ? true : false;
 			$width_allowance = isset($_GET['widthAllowance']) && is_numeric($_GET['widthAllowance']) ? intval($_GET['widthAllowance']) : null;;
 			$page_width = isset($_GET['pageWidth']) && is_numeric($_GET['pageWidth']) ? intval($_GET['pageWidth']) : null;
@@ -489,11 +468,11 @@ class HUT_Admin_Controller {
 			global $wpdb;
 			
 			// base query - all user events for a given url
-			$query = 'SELECT u_event.' . HUT_Common::ID_COLUMN . ', u_event.'.HUT_Common::X_COORD_COLUMN.', u_event.'.HUT_Common::Y_COORD_COLUMN.', u_event.'
-			. HUT_Common::URL_COLUMN.', u_event.' . HUT_Common::EVENT_TYPE_COLUMN . ', u_event.'.HUT_Common::PAGE_WIDTH_COLUMN.' FROM ' . $wpdb->prefix . HUT_Common::USER_EVENT_TBL_NAME
-			.' AS u_event, ' . $wpdb->prefix .  HUT_Common::USER_ENV_TBL_NAME . ' AS u_env, ' . $wpdb->prefix . HUT_Common::USER_TBL_NAME . ' AS u WHERE u.' . HUT_Common::ID_COLUMN
-			. ' = u_event.' . HUT_Common::USER_ID_COLUMN . ' AND u.' . HUT_Common::ID_COLUMN . ' = u_env.' . HUT_Common::USER_ID_COLUMN
-			. ' AND u_event.' .HUT_Common::URL_COLUMN.' = "' .$url . '"';
+			$query = 'SELECT u_event.' . HA_Common::ID_COLUMN . ', u_event.'.HA_Common::X_COORD_COLUMN.', u_event.'.HA_Common::Y_COORD_COLUMN.', u_event.'
+			. HA_Common::URL_COLUMN.', u_event.' . HA_Common::EVENT_TYPE_COLUMN . ', u_event.'.HA_Common::PAGE_WIDTH_COLUMN.' FROM ' . $wpdb->prefix . HA_Common::USER_EVENT_TBL_NAME
+			.' AS u_event, ' . $wpdb->prefix .  HA_Common::USER_ENV_TBL_NAME . ' AS u_env, ' . $wpdb->prefix . HA_Common::USER_TBL_NAME . ' AS u WHERE u.' . HA_Common::ID_COLUMN
+			. ' = u_event.' . HA_Common::USER_ID_COLUMN . ' AND u.' . HA_Common::ID_COLUMN . ' = u_env.' . HA_Common::USER_ID_COLUMN
+			. ' AND u_event.' .HA_Common::URL_COLUMN.' = "' .$url . '"';
 			
 			$query_filters = array(
 					'ignore_width' => $ignore_width,
@@ -511,7 +490,7 @@ class HUT_Admin_Controller {
 					'exact_match' => false
 			);
 			
-			$query = HUT_Query_Helper::apply_query_filters($query, $query_filters);
+			$query = HA_Query_Helper::apply_query_filters($query, $query_filters);
 			
 			$rows = $wpdb->get_results($query);
 	
@@ -521,9 +500,9 @@ class HUT_Admin_Controller {
 				$x_coord = $row->x_coord;
 				$y_coord = $row->y_coord;
 			
-				$url = HUT_Common::normalize_url( $row->url );
+				$url = HA_Common::normalize_url( $row->url );
 				$page_width = $row->page_width;
-				$heat_value = HUT_Common::calculate_heat_value($x_coord, $y_coord, $user_event_id, $rows, $spot_radius);
+				$heat_value = HA_Common::calculate_heat_value($x_coord, $y_coord, $user_event_id, $rows, $spot_radius);
 			
 				$response[$index++] = array(
 						'user_event_id' => $user_event_id,
@@ -552,14 +531,14 @@ class HUT_Admin_Controller {
 		$ajaxNonce = $_POST['nonce'];
 	
 		$response = array();
-		if ( wp_verify_nonce( $ajaxNonce, HUT_Common::PLUGIN_ID.'-nonce' ) ) {
+		if ( wp_verify_nonce( $ajaxNonce, HA_Common::PLUGIN_ID.'-nonce' ) ) {
 			
 			$response = array('status' => 'OK', 'message' => '');
 			
 			// POST parameters
 			$x_coord = isset($_POST['xCoord']) && is_numeric($_POST['xCoord']) ? intval($_POST['xCoord']) : -1;
 			$y_coord = isset($_POST['yCoord']) && is_numeric($_POST['yCoord']) ? intval($_POST['yCoord']) : -1;
-			$url = isset($_POST['url']) ? HUT_Common::normalize_url(urldecode($_POST['url'])) : null;
+			$url = isset($_POST['url']) ? HA_Common::normalize_url(urldecode($_POST['url'])) : null;
 			$page_width = isset($_POST['pageWidth']) && is_numeric($_POST['pageWidth']) ? intval($_POST['pageWidth']) : null;
 			$ip_address = isset($_POST['ipAddress']) ? $_POST['ipAddress'] : null;
 			$user_id = isset($_POST['userId']) ? $_POST['userId'] : null;
@@ -576,16 +555,16 @@ class HUT_Admin_Controller {
 				return;
 			}
 			
-			$ip_address = HUT_Common::get_IP_address();
+			$ip_address = HA_Common::get_IP_address();
 			
 			// if user_id is null, create it
 			if ($user_id == null) {
-				$user_details = HUT_Common::get_user_details(HUT_Common::get_ip_address(), session_id(), true, $this->data_services);
+				$user_details = HA_Common::get_user_details(HA_Common::get_ip_address(), session_id(), true, $this->data_services);
 				$user_id = $user_details['user_id'];
 			}
 			// if user_environment_id is null, create it
 			if ($user_environment_id == null) {
-				$user_environment_details = HUT_Common::get_user_environment_details($user_id, true, $this->data_services);
+				$user_environment_details = HA_Common::get_user_environment_details($user_id, true, $this->data_services);
 				$user_environment_id = $user_environment_details['user_environment_id'];
 			}
 			
@@ -594,19 +573,19 @@ class HUT_Admin_Controller {
 			try {
 				global $wpdb;
 			
-				$rowsAffected = $wpdb->insert( $wpdb->prefix . HUT_Common::USER_EVENT_TBL_NAME,
+				$rowsAffected = $wpdb->insert( $wpdb->prefix . HA_Common::USER_EVENT_TBL_NAME,
 						array(
-								HUT_Common::USER_ID_COLUMN => $user_id,
-								HUT_Common::USER_ENV_ID_COLUMN => $user_environment_id,
-								HUT_Common::X_COORD_COLUMN => $x_coord,
-								HUT_Common::Y_COORD_COLUMN => $y_coord,
-								HUT_Common::URL_COLUMN => $url,
-								HUT_Common::PAGE_WIDTH_COLUMN => $page_width,
-								HUT_Common::LAST_UPDT_DATE_COLUMN => current_time('mysql'),
-								HUT_Common::RECORD_DATE_COLUMN => current_time('mysql'),
-								HUT_Common::DESCRIPTION_COLUMN => $description,
-								HUT_Common::DATA_COLUMN => $data,
-								HUT_Common::EVENT_TYPE_COLUMN => $event_type
+								HA_Common::USER_ID_COLUMN => $user_id,
+								HA_Common::USER_ENV_ID_COLUMN => $user_environment_id,
+								HA_Common::X_COORD_COLUMN => $x_coord,
+								HA_Common::Y_COORD_COLUMN => $y_coord,
+								HA_Common::URL_COLUMN => $url,
+								HA_Common::PAGE_WIDTH_COLUMN => $page_width,
+								HA_Common::LAST_UPDT_DATE_COLUMN => current_time('mysql'),
+								HA_Common::RECORD_DATE_COLUMN => current_time('mysql'),
+								HA_Common::DESCRIPTION_COLUMN => $description,
+								HA_Common::DATA_COLUMN => $data,
+								HA_Common::EVENT_TYPE_COLUMN => $event_type
 						)
 				);
 			
@@ -624,26 +603,26 @@ class HUT_Admin_Controller {
 			$spot_radius= isset($_POST['spotRadius']) && is_numeric($_POST['spotRadius']) ? intval($_POST['spotRadius']) : null;
 			
 			// debug
-			if ($event_type !== null && ($event_type == HUT_Common::MOUSE_CLICK_EVENT_TYPE || $event_type == HUT_Common::TOUCHSCREEN_TAP_EVENT_TYPE)
+			if ($event_type !== null && ($event_type == HA_Common::MOUSE_CLICK_EVENT_TYPE || $event_type == HA_Common::TOUCHSCREEN_TAP_EVENT_TYPE)
 					&& $debug && $draw_heat_map_enabled && $width_allowance && $spot_radius) {
 			
 				// retrieve all clicks and taps and calculate heat value
-				$query = 'SELECT ' . HUT_Common::ID_COLUMN . ', ' . HUT_Common::X_COORD_COLUMN . ', '
-				. HUT_Common::Y_COORD_COLUMN.', ' . HUT_Common::URL_COLUMN . ', '
-				. HUT_Common::PAGE_WIDTH_COLUMN . ' FROM ' . $wpdb->prefix.HUT_Common::USER_EVENT_TBL_NAME
-				. ' WHERE '.HUT_Common::URL_COLUMN.' = "' . $url .'" AND (' . HUT_Common::EVENT_TYPE_COLUMN
-				. ' = "' . HUT_Common::MOUSE_CLICK_EVENT_TYPE . '" OR ' . HUT_Common::EVENT_TYPE_COLUMN
-				. ' = "' . HUT_Common::TOUCHSCREEN_TAP_EVENT_TYPE . '")';
+				$query = 'SELECT ' . HA_Common::ID_COLUMN . ', ' . HA_Common::X_COORD_COLUMN . ', '
+				. HA_Common::Y_COORD_COLUMN.', ' . HA_Common::URL_COLUMN . ', '
+				. HA_Common::PAGE_WIDTH_COLUMN . ' FROM ' . $wpdb->prefix.HA_Common::USER_EVENT_TBL_NAME
+				. ' WHERE '.HA_Common::URL_COLUMN.' = "' . $url .'" AND (' . HA_Common::EVENT_TYPE_COLUMN
+				. ' = "' . HA_Common::MOUSE_CLICK_EVENT_TYPE . '" OR ' . HA_Common::EVENT_TYPE_COLUMN
+				. ' = "' . HA_Common::TOUCHSCREEN_TAP_EVENT_TYPE . '")';
 			
 				// allow a range either side to be the same
 				$diff_left = $page_width - $width_allowance;
 				$diff_right = $page_width + $width_allowance;
 			
-				$query .= ' AND ' . HUT_Common::PAGE_WIDTH_COLUMN . ' >= ' . $diff_left . ' AND '.HUT_Common::PAGE_WIDTH_COLUMN
+				$query .= ' AND ' . HA_Common::PAGE_WIDTH_COLUMN . ' >= ' . $diff_left . ' AND '.HA_Common::PAGE_WIDTH_COLUMN
 				. ' <= '. $diff_right;
 				$rows = $wpdb->get_results($query);
 			
-				$heat_value = HUT_Common::calculate_heat_value($x_coord, $y_coord, $user_event_id, $rows, $spot_radius);
+				$heat_value = HA_Common::calculate_heat_value($x_coord, $y_coord, $user_event_id, $rows, $spot_radius);
 			
 				$response = array_merge($response, array('user_event_id' => $user_event_id, 'heat_value' => $heat_value));
 			} else {

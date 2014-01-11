@@ -14,7 +14,7 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATO
  * @author dpowney
  *
  */
-class HUT_Heatmaps_Table extends WP_List_Table {
+class HA_Heatmaps_Table extends WP_List_Table {
 
 	/**
 	 * Constructor
@@ -32,9 +32,9 @@ class HUT_Heatmaps_Table extends WP_List_Table {
 	 */
 	function extra_tablenav( $which ) {
 		if ( $which == "top" ) {			
-			$query_helper = new HUT_Query_Helper();
+			$query_helper = new HA_Query_Helper();
 			
-			$query_helper = new HUT_Query_Helper();
+			$query_helper = new HA_Query_Helper();
 			$query_helper->get_session_filters(array('last_days' => true, 'url' => true, 'page_width' => true, 'browser' => true, 'device' => true, 'os' => true));
 			
 			$filters = array(
@@ -80,7 +80,7 @@ class HUT_Heatmaps_Table extends WP_List_Table {
 	 * @see WP_List_Table::prepare_items()
 	 */
 	function prepare_items() {
-		$query_helper = new HUT_Query_Helper();
+		$query_helper = new HA_Query_Helper();
 		$query_helper->get_session_filters(array('last_days' => true, 'url' => true, 'page_width' => true, 'browser' => true, 'device' => true, 'os' => true));
 		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			$query_helper->get_http_filters('POST');
@@ -104,8 +104,8 @@ class HUT_Heatmaps_Table extends WP_List_Table {
 			$page_num = 1;
 		}
 		
-		global $hut_admin_controller;
-		$data = $hut_admin_controller->get_data_services()->heatmaps_table_data($query_helper->get_filters(), $items_per_page, $page_num);
+		global $ha_admin_controller;
+		$data = $ha_admin_controller->get_data_services()->heatmaps_table_data($query_helper->get_filters(), $items_per_page, $page_num);
 		
 		$this->set_pagination_args( $data['pagination_args'] );
 		$this->items =   $data['items'];

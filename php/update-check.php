@@ -7,11 +7,11 @@
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'common.php';
 
 // Check if we need to do an upgrade from a previous version
-$previous_plugin_version = get_option( HUT_Common::PLUGIN_VERSION_OPTION );
-if ( $previous_plugin_version != HUT_Common::PLUGIN_VERSION ) {
+$previous_plugin_version = get_option( HA_Common::PLUGIN_VERSION_OPTION );
+if ( $previous_plugin_version != HA_Common::PLUGIN_VERSION ) {
 
 	// reactivate plugin and db updates will occur
-	HUT_Admin_Controller::activate_plugin();
+	HA_Admin_Controller::activate_plugin();
 	
 	try {
 		// Delete old files that are no longer used from previous versions
@@ -50,7 +50,7 @@ if ( $previous_plugin_version != HUT_Common::PLUGIN_VERSION ) {
 		die('An error occured updating the plugin file structure! Try manually deleting the plugin files to fix the problem.');
 	}
 
-	update_option( HUT_Common::PLUGIN_VERSION_OPTION, HUT_Common::PLUGIN_VERSION );
+	update_option( HA_Common::PLUGIN_VERSION_OPTION, HA_Common::PLUGIN_VERSION );
 }
 
 

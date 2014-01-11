@@ -14,7 +14,7 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATO
  * @author dpowney
  *
  */
-class HUT_User_Activity_Table extends WP_List_Table {
+class HA_User_Activity_Table extends WP_List_Table {
 	
 	private $row_sequence_map = array();
 
@@ -62,7 +62,7 @@ class HUT_User_Activity_Table extends WP_List_Table {
 	 */
 	function prepare_items() {
 		
-		$query_helper = new HUT_Query_Helper();
+		$query_helper = new HA_Query_Helper();
 		$query_helper->get_session_filters(array('ip_address' => true, 'session_id' => true, 'event_type' => true, 'url' => true));
 		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			$query_helper->get_http_filters('POST');
@@ -86,8 +86,8 @@ class HUT_User_Activity_Table extends WP_List_Table {
 			$page_num = 1;
 		}
 		
-		global $hut_admin_controller;
-		$data = $hut_admin_controller->get_data_services()->user_activity_table_data($query_helper->get_filters(), $items_per_page, $page_num);
+		global $ha_admin_controller;
+		$data = $ha_admin_controller->get_data_services()->user_activity_table_data($query_helper->get_filters(), $items_per_page, $page_num);
 		
 		$this->set_pagination_args( $data['pagination_args'] );
 		$this->items =  isset($data['items']) ? $data['items'] : array();
@@ -117,7 +117,7 @@ class HUT_User_Activity_Table extends WP_List_Table {
 					$items_per_page = $this->get_pagination_arg('per_page');
 					$previous_row = $this->items[(count($this->items) - $sequence + 1) + (($page_num-1) * $items_per_page)];
 					$previous_activity_time = strtotime($previous_row['record_date']);
-					$human_time_diff = HUT_Common::human_time_diff($previous_activity_time, $current_activity_time);
+					$human_time_diff = HA_Common::human_time_diff($previous_activity_time, $current_activity_time);
 					echo $human_time_diff;
 				}
 				
@@ -133,7 +133,7 @@ class HUT_User_Activity_Table extends WP_List_Table {
 	
 	function column_action( $item ){
 	
-		if ($item[ 'event_type'] == HUT_Common::MOUSE_CLICK_EVENT_TYPE || $item['event_type'] == HUT_Common::TOUCHSCREEN_TAP_EVENT_TYPE) {
+		if ($item[ 'event_type'] == HA_Common::MOUSE_CLICK_EVENT_TYPE || $item['event_type'] == HA_Common::TOUCHSCREEN_TAP_EVENT_TYPE) {
 			$id = $item[ 'id' ];
 			$url = $item[ 'url' ];
 			$page_width = $item[ 'page_width' ];

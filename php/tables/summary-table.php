@@ -13,7 +13,7 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATO
  * @author dpowney
  *
  */
-class HUT_Summary_Table extends WP_List_Table {
+class HA_Summary_Table extends WP_List_Table {
 	
 	
 	
@@ -34,7 +34,7 @@ class HUT_Summary_Table extends WP_List_Table {
 	 */
 	function extra_tablenav( $which ) {
 	if ( $which == "top" ) {
-			$query_helper = new HUT_Query_Helper();
+			$query_helper = new HA_Query_Helper();
 			$filters = array(
 					'last_days' => true,
 					'device' => true,
@@ -58,11 +58,11 @@ class HUT_Summary_Table extends WP_List_Table {
 	 */
 	function get_columns() {
 		return $columns= array(
-				HUT_Common::ID_COLUMN => __(''),
-				HUT_Common::EVENT_TYPE_COLUMN => __('Event Type'),
-				HUT_Common::TOTAL_COLUMN => __('Total'),
-				HUT_Common::AVG_PER_USER_COLUMN => __('Average per User'),
-				HUT_Common::AVG_PER_URL_COLUMN => __('Average per URL'),
+				HA_Common::ID_COLUMN => __(''),
+				HA_Common::EVENT_TYPE_COLUMN => __('Event Type'),
+				HA_Common::TOTAL_COLUMN => __('Total'),
+				HA_Common::AVG_PER_USER_COLUMN => __('Average per User'),
+				HA_Common::AVG_PER_URL_COLUMN => __('Average per URL'),
 		);
 	}
 	
@@ -75,12 +75,12 @@ class HUT_Summary_Table extends WP_List_Table {
 		
 		// Register the columns
 		$columns = $this->get_columns();
-		$hidden = array(HUT_Common::ID_COLUMN );
+		$hidden = array(HA_Common::ID_COLUMN );
 		$sortable = $this->get_sortable_columns();
 		$this->_column_headers = array($columns, $hidden, $sortable);
 	
 		// get table data
-		$query_helper = new HUT_Query_Helper();
+		$query_helper = new HA_Query_Helper();
 		$query_helper->get_session_filters(array('last_days' => true, 'device' => true, 'os' => true, 'browser' => true));
 		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			$query_helper->get_http_filters('POST');
@@ -96,8 +96,8 @@ class HUT_Summary_Table extends WP_List_Table {
 			$page_num = 1;
 		}
 		
-		global $hut_admin_controller;
-		$data = $hut_admin_controller->get_data_services()->summary_report_data($query_helper->get_filters(), $items_per_page, $page_num);
+		global $ha_admin_controller;
+		$data = $ha_admin_controller->get_data_services()->summary_report_data($query_helper->get_filters(), $items_per_page, $page_num);
 		
 		$this->set_pagination_args( $data['pagination_args'] );
 		$this->items =   $data['items'];
@@ -112,17 +112,17 @@ class HUT_Summary_Table extends WP_List_Table {
 	 */
 	function column_default( $item, $column_name ) {
 		switch( $column_name ) {
-			case HUT_Common::EVENT_TYPE_COLUMN :
-			case HUT_Common::TOTAL_COLUMN : {
+			case HA_Common::EVENT_TYPE_COLUMN :
+			case HA_Common::TOTAL_COLUMN : {
 				echo $item[ $column_name ];
 				break;
 			}
-			case HUT_Common::AVG_PER_URL_COLUMN : {
+			case HA_Common::AVG_PER_URL_COLUMN : {
 				$avg_per_url = ($item['count_pages'] > 0) ? round(($item['total'] / $item['count_users']), 2) : '0';
 				echo $avg_per_url;
 				break;
 			}
-			case HUT_Common::AVG_PER_USER_COLUMN :
+			case HA_Common::AVG_PER_USER_COLUMN :
 				$avg_per_user = ($item['count_users'] > 0) ? round(($item['total'] / $item['count_users']), 2) : '0';
 				echo $avg_per_user;
 				break;

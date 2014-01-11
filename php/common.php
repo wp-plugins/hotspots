@@ -5,89 +5,89 @@
  * @author dpowney
  *
  */
-class HUT_Common {
+class HA_Common {
 	
 	// URL query params which are ignored by the plugin
 	public static $ignore_query_params = array( 'drawHeatMap', 'KEY', 'XDEBUG_SESSION_START', 'userEventId', 'pageWidth', 'device', 'browser', 'os' );
 	
 	
 	const
-	PLUGIN_ID 							= 'hut',
+	PLUGIN_ID 							= 'ha',
 	CONFIG_DATA 						= 'config_data',
-	PLUGIN_VERSION						= '4.0',
+	PLUGIN_VERSION						= '4.0.1',
 	
 	// WordPress menu pages
-	MENU_PAGE_SLUG						= 'hut_menu_page',
-	HEATMAPS_PAGE_SLUG					= 'hut_heatmaps_page',
-	USERS_PAGE_SLUG						= 'hut_users_page',
-	REPORTS_PAGE_SLUG					= 'hut_reports_page',
-	SETTINGS_PAGE_SLUG					= 'hut_settings_page',
+	MENU_PAGE_SLUG						= 'ha_menu_page',
+	HEATMAPS_PAGE_SLUG					= 'ha_heatmaps_page',
+	USERS_PAGE_SLUG						= 'ha_users_page',
+	REPORTS_PAGE_SLUG					= 'ha_reports_page',
+	SETTINGS_PAGE_SLUG					= 'ha_settings_page',
 	
 	// WordPress tabs
-	GENERAL_SETTINGS_TAB 				= 'hut_general_settings_tab',
-	HEAT_MAP_SETTINGS_TAB				= 'hut_heat_map_settings_tab',
-	SCHEDULE_SETTINGS_TAB				= 'hut_schedule_settings_tab',
-	DATABASE_SETTINGS_TAB				= 'hut_database_settings_tab',
-	CUSTOM_EVENTS_SETTINGS_TAB			= 'hut_custom_events_settings_tab',
-	REMOTE_SETTINGS_TAB					= 'hut_remote_settings_tab',
-	URL_FILTERS_SETTINGS_TAB 			= 'hut_url_filters_settings_tab',
-	HEAT_MAPS_TAB 						= 'hut_heat_maps_tab',
-	USERS_TAB							= 'hut_users_tab',
-	ELEMENT_SETTINGS_TAB				= 'hut_elements_tab',
-	REPORTS_TAB							= 'hut_reports_tab',
-	USER_ACTIVITY_TAB 					= 'hut_user_activity_tab',
-	CUSTOM_EVENT_REPORT_TAB				= 'hut_custom_event_report_tab',
-	EVENTS_REPORT_TAB					= 'hut_events_report_tab',
-	SUMMARY_REPORT_TAB					= 'hut_summary_report_tab',
+	GENERAL_SETTINGS_TAB 				= 'ha_general_settings_tab',
+	HEAT_MAP_SETTINGS_TAB				= 'ha_heat_map_settings_tab',
+	SCHEDULE_SETTINGS_TAB				= 'ha_schedule_settings_tab',
+	DATABASE_SETTINGS_TAB				= 'ha_database_settings_tab',
+	CUSTOM_EVENTS_SETTINGS_TAB			= 'ha_custom_events_settings_tab',
+	REMOTE_SETTINGS_TAB					= 'ha_remote_settings_tab',
+	URL_FILTERS_SETTINGS_TAB 			= 'ha_url_filters_settings_tab',
+	HEAT_MAPS_TAB 						= 'ha_heat_maps_tab',
+	USERS_TAB							= 'ha_users_tab',
+	ELEMENT_SETTINGS_TAB				= 'ha_elements_tab',
+	REPORTS_TAB							= 'ha_reports_tab',
+	USER_ACTIVITY_TAB 					= 'ha_user_activity_tab',
+	CUSTOM_EVENT_REPORT_TAB				= 'ha_custom_event_report_tab',
+	EVENTS_REPORT_TAB					= 'ha_events_report_tab',
+	SUMMARY_REPORT_TAB					= 'ha_summary_report_tab',
 	
 	// WordPress settings
-	GENERAL_SETTINGS_KEY 				= 'hut_general_settings',
-	ADVANCED_SETTINGS_KEY				= 'hut_advanced_settings',
-	URL_FILTERS_SETTINGS_KEY 			= 'hut_url_filters_settings',
-	HEAT_MAP_SETTINGS_KEY 				= 'hut_heat_map_settings_key',
-	SCHEDULE_SETTINGS_KEY				= 'hut_schedule_settings_key',
-	DATABASE_SETTINGS_KEY				= 'hut_database_settings_key',
-	REMOTE_SETTINGS_KEY					= 'hut_remote_settings_key',
+	GENERAL_SETTINGS_KEY 				= 'ha_general_settings',
+	ADVANCED_SETTINGS_KEY				= 'ha_advanced_settings',
+	URL_FILTERS_SETTINGS_KEY 			= 'ha_url_filters_settings',
+	HEAT_MAP_SETTINGS_KEY 				= 'ha_heat_map_settings_key',
+	SCHEDULE_SETTINGS_KEY				= 'ha_schedule_settings_key',
+	DATABASE_SETTINGS_KEY				= 'ha_database_settings_key',
+	REMOTE_SETTINGS_KEY					= 'ha_remote_settings_key',
 	
 	// WordPress otions
-	SAVE_CLICK_TAP_OPTION 				= 'hut_save_click_tap',
-	DRAW_HEAT_MAP_ENABLED_OPTION 		= 'hut_draw_heat_map_enabled',
-	DEBUG_OPTION 						= 'hut_debug_option',
-	HOT_VALUE_OPTION 					= 'hut_hot_value',
-	SPOT_OPACITY_OPTION 				= 'hut_spot_opacity',
-	SPOT_RADIUS_OPTION 					= 'hut_spot_radius',
-	FILTER_TYPE_OPTION					= 'hut_filter_type',
-	APPLY_URL_FILTERS_OPTION			= 'hut_apply_url_filters',
-	USE_HEATMAPJS_OPTION				= 'hut_use_heatmapjs',
-	IGNORE_WIDTH_OPTION					= 'hut_ignore_width',
-	IGNORE_DEVICE_OPTION				= 'hut_ignore_device',
-	IGNORE_BROWSER_OPTION				= 'hut_ignore_browser',
-	IGNORE_OS_OPTION					= 'hut_ignore_os',
-	URL_DB_LIMIT_OPTION					= 'hut_url_db_limit',
-	WIDTH_ALLOWANCE_OPTION				= 'hut_width_allowance',
-	SCHEDULED_START_DATE_OPTION			= 'hut_schedule_start_date',
-	SCHEDULED_END_DATE_OPTION			= 'hut_schedule_end_date',
-	SCHEDULED_SAVE_CLICK_TAP			= 'hut_schedule_save_click_tap',
-	HIDE_ROLES_OPTION					= 'hut_hide_roles',
-	SAVE_AJAX_ACTIONS_OPTION			= 'hut_save_ajax_actions',
-	SAVE_CUSTOM_EVENTS_OPTION			= 'hut_save_custom_events',
-	SAVE_PAGE_VIEWS_OPTION				= 'hut_save_page_views',
-	URL_FILTERS_LIST_OPTION				= 'hut_url_filters_list',
-	REMOTE_URL_OPTION					= 'hut_remote_url',
-	REMOTE_API_KEY_OPTION				= 'hut_remote_api_key',
+	SAVE_CLICK_TAP_OPTION 				= 'ha_save_click_tap',
+	DRAW_HEAT_MAP_ENABLED_OPTION 		= 'ha_draw_heat_map_enabled',
+	DEBUG_OPTION 						= 'ha_debug_option',
+	HOT_VALUE_OPTION 					= 'ha_hot_value',
+	SPOT_OPACITY_OPTION 				= 'ha_spot_opacity',
+	SPOT_RADIUS_OPTION 					= 'ha_spot_radius',
+	FILTER_TYPE_OPTION					= 'ha_filter_type',
+	APPLY_URL_FILTERS_OPTION			= 'ha_apply_url_filters',
+	USE_HEATMAPJS_OPTION				= 'ha_use_heatmapjs',
+	IGNORE_WIDTH_OPTION					= 'ha_ignore_width',
+	IGNORE_DEVICE_OPTION				= 'ha_ignore_device',
+	IGNORE_BROWSER_OPTION				= 'ha_ignore_browser',
+	IGNORE_OS_OPTION					= 'ha_ignore_os',
+	URL_DB_LIMIT_OPTION					= 'ha_url_db_limit',
+	WIDTH_ALLOWANCE_OPTION				= 'ha_width_allowance',
+	SCHEDULED_START_DATE_OPTION			= 'ha_schedule_start_date',
+	SCHEDULED_END_DATE_OPTION			= 'ha_schedule_end_date',
+	SCHEDULED_SAVE_CLICK_TAP			= 'ha_schedule_save_click_tap',
+	HIDE_ROLES_OPTION					= 'ha_hide_roles',
+	SAVE_AJAX_ACTIONS_OPTION			= 'ha_save_ajax_actions',
+	SAVE_CUSTOM_EVENTS_OPTION			= 'ha_save_custom_events',
+	SAVE_PAGE_VIEWS_OPTION				= 'ha_save_page_views',
+	URL_FILTERS_LIST_OPTION				= 'ha_url_filters_list',
+	REMOTE_URL_OPTION					= 'ha_remote_url',
+	REMOTE_API_KEY_OPTION				= 'ha_remote_api_key',
 	
 	PLUGIN_VERSION_OPTION				= 'plugin_version',
 	
 	// filters
-	START_DATE_SEARCH_FILTER			= 'hut_start_date_filter',
-	END_DATE_SEARCH_FILTER				= 'hut_end_date_filter',
-	URL_SEARCH_FILTER					= 'hut_url_filter',
-	IP_ADDRESS_FILTER					= 'hut_ip_address_filter',
+	START_DATE_SEARCH_FILTER			= 'ha_start_date_filter',
+	END_DATE_SEARCH_FILTER				= 'ha_end_date_filter',
+	URL_SEARCH_FILTER					= 'ha_url_filter',
+	IP_ADDRESS_FILTER					= 'ha_ip_address_filter',
 	
 	// inputs
-	URL_SEARCH_INPUT					= 'hut_url',
-	ELEMENT_SELECTOR_INPUT				= 'hut_element_selector',
-	NAME_INPUT							= 'hut_name',
+	URL_SEARCH_INPUT					= 'ha_url',
+	ELEMENT_SELECTOR_INPUT				= 'ha_element_selector',
+	NAME_INPUT							= 'ha_name',
 	
 	// values
 	NO_ROLE_VALUE						= "none",
@@ -110,11 +110,11 @@ class HUT_Common {
 	*/
 	
 	// tables
-	USER_TBL_NAME 						= 'hut_user',
-	USER_ENV_TBL_NAME					= 'hut_user_environment',
-	USER_EVENT_TBL_NAME					= 'hut_user_event',
+	USER_TBL_NAME 						= 'ha_user',
+	USER_ENV_TBL_NAME					= 'ha_user_environment',
+	USER_EVENT_TBL_NAME					= 'ha_user_event',
 	
-	CUSTOM_EVENT_TBL_NAME				= 'hut_custom_event',
+	CUSTOM_EVENT_TBL_NAME				= 'ha_custom_event',
 	
 	// columns
 	ID_COLUMN							= 'id',
@@ -194,7 +194,7 @@ class HUT_Common {
 			$url .= $_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"];
 		}
 	
-		return HUT_Common::normalize_url($url);
+		return HA_Common::normalize_url($url);
 	}
 	
 	/**
@@ -294,7 +294,7 @@ class HUT_Common {
 		}
 	
 		// Remove some query params which we do not want
-		$url = HUT_Common::remove_query_string_params($url, HUT_Common::$ignore_query_params);
+		$url = HA_Common::remove_query_string_params($url, HA_Common::$ignore_query_params);
 	
 		return $url;
 	}
@@ -325,7 +325,7 @@ class HUT_Common {
 	public static function highest_common_factor($a, $b) {
 		if ($b==0)
 			return $a;
-		return HUT_Common::highest_common_factor($b, $a % $b);
+		return HA_Common::highest_common_factor($b, $a % $b);
 	}
 	
 	/**
@@ -347,7 +347,7 @@ class HUT_Common {
 	
 			$numerator = $left_decimal_part . $right_decimal_part; // 175
 			$denominator = pow(10,strlen($right_decimal_part)); // 100
-			$factor = HUT_Common::highest_common_factor($numerator, $denominator); // 25
+			$factor = HA_Common::highest_common_factor($numerator, $denominator); // 25
 			$denominator /= $factor;
 			$numerator /= $factor;
 	
@@ -423,7 +423,7 @@ class HUT_Common {
 	 */
 	public static function get_user_details($ip_address, $session_id, $create_if_empty, $data_services) {
 		
-		$wp_user_details = HUT_Common::get_wp_user_details();
+		$wp_user_details = HA_Common::get_wp_user_details();
 		$current_time = current_time('mysql');
 		$user_role =  $wp_user_details['user_role'];
 		$username = $wp_user_details['username'];
@@ -533,28 +533,6 @@ class HUT_Common {
 		}
 	
 		return $human_time_diff;
-	}
-	
-	/**
-	 * Returns true if remote is enabled correctly
-	 * @param unknown_type $remote_url
-	 * @param unknown_type $api_key
-	 */
-	public static function is_remote_enabled($remote_url, $api_key) {
-		$remote_enabled = false;
-		if (isset($api_key) && isset($remote_url)) {
-			$query_string = '?action=test&apiKey=' . base64_encode( $api_key ) . '&url=' . HUT_Common::get_current_url();
-			$args = array(
-					'timeout' => 60
-			);
-			$http_response = wp_remote_get($remote_url . $query_string , $args);
-			$http_response_body = wp_remote_retrieve_body($http_response);
-			if ($http_response_body == 'true') {
-				$remote_enabled = true;
-			}
-		}
-		
-		return $remote_enabled;
 	}
 }
 

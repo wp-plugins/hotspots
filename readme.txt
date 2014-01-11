@@ -110,6 +110,9 @@ You will need to understand jQuery selectors first here: http://api.jquery.com/c
 
 == Changelog ==
 
+= 4.0.1 (11/01/2014) =
+* Fixed custom event bug for binding form submits
+
 = 4.0 (08/01/2014) =
 * Major release
 * Refactored code to use a new data model. Old data will not be migrated to the new data model.

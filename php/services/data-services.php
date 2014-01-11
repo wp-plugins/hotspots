@@ -8,7 +8,7 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATO
  * @author dpowney
  *
  */
-interface HUT_Data_Services {
+interface HA_Data_Services {
 
 	public function distinct_url_from_user_events();
 	public function distinct_event_type_from_user_events();

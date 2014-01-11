@@ -3,12 +3,12 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATO
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'query-helper.php';
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'tables' . DIRECTORY_SEPARATOR . 'summary-table.php';
 
-class HUT_Report_View {
+class HA_Report_View {
 
 	public static function show_custom_events_report_tab() {
 		
 		// Count all custom event types
-		$query_helper = new HUT_Query_Helper();
+		$query_helper = new HA_Query_Helper();
 		$filters = array('url' => true, 'last_days' => true, 'browser' => true, 'os' => true, 'device' => true, 'page_width' => true);
 		$query_helper->get_session_filters($filters);
 		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -19,7 +19,7 @@ class HUT_Report_View {
 		$query_helper->set_session_filters();
 		
 		?>
-		<p>Shows custom events that are setup via the plugin settings <a href="<?php echo 'admin.php?page=' . HUT_Common::SETTINGS_PAGE_SLUG . '&tab=' . HUT_Common::CUSTOM_EVENTS_SETTINGS_TAB; ?>">Custom Events</a> tab or manually setup in JavaScript code.</p>
+		<p>Shows custom events that are setup via the plugin settings <a href="<?php echo 'admin.php?page=' . HA_Common::SETTINGS_PAGE_SLUG . '&tab=' . HA_Common::CUSTOM_EVENTS_SETTINGS_TAB; ?>">Custom Events</a> tab or manually setup in JavaScript code.</p>
 		<form method="post">
 			<div class="tablenav top">
 				<?php $query_helper->show_filters($filters); ?>
@@ -27,8 +27,8 @@ class HUT_Report_View {
 		</form>
 		<?php
 		
-		global $hut_admin_controller;
-		$data = $hut_admin_controller->get_data_services()->custom_events_report_data($query_helper->get_filters());
+		global $ha_admin_controller;
+		$data = $ha_admin_controller->get_data_services()->custom_events_report_data($query_helper->get_filters());
 		
 		$count_data = $data['count_data'];
 		$time_data = $data['time_data'];
@@ -118,7 +118,7 @@ class HUT_Report_View {
 		<p>Shows a summary of event statistics.</p>
 		<form method="post">
 			<?php 
-			$summary_table = new HUT_Summary_Table();
+			$summary_table = new HA_Summary_Table();
 			$summary_table->prepare_items();
 			$summary_table->display();
 			?>
@@ -131,7 +131,7 @@ class HUT_Report_View {
 	 */
 	public static function show_events_report_tab() {
 	
-		$query_helper = new HUT_Query_Helper();
+		$query_helper = new HA_Query_Helper();
 		$filters = array('event_type' => true, 'url' => true, 'last_days' => true, 'browser' => true, 'os' => true, 'device' => true, 'page_width' => true);
 		$query_helper->get_session_filters($filters);
 		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -154,8 +154,8 @@ class HUT_Report_View {
 		
 		<?php
 		
-		global $hut_admin_controller;
-		$data = $hut_admin_controller->get_data_services()->events_report_data($query_helper->get_filters());
+		global $ha_admin_controller;
+		$data = $ha_admin_controller->get_data_services()->events_report_data($query_helper->get_filters());
 		$time_data = $data['time_data'];
 		?>
 		<div class="flot-container">
@@ -252,7 +252,7 @@ class HUT_Report_View {
 	
 	public static function user_activity_summary_metabox($params) {
 		
-		$query_helper = new HUT_Query_Helper();
+		$query_helper = new HA_Query_Helper();
 		$query_helper->get_session_filters(array('ip_address' => true, 'session_id' => true, 'event_type' => true, 'url' => true));
 		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			$query_helper->get_http_filters('POST');
@@ -261,8 +261,8 @@ class HUT_Report_View {
 		}
 		$query_helper->set_session_filters();
 		
-		global $hut_admin_controller;
-		$data = $hut_admin_controller->get_data_services()->user_activity_summary_data($query_helper->get_filters());
+		global $ha_admin_controller;
+		$data = $ha_admin_controller->get_data_services()->user_activity_summary_data($query_helper->get_filters());
 		
 		if (isset($data->count_total) && $data->count_total > 0) {
 		?>
@@ -277,7 +277,7 @@ class HUT_Report_View {
 						<td><?php 
 						$latest_record_date = strtotime($data->latest_record_date);
 						$oldest_record_date = strtotime($data->oldest_record_date);
-						$human_time_diff = HUT_Common::human_time_diff($oldest_record_date, $latest_record_date);
+						$human_time_diff = HA_Common::human_time_diff($oldest_record_date, $latest_record_date);
 						echo $human_time_diff; 
 						?></td>
 					</tr>

@@ -8,7 +8,7 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'services' . DIRECTORY_SE
  * @author dpowney
  *
  */
-class HUT_Query_Helper {
+class HA_Query_Helper {
 
 	public $browser = null;
 	public $os = null;
@@ -249,8 +249,8 @@ class HUT_Query_Helper {
 		}
 		
 		if (isset($filters['event_type']) && $filters['event_type'] == true) {
-			global $hut_admin_controller;
-			$rows = $hut_admin_controller->get_data_services()->distinct_event_type_from_user_events();
+			global $ha_admin_controller;
+			$rows = $ha_admin_controller->get_data_services()->distinct_event_type_from_user_events();
 			?>
 			
 			<label for="event_type">Event Type</label>
@@ -268,8 +268,8 @@ class HUT_Query_Helper {
 		}
 		
 		if (isset($filters['url']) && $filters['url'] == true) {
-			global $hut_admin_controller;
-			$rows = $hut_admin_controller->get_data_services()->distinct_url_from_user_events();
+			global $ha_admin_controller;
+			$rows = $ha_admin_controller->get_data_services()->distinct_url_from_user_events();
 			?>
 			<label for="url">Page URL</label>
 			<select name="url" id="url" class="regular-text">
@@ -288,8 +288,8 @@ class HUT_Query_Helper {
 		}
 
 		if (isset($filters['page_width']) && $filters['page_width'] == true) {
-			global $hut_admin_controller;
-			$rows = $hut_admin_controller->get_data_services()->distinct_page_width_from_user_events();
+			global $ha_admin_controller;
+			$rows = $ha_admin_controller->get_data_services()->distinct_page_width_from_user_events();
 			?>
 			<label for="page_width">Page Width</label>
 			<select name="page_width" id="width">
@@ -309,8 +309,8 @@ class HUT_Query_Helper {
 
 		// TODO join
 		if (isset($filters['browser']) && $filters['browser'] == true) {
-			global $hut_admin_controller;
-			$rows = $hut_admin_controller->get_data_services()->distinct_browser_from_user_env();
+			global $ha_admin_controller;
+			$rows = $ha_admin_controller->get_data_services()->distinct_browser_from_user_env();
 			?>
 			<label for="browser">Browser</label>
 			<select name="browser" id="browser">
@@ -329,8 +329,8 @@ class HUT_Query_Helper {
 		}
 
 		if (isset($filters['os']) && $filters['os'] == true) {
-			global $hut_admin_controller;
-			$rows = $hut_admin_controller->get_data_services()->distinct_os_from_user_env();
+			global $ha_admin_controller;
+			$rows = $ha_admin_controller->get_data_services()->distinct_os_from_user_env();
 			?>
 			<label for="os">Operating System</label>
 			<select name="os" id="os">
@@ -349,8 +349,8 @@ class HUT_Query_Helper {
 		}
 			
 		if (isset($filters['device']) && $filters['device'] == true) {
-			global $hut_admin_controller;
-			$rows = $hut_admin_controller->get_data_services()->distinct_device_from_user_env();
+			global $ha_admin_controller;
+			$rows = $ha_admin_controller->get_data_services()->distinct_device_from_user_env();
 			?>
 			<label for="device">Device</label>
 			<select name="device" id="device">
@@ -390,8 +390,8 @@ class HUT_Query_Helper {
 		}
 		
 		if (isset($filters['role']) && $filters['role'] == true) {
-			global $hut_admin_controller;
-			$rows = $hut_admin_controller->get_data_services()->distinct_role_from_user();
+			global $ha_admin_controller;
+			$rows = $ha_admin_controller->get_data_services()->distinct_role_from_user();
 			
 			?>
 			<label for="role">Role</label>
@@ -444,36 +444,36 @@ class HUT_Query_Helper {
 			$page_width = $filters['page_width'];
 			$diff_left = $page_width - $width_allowance;
 			$diff_right = $page_width + $width_allowance;
-			$query_filters .= ' AND u_event.'.HUT_Common::PAGE_WIDTH_COLUMN.' >= ' . $diff_left .
-			' AND u_event.'.HUT_Common::PAGE_WIDTH_COLUMN.' <= '. $diff_right;
+			$query_filters .= ' AND u_event.'.HA_Common::PAGE_WIDTH_COLUMN.' >= ' . $diff_left .
+			' AND u_event.'.HA_Common::PAGE_WIDTH_COLUMN.' <= '. $diff_right;
 		}
 		
 		// user event id
 		if ( isset($filters['user_event_id']) && is_int($filters['user_event_id']) ) {
-			$query_filters .= ' AND u_event.' . HUT_Common::ID_COLUMN . ' = ' . $filters['user_event_id'];
+			$query_filters .= ' AND u_event.' . HA_Common::ID_COLUMN . ' = ' . $filters['user_event_id'];
 		}
 		
 		// ignore device
 		if ( isset($filters['ignore_device']) && $filters['ignore_device'] == false && isset($filters['device'])) {
-			$query_filters .= ' AND u_env.' . HUT_Common::DEVICE_COLUMN . ' = "' . $filters['device'] . '"';
+			$query_filters .= ' AND u_env.' . HA_Common::DEVICE_COLUMN . ' = "' . $filters['device'] . '"';
 		}
 		
 		// ignore os
 		if (isset($filters['ignore_os']) && $filters['ignore_os'] == false && isset($filters['os'])) {
-			$query_filters .= ' AND u_env.' . HUT_Common::OS_COLUMN . ' = "' . $filters['os'] . '"';
+			$query_filters .= ' AND u_env.' . HA_Common::OS_COLUMN . ' = "' . $filters['os'] . '"';
 		}
 		
 		// ignore browser
 		if (isset($filters['ignore_browser']) && $filters['ignore_browser'] == false && isset($filters['browser'])) {
-			$query_filters .= ' AND u_env.' . HUT_Common::BROWSER_COLUMN . ' = "' . $filters['browser'] . '"';
+			$query_filters .= ' AND u_env.' . HA_Common::BROWSER_COLUMN . ' = "' . $filters['browser'] . '"';
 		}
 		
 		if (isset($filters['hide_roles']) && is_array($filters['hide_roles']) && count($filters['hide_roles']) > 0) {
 			foreach ($filters['hide_roles'] as $role) {
-				if ($role == HUT_Common::NO_ROLE_VALUE)
-					$query_filters .= ' AND u.' . HUT_Common::USER_ROLE_COLUMN . ' != ""';
+				if ($role == HA_Common::NO_ROLE_VALUE)
+					$query_filters .= ' AND u.' . HA_Common::USER_ROLE_COLUMN . ' != ""';
 				else
-					$query_filters .= ' AND u.' . HUT_Common::USER_ROLE_COLUMN . ' != "' . $role . '"';
+					$query_filters .= ' AND u.' . HA_Common::USER_ROLE_COLUMN . ' != "' . $role . '"';
 			}
 		}
 		
@@ -492,7 +492,7 @@ class HUT_Query_Helper {
 				if ($index > 0) {
 					$query_filters .= ' OR ';
 				}
-				$query_filters .= 'u_event.' . HUT_Common::EVENT_TYPE_COLUMN . ' = "' . $event_type . '"';
+				$query_filters .= 'u_event.' . HA_Common::EVENT_TYPE_COLUMN . ' = "' . $event_type . '"';
 				$index++;
 			}
 		
@@ -500,57 +500,57 @@ class HUT_Query_Helper {
 				$query_filters .= ')';
 			}
 		} else if (isset($filters['event_type']) && strlen($filters['event_type']) > 0) {
-			$query_filters .= $query_filter_start . ' u_event.' . HUT_Common::EVENT_TYPE_COLUMN . ' = "' . $filters['event_type'] . '"';
+			$query_filters .= $query_filter_start . ' u_event.' . HA_Common::EVENT_TYPE_COLUMN . ' = "' . $filters['event_type'] . '"';
 			$query_filter_start = ' AND';
 		}
 	
 		if (isset($filters['url']) && strlen($filters['url']) > 0) {
-			$query_filters .= $query_filter_start . 'u_event.' . HUT_Common::URL_COLUMN . ' = "' . $filters['url'] . '"';
+			$query_filters .= $query_filter_start . 'u_event.' . HA_Common::URL_COLUMN . ' = "' . $filters['url'] . '"';
 			$query_filter_start = ' AND';
 		}
 	
 		if (isset($filters['page_width']) && is_numeric($filters['page_width'])) {
-			$query_filters .= $query_filter_start . ' u_event.' . HUT_Common::PAGE_WIDTH_COLUMN . ' = ' . $filters['page_width'];
+			$query_filters .= $query_filter_start . ' u_event.' . HA_Common::PAGE_WIDTH_COLUMN . ' = ' . $filters['page_width'];
 			$query_filter_start = ' AND';
 		}
 	
 		if (isset($filters['browser']) && strlen($filters['browser']) > 0) {
-			$query_filters .= $query_filter_start . ' u_env.' . HUT_Common::BROWSER_COLUMN . ' = "' . $filters['browser'] . '"';
+			$query_filters .= $query_filter_start . ' u_env.' . HA_Common::BROWSER_COLUMN . ' = "' . $filters['browser'] . '"';
 			$query_filter_start = ' AND';
 		}
 	
 		if (isset($filters['os']) && strlen($filters['os']) > 0) {
-			$query_filters .= $query_filter_start . ' u_env.' . HUT_Common::OS_COLUMN . ' = "' . $filters['os'] . '"';
+			$query_filters .= $query_filter_start . ' u_env.' . HA_Common::OS_COLUMN . ' = "' . $filters['os'] . '"';
 			$query_filter_start = ' AND';
 		}
 			
 		if (isset($filters['device']) && strlen($filters['device']) > 0) {
-			$query_filters .= $query_filter_start . ' u_env.' . HUT_Common::DEVICE_COLUMN . ' = "' . $filters['device'] . '"';
+			$query_filters .= $query_filter_start . ' u_env.' . HA_Common::DEVICE_COLUMN . ' = "' . $filters['device'] . '"';
 			$query_filter_start = ' AND';
 		}
 	
 		if (isset($filters['ip_address']) && strlen($filters['ip_address']) > 0) {
-			$query_filters .= $query_filter_start . ' u.' . HUT_Common::IP_ADDRESS_COLUMN . ' = "' . $filters['ip_address'] . '"';
+			$query_filters .= $query_filter_start . ' u.' . HA_Common::IP_ADDRESS_COLUMN . ' = "' . $filters['ip_address'] . '"';
 			$query_filter_start = ' AND';
 		}
 		if (isset($filters['session_id']) && strlen($filters['session_id']) > 0) {
-			$query_filters .= $query_filter_start . ' u.' . HUT_Common::SESSION_ID_COLUMN . ' = "' . $filters['session_id'] . '"';
+			$query_filters .= $query_filter_start . ' u.' . HA_Common::SESSION_ID_COLUMN . ' = "' . $filters['session_id'] . '"';
 			$query_filter_start = ' AND';
 		}
 	
 	
 		if (isset($filters['username']) && strlen($filters['username']) > 0) {
-			$query_filters .= $query_filter_start . ' u.' . HUT_Common::USERNAME_COLUMN . ' LIKE "%' . $filters['username'] . '%"';
+			$query_filters .= $query_filter_start . ' u.' . HA_Common::USERNAME_COLUMN . ' LIKE "%' . $filters['username'] . '%"';
 			$query_filter_start = ' AND';
 		}
 	
 		if (isset($filters['role']) && strlen($filters['role']) > 0) {
-			$query_filters .= $query_filter_start.  ' u.' . HUT_Common::USER_ROLE_COLUMN . ' = "' . $filters['role'] . '"';
+			$query_filters .= $query_filter_start.  ' u.' . HA_Common::USER_ROLE_COLUMN . ' = "' . $filters['role'] . '"';
 			$query_filter_start = ' AND';
 		}
 	
 		if (isset($filters['last_days']) && strlen($filters['last_days']) > 0) {
-			$query_filters .= $query_filter_start . ' u_event.' . HUT_Common::RECORD_DATE_COLUMN . ' >= DATE_SUB(NOW(), INTERVAL ' . $filters['last_days'] . ' DAY)';
+			$query_filters .= $query_filter_start . ' u_event.' . HA_Common::RECORD_DATE_COLUMN . ' >= DATE_SUB(NOW(), INTERVAL ' . $filters['last_days'] . ' DAY)';
 			$query_filter_start = ' AND';
 		}
 		

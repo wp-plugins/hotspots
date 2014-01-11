@@ -14,7 +14,7 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATO
  * @author dpowney
  *
  */
-class HUT_Users_Table extends WP_List_Table {
+class HA_Users_Table extends WP_List_Table {
 
 	/**
 	 * Constructor
@@ -32,7 +32,7 @@ class HUT_Users_Table extends WP_List_Table {
 	 */
 	function extra_tablenav( $which ) {
 		if ( $which == "top" ) {
-			$query_helper = new HUT_Query_Helper();
+			$query_helper = new HA_Query_Helper();
 			$query_helper->get_session_filters(array('last_days' => true, 'ip_address' => true, 'username' => true, 'role' => true));
 				
 			$filters = array(
@@ -62,7 +62,7 @@ class HUT_Users_Table extends WP_List_Table {
 				'id' => __('Id'),
 				'user_id' => __('User Id'),
 				'user_env_id' => __('User Env Id'),
-				'count_total_events' => ('Total Events'),
+				'count_total' => ('Total Events'),
 				'count_mouse_clicks' => ('Mouse Clicks'),
 				'count_touchscreen_taps' => ('Touchscreen Taps'),
 				'count_ajax_actions' => ('AJAX Actions'),
@@ -82,7 +82,7 @@ class HUT_Users_Table extends WP_List_Table {
 	 */
 	function prepare_items() {
 		
-		$query_helper = new HUT_Query_Helper();
+		$query_helper = new HA_Query_Helper();
 		$query_helper->get_session_filters(array('last_days' => true, 'ip_address' => true, 'username' => true, 'role' => true));
 		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			$query_helper->get_http_filters('POST');
@@ -106,8 +106,8 @@ class HUT_Users_Table extends WP_List_Table {
 			$page_num = 1;
 		}
 		
-		global $hut_admin_controller;
-		$data = $hut_admin_controller->get_data_services()->users_table_data($query_helper->get_filters(), $items_per_page, $page_num);
+		global $ha_admin_controller;
+		$data = $ha_admin_controller->get_data_services()->users_table_data($query_helper->get_filters(), $items_per_page, $page_num);
 		
 		$this->set_pagination_args( $data['pagination_args'] );
 		$this->items =   $data['items'];
@@ -125,20 +125,8 @@ class HUT_Users_Table extends WP_List_Table {
 			case 'event_type':
 				return $item[$column_name];
 				break;
-			case 'count_mouse_clicks':
-				echo $this->get_event_type_count(HUT_Common::MOUSE_CLICK_EVENT_TYPE, $item['user_id']);
-				break;
-			case 'count_touchscreen_taps':
-				echo $this->get_event_type_count(HUT_Common::TOUCHSCREEN_TAP_EVENT_TYPE, $item['user_id']);
-				break;
-			case 'count_ajax_actions':
-				echo $this->get_event_type_count(HUT_Common::AJAX_ACTION_EVENT_TYPE, $item['user_id']);
-				break;
-			case 'count_page_views':
-				echo $this->get_event_type_count(HUT_Common::PAGE_VIEW_EVENT_TYPE, $item['user_id']);
-				break;
 			case 'count_custom':
-				echo $this->get_event_type_count(null, $item['user_id']);
+				echo intval($item['count_total']) - intval($item['count_mouse_clicks']) - intval($item['count_touchscreen_taps']) - intval($item['count_ajax_actions']) - intval($item['count_page_views']);
 				break;
 			case 'record_date':
 				echo date("F j, Y, g:i a", strtotime($item[$column_name]));
@@ -153,26 +141,9 @@ class HUT_Users_Table extends WP_List_Table {
 	}
 		
 	function column_action( $item ){
-		$ip_address = $item[HUT_Common::IP_ADDRESS_COLUMN];
-		$session_id = $item[HUT_Common::SESSION_ID_COLUMN];
-		echo '<a href="admin.php?page=' . HUT_Common::USERS_PAGE_SLUG . '&tab=' . HUT_Common::USER_ACTIVITY_TAB . '&ip_address=' . $ip_address . '&session_id=' . $session_id . '">View User Activity</a>';
-	}
-
-	public static function get_event_type_count($event_type, $user_id) {
-		global $wpdb;
-		$query = 'SELECT COUNT(*) FROM ' . $wpdb->prefix . HUT_Common::USER_EVENT_TBL_NAME . ' as u_event WHERE u_event.'
-		. HUT_Common::USER_ID_COLUMN . ' = "' . $user_id . '"';
-		if ($event_type != null) {
-			$query .= ' AND u_event.' . HUT_Common::EVENT_TYPE_COLUMN . ' = "' . $event_type . '"';
-		} else {
-			$query .= ' AND u_event.' . HUT_Common::EVENT_TYPE_COLUMN . ' != "' . HUT_Common::MOUSE_CLICK_EVENT_TYPE . '"' .
-			' AND u_event.' . HUT_Common::EVENT_TYPE_COLUMN . ' != "' . HUT_Common::TOUCHSCREEN_TAP_EVENT_TYPE . '"' .
-			' AND u_event.' . HUT_Common::EVENT_TYPE_COLUMN . ' != "' . HUT_Common::AJAX_ACTION_EVENT_TYPE . '"' .
-			' AND u_event.' . HUT_Common::EVENT_TYPE_COLUMN . ' != "' . HUT_Common::TOUCHSCREEN_TAP_EVENT_TYPE . '"' .
-			' AND u_event.' . HUT_Common::EVENT_TYPE_COLUMN . ' != "' . HUT_Common::PAGE_VIEW_EVENT_TYPE . '"';
-		}
-		$count = $wpdb->get_col($query, 0);
-		echo $count[0];
+		$ip_address = $item[HA_Common::IP_ADDRESS_COLUMN];
+		$session_id = $item[HA_Common::SESSION_ID_COLUMN];
+		echo '<a href="admin.php?page=' . HA_Common::USERS_PAGE_SLUG . '&tab=' . HA_Common::USER_ACTIVITY_TAB . '&ip_address=' . $ip_address . '&session_id=' . $session_id . '">View User Activity</a>';
 	}
 }
 
