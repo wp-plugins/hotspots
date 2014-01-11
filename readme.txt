@@ -28,6 +28,8 @@ The key features of the plugin are:
 Here's a demo in debug mode: http://danielpowney.com/hotspots-analytics?drawHeatmap=true
 
 = Heatmaps =
+There are two types of heatmaps, a confetti heatmap with spots and heatmap.js. Each heatmap shows the density heat of mouse clicks and or touch screen taps from green which is cool to red which is hot. Heatmap.js is an open source JavaScript library for drawing heatmaps using HTML5 canvas.
+
 Heatmaps can be launched from the WordPress admin plugin page by clicking on the "View Heatmap" button or by adding the query string parameter drawHeatmap=true to your website URL ( i.e. http://danielpowney.com?drawHeatmap=true). There are different heatmaps for each page, page widht, browser, operating system and device to cater for responsive web design and for filtering. 
 
 When the heatmap is displayed, a HTML5 canvas drawing is overlayed on the website. An additional information panel is also provided at the bottom right of the screen which provides the current page width, browser, device etc... If you resize the page width, a different heatmap will be displayed. A width allowance setting can be changed to allow for some overlap in page widths.
@@ -59,12 +61,14 @@ The plugin should not be used where performance is critical as an additional ser
 
 == Screenshots ==
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
+1. Confetti heatmap with spots
+2. heatmap.hs
+3. Heatmaps table
+4. User activity summary
+5. User activity sequence table
+6. Users table
+7. General settings
+8. Heatmap settings
 
 == Frequently Asked Questions ==
 
@@ -103,17 +107,6 @@ No. There is an setting called width allowance which allows up to 20 pixels each
 **How do I add a custom event?**
 
 You will need to understand jQuery selectors first here: http://api.jquery.com/category/selectors/. You can bind a mouse click, touchscreen tap, or form submit event to any HTML elements on the pahe by using jQuery selectors. 
-
-Here's some example jQuery selectors for WordPress:
-
-ul.menu li - all menu items
-
-header - header
-footer - footer
-.widget - widgets
-form.search-form - a search form
-input#name - name input field
-form - all forms
 
 == Changelog ==
 
