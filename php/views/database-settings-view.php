@@ -38,7 +38,7 @@ class HA_Database_Settings_View {
 		// check if clear database flag is set
 		if ( isset( $_POST['clear-database-flag'] ) && $_POST['clear-database-flag'] === "true" ) {
 			global $ha_admin_controller;
-			$response = $ha_admin_controller->get_data_services()->clear_database();
+			$response = $ha_admin_controller->get_data_services()->custom_query('clear_database', array());
 			
 			if ( $response['status'] == 'error') {
 				add_settings_error( HA_Common::DATABASE_SETTINGS_KEY, 'clear-database-success', $response['message'], 'error');

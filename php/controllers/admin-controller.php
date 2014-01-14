@@ -207,7 +207,6 @@ class HA_Admin_Controller {
 		$this->heat_map_settings = (array) get_option( HA_Common::HEAT_MAP_SETTINGS_KEY );
 		$this->database_settings = (array) get_option( HA_Common::DATABASE_SETTINGS_KEY );
 		$this->schedule_settings = (array) get_option( HA_Common::SCHEDULE_SETTINGS_KEY );
-		$this->remote_settings = (array) get_option( HA_Common::REMOTE_SETTINGS_KEY );
 		
 
 		// Merge with defaults

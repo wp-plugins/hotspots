@@ -250,7 +250,7 @@ class HA_Query_Helper {
 		
 		if (isset($filters['event_type']) && $filters['event_type'] == true) {
 			global $ha_admin_controller;
-			$rows = $ha_admin_controller->get_data_services()->distinct_event_type_from_user_events();
+			$rows = $ha_admin_controller->get_data_services()->custom_query('distinct_event_type_from_user_events', array());
 			?>
 			
 			<label for="event_type">Event Type</label>
@@ -269,7 +269,7 @@ class HA_Query_Helper {
 		
 		if (isset($filters['url']) && $filters['url'] == true) {
 			global $ha_admin_controller;
-			$rows = $ha_admin_controller->get_data_services()->distinct_url_from_user_events();
+			$rows = $ha_admin_controller->get_data_services()->custom_query('distinct_url_from_user_events', array());
 			?>
 			<label for="url">Page URL</label>
 			<select name="url" id="url" class="regular-text">
@@ -289,7 +289,7 @@ class HA_Query_Helper {
 
 		if (isset($filters['page_width']) && $filters['page_width'] == true) {
 			global $ha_admin_controller;
-			$rows = $ha_admin_controller->get_data_services()->distinct_page_width_from_user_events();
+			$rows = $ha_admin_controller->get_data_services()->custom_query('distinct_page_width_from_user_events', array());
 			?>
 			<label for="page_width">Page Width</label>
 			<select name="page_width" id="width">
@@ -307,10 +307,9 @@ class HA_Query_Helper {
 			<?php
 		}
 
-		// TODO join
 		if (isset($filters['browser']) && $filters['browser'] == true) {
 			global $ha_admin_controller;
-			$rows = $ha_admin_controller->get_data_services()->distinct_browser_from_user_env();
+			$rows = $ha_admin_controller->get_data_services()->custom_query('distinct_browser_from_user_env', array());
 			?>
 			<label for="browser">Browser</label>
 			<select name="browser" id="browser">
@@ -330,7 +329,7 @@ class HA_Query_Helper {
 
 		if (isset($filters['os']) && $filters['os'] == true) {
 			global $ha_admin_controller;
-			$rows = $ha_admin_controller->get_data_services()->distinct_os_from_user_env();
+			$rows = $ha_admin_controller->get_data_services()->custom_query('distinct_os_from_user_env', array());
 			?>
 			<label for="os">Operating System</label>
 			<select name="os" id="os">
@@ -350,7 +349,7 @@ class HA_Query_Helper {
 			
 		if (isset($filters['device']) && $filters['device'] == true) {
 			global $ha_admin_controller;
-			$rows = $ha_admin_controller->get_data_services()->distinct_device_from_user_env();
+			$rows = $ha_admin_controller->get_data_services()->custom_query('distinct_device_from_user_env', array());
 			?>
 			<label for="device">Device</label>
 			<select name="device" id="device">
@@ -391,7 +390,7 @@ class HA_Query_Helper {
 		
 		if (isset($filters['role']) && $filters['role'] == true) {
 			global $ha_admin_controller;
-			$rows = $ha_admin_controller->get_data_services()->distinct_role_from_user();
+			$rows = $ha_admin_controller->get_data_services()->custom_query('distinct_role_from_user', array());
 			
 			?>
 			<label for="role">Role</label>

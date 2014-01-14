@@ -107,7 +107,7 @@ class HA_Users_Table extends WP_List_Table {
 		}
 		
 		global $ha_admin_controller;
-		$data = $ha_admin_controller->get_data_services()->users_table_data($query_helper->get_filters(), $items_per_page, $page_num);
+		$data = $ha_admin_controller->get_data_services()->table_query('users_table_data', $query_helper->get_filters(), $items_per_page, $page_num);
 		
 		$this->set_pagination_args( $data['pagination_args'] );
 		$this->items =   $data['items'];

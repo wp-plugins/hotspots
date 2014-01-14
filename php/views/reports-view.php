@@ -28,10 +28,10 @@ class HA_Report_View {
 		<?php
 		
 		global $ha_admin_controller;
-		$data = $ha_admin_controller->get_data_services()->custom_events_report_data($query_helper->get_filters());
+		$data = $ha_admin_controller->get_data_services()->simple_query('custom_events_report_data', $query_helper->get_filters());
 		
-		$count_data = $data['count_data'];
-		$time_data = $data['time_data'];
+		$count_data = $data->count_data;
+		$time_data = $data->time_data;
 		?>
 						
 		<script type="text/javascript">
@@ -155,8 +155,9 @@ class HA_Report_View {
 		<?php
 		
 		global $ha_admin_controller;
-		$data = $ha_admin_controller->get_data_services()->events_report_data($query_helper->get_filters());
-		$time_data = $data['time_data'];
+		$data = $ha_admin_controller->get_data_services()->simple_query('events_report_data' , $query_helper->get_filters());
+
+		$time_data = $data->time_data;
 		?>
 		<div class="flot-container">
 			<div class="report-wrapper" style="height: 450px;">
@@ -262,7 +263,7 @@ class HA_Report_View {
 		$query_helper->set_session_filters();
 		
 		global $ha_admin_controller;
-		$data = $ha_admin_controller->get_data_services()->user_activity_summary_data($query_helper->get_filters());
+		$data = $ha_admin_controller->get_data_services()->simple_query('user_activity_summary_data', $query_helper->get_filters());
 		
 		if (isset($data->count_total) && $data->count_total > 0) {
 		?>

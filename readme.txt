@@ -110,6 +110,10 @@ You will need to understand jQuery selectors first here: http://api.jquery.com/c
 
 == Changelog ==
 
+= 4.0.3 =
+* Improved and refactored calls to data services
+* Removed remote settings view
+
 = 4.0.2 =
 * Fixed plugin prefix bug
 

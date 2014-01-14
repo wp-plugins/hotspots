@@ -47,7 +47,6 @@ class HA_Common {
 	HEAT_MAP_SETTINGS_KEY 				= 'ha_heat_map_settings_key',
 	SCHEDULE_SETTINGS_KEY				= 'ha_schedule_settings_key',
 	DATABASE_SETTINGS_KEY				= 'ha_database_settings_key',
-	REMOTE_SETTINGS_KEY					= 'ha_remote_settings_key',
 	
 	// WordPress otions
 	SAVE_CLICK_TAP_OPTION 				= 'ha_save_click_tap',
@@ -73,8 +72,6 @@ class HA_Common {
 	SAVE_CUSTOM_EVENTS_OPTION			= 'ha_save_custom_events',
 	SAVE_PAGE_VIEWS_OPTION				= 'ha_save_page_views',
 	URL_FILTERS_LIST_OPTION				= 'ha_url_filters_list',
-	REMOTE_URL_OPTION					= 'ha_remote_url',
-	REMOTE_API_KEY_OPTION				= 'ha_remote_api_key',
 	
 	PLUGIN_VERSION_OPTION				= 'plugin_version',
 	
@@ -428,7 +425,18 @@ class HA_Common {
 		$user_role =  $wp_user_details['user_role'];
 		$username = $wp_user_details['username'];
 		
-		$user_id = $data_services->add_retrieve_user_details($ip_address, $session_id, $create_if_empty, $current_time, $user_role, $username);
+		$params = array(
+				'ip_address' => $ip_address,
+				'session_id' => $session_id,
+				'create_if_empty' => $create_if_empty,
+				'current_time' => $current_time,
+				'user_role' => $user_role,
+				'username' => $username
+		);
+		
+		$data = $data_services->custom_query('add_retrieve_user_details', $params);
+		
+		$user_id = $data->user_id;
 		
 		return array(
 				'user_id' => $user_id,
@@ -464,9 +472,19 @@ class HA_Common {
 		$user_environment_id = '';
 		$current_time = current_time('mysql');
 		
+		$params = array(
+				'user_id' => $user_id,
+				'create_if_empty' => $create_if_empty,
+				'browser' => $browser,
+				'os' => $os,
+				'device' => $device,
+				'current_time' => $current_time
+		);
+		
 		// don't insert if user_id has not been provided
 		if ($user_id) {
-			$user_environment_id = $data_services->add_retrieve_user_environment_details($user_id, $create_if_empty, $browser, $os, $device, $current_time);
+			$data = $data_services->custom_query('add_retrieve_user_environment_details', $params);			
+			$user_environment_id = $data->user_environment_id;
 		}
 	
 		return array(
