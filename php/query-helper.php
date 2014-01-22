@@ -506,6 +506,9 @@ class HA_Query_Helper {
 			$diff_right = $page_width + $width_allowance;
 			$query_filters .= ' AND u_event.'.HA_Common::PAGE_WIDTH_COLUMN.' >= ' . $diff_left .
 			' AND u_event.'.HA_Common::PAGE_WIDTH_COLUMN.' <= '. $diff_right;
+		} else if (isset($filters['page_width']) && is_numeric($filters['page_width'])) {
+			$query_filters .= $query_filter_start . ' u_event.' . HA_Common::PAGE_WIDTH_COLUMN . ' = ' . $filters['page_width'];
+			$query_filter_start = ' AND';
 		}
 		
 		// user event id
@@ -566,11 +569,6 @@ class HA_Query_Helper {
 	
 		if (isset($filters['url']) && strlen($filters['url']) > 0) {
 			$query_filters .= $query_filter_start . 'u_event.' . HA_Common::URL_COLUMN . ' = "' . $filters['url'] . '"';
-			$query_filter_start = ' AND';
-		}
-	
-		if (isset($filters['page_width']) && is_numeric($filters['page_width'])) {
-			$query_filters .= $query_filter_start . ' u_event.' . HA_Common::PAGE_WIDTH_COLUMN . ' = ' . $filters['page_width'];
 			$query_filter_start = ' AND';
 		}
 	
