@@ -116,7 +116,7 @@ class HA_Heatmap_Settings_View {
 			} else {
 				checked(true, $hide_roles, true );
 			}
-			echo ' />&nbsp;<label class="ha_role">' . $role_name . '</label>'; 
+			echo ' />&nbsp;<label class="ha_checkbox_label">' . $role_name . '</label>'; 
 		}
 		
 		echo '</p>';

@@ -22,6 +22,7 @@ class HA_Query_Helper {
 	public $role = null;
 	public $event_type = null;
 	public $user_id = null;
+	public $event_types = null;
 
 	/**
 	 * Constructor.
@@ -44,6 +45,7 @@ class HA_Query_Helper {
 		$this->username = isset($filters['username']) ? $filters['username'] : null;
 		$this->role = isset($filters['role']) ? $filters['role'] : null;
 		$this->event_type = isset($filters['event_type']) ? $filters['event_type'] : null;
+		$this->event_types = isset($filters['event_types']) ? $filters['event_types'] : null;
 	}
 	
 	/**
@@ -61,6 +63,7 @@ class HA_Query_Helper {
 		$this->username = isset($_SESSION['username']) && isset($filters['username'])? $_SESSION['username'] : null;
 		$this->role = isset($_SESSION['role']) && isset($filters['role'])? $_SESSION['role'] : null;
 		$this->event_type = isset($_SESSION['event_type']) && isset($filters['event_type'])? $_SESSION['event_type'] : null;
+		$this->event_types = isset($_SESSION['event_types']) && isset($filters['event_types'])? $_SESSION['event_types'] : null;
 	}
 	
 	function get_http_filters($method) {
@@ -109,6 +112,12 @@ class HA_Query_Helper {
 			if ( isset($_GET['event_type'])) {
 				$this->event_type = $_GET['event_type'];
 			}
+			
+			if ( isset($_GET['event_types'])) {
+				$this->event_types = $_GET['event_types'];
+			} else {
+				$this->event_types = array();
+			}
 		} else {
 						
 			if (isset($_POST['ip_address'])) {
@@ -154,6 +163,13 @@ class HA_Query_Helper {
 			if ( isset($_POST['event_type'])) {
 				$this->event_type = $_POST['event_type'];
 			}
+			
+			if ( isset($_POST['event_types'])) {
+				$this->event_types = $_POST['event_types'];
+			} else {
+				$this->event_types = array();
+			}
+			
 		}
 	}
 	
@@ -172,7 +188,8 @@ class HA_Query_Helper {
 				'last_days' => $this->last_days,
 				'username' => $this->username,
 				'role' => $this->role,
-				'event_type' => $this->event_type
+				'event_type' => $this->event_type,
+				'event_types' => $this->event_types
 			);
 	}
 	
@@ -191,6 +208,7 @@ class HA_Query_Helper {
 		$_SESSION['username'] = null;
 		$_SESSION['role'] = null;
 		$_SESSION['event_type'] = null;
+		$_SESSION['event_types'] = null;
 	}
 	
 	/**
@@ -208,6 +226,7 @@ class HA_Query_Helper {
 		$this->username =null;
 		$this->role = null;
 		$this->event_type = null;
+		$this->event_types = null;
 	}
 	
 	/**
@@ -225,6 +244,7 @@ class HA_Query_Helper {
 		$_SESSION['username'] = $this->username;
 		$_SESSION['role'] = $this->role;
 		$_SESSION['event_type'] = $this->event_type;
+		$_SESSION['event_types'] = $this->event_types;
 	}
 	
 	/**
@@ -233,186 +253,227 @@ class HA_Query_Helper {
 	 * @param unknown_type $filters
 	 */
 	function show_filters($filters) {
-
-		if (isset($filters['ip_address']) && $filters['ip_address'] == true) {
-			?>
-			<label for="ip_address">IP Address</label>
-			<input type="text" name="ip_address" id="ip_address" value="<?php echo $this->ip_address; ?>" />
-			<?php
-		}
+		
+		$count = 0;
+		$index = 0;
+		$filters_per_row = 5;
+		foreach ($filters as $filter_key => $filter_value) {
+			if ($filter_value == true) {
 				
-		if (isset($filters['session_id']) && $filters['session_id'] == true) {
-			?>
-			<label for="session_id">Session ID</label>
-			<input type="text" name="session_id" id="session_id" value="<?php echo $this->session_id; ?>" />
-			<?php
-		}
-		
-		if (isset($filters['event_type']) && $filters['event_type'] == true) {
-			global $ha_admin_controller;
-			$rows = $ha_admin_controller->get_data_services()->custom_query('distinct_event_type_from_user_events', array());
-			?>
-			
-			<label for="event_type">Event Type</label>
-			<select name="event_type" id="event_type">
-				<option value="" <?php if (!isset($this->event_type)) echo 'selected="selected"'; ?>>All</option>
-				<?php
-				foreach ($rows as $row) {
-					?>
-					<option value="<?php echo $row->event_type; ?>" <?php if ($this->event_type == $row->event_type) echo 'selected="selected"'; ?>><?php echo $row->event_type; ?></option>
-					<?php
-				}
-				?>
-			</select>
-			<?php
-		}
-		
-		if (isset($filters['url']) && $filters['url'] == true) {
-			global $ha_admin_controller;
-			$rows = $ha_admin_controller->get_data_services()->custom_query('distinct_url_from_user_events', array());
-			?>
-			<label for="url">Page URL</label>
-			<select name="url" id="url" class="regular-text">
-				<option value="">All</option>
-				<?php
-				foreach ($rows as $row) {
-					$current_url = stripslashes($row->url);
-					$selected = '';
-					if ($current_url == $this->url)
-						$selected = ' selected="selected"';
-					echo '<option value="' . addslashes($current_url) . '"' . $selected . '>' . $current_url . '</option>';
-				}
-				?>
-			</select>
-			<?php
-		}
-
-		if (isset($filters['page_width']) && $filters['page_width'] == true) {
-			global $ha_admin_controller;
-			$rows = $ha_admin_controller->get_data_services()->custom_query('distinct_page_width_from_user_events', array());
-			?>
-			<label for="page_width">Page Width</label>
-			<select name="page_width" id="width">
-				<option value="">All</option>
-				<?php
-				foreach ($rows as $row) {
-					$current_width= $row->page_width;
-					$selected = '';
-					if ($current_width == $this->page_width)
-						$selected = ' selected="selected"';
-					echo '<option value="' . $current_width . '"' . $selected . '>' . $current_width . 'px</option>';
-				}
-				?>
-			</select>
-			<?php
-		}
-
-		if (isset($filters['browser']) && $filters['browser'] == true) {
-			global $ha_admin_controller;
-			$rows = $ha_admin_controller->get_data_services()->custom_query('distinct_browser_from_user_env', array());
-			?>
-			<label for="browser">Browser</label>
-			<select name="browser" id="browser">
-				<option value="">All</option>
-				<?php 
-				foreach ($rows as $row) {
-					$current_browser = $row->browser;
-					$selected = '';
-					if ($current_browser == $this->browser)
-						$selected = ' selected="selected"';
-					echo '<option value="' . $current_browser . '"' . $selected . '>' . $current_browser . '</option>';
-				}
-				?>
-			</select>
-			<?php
-		}
-
-		if (isset($filters['os']) && $filters['os'] == true) {
-			global $ha_admin_controller;
-			$rows = $ha_admin_controller->get_data_services()->custom_query('distinct_os_from_user_env', array());
-			?>
-			<label for="os">Operating System</label>
-			<select name="os" id="os">
-				<option value="">All</option>
-				<?php
-				foreach ($rows as $row) {
-					$current_os = $row->os;
-					$selected = '';
-					if ($current_os == $this->os)
-						$selected = ' selected="selected"';
-					echo '<option value="' . $current_os . '"' . $selected . '>' . $current_os . '</option>';
-				}
-				?>
-			</select>
-			<?php
-		}
-			
-		if (isset($filters['device']) && $filters['device'] == true) {
-			global $ha_admin_controller;
-			$rows = $ha_admin_controller->get_data_services()->custom_query('distinct_device_from_user_env', array());
-			?>
-			<label for="device">Device</label>
-			<select name="device" id="device">
-				<option value="">All</option>
-				<?php
-				foreach ($rows as $row) {
-					$current_device = $row->device;
-					$selected = '';
-					if ($current_device == $this->device)
-						$selected = ' selected="selected"';
-					echo '<option value="' . $current_device . '"' . $selected . '>' . $current_device . '</option>';
-				}
-				?>
-			</select>
-			<?php
-		}
-		
-		if (isset($filters['last_days']) && $filters['last_days'] == true) {
-			?>
-			<labe for="last_days">Days</labe>
-			<select name="last_days" id="last_days">
-				<option value="" <?php if (!isset($this->last_days)) echo 'selected="selected"'; ?>></option>
-				<option value="0" <?php if ($this->last_days == '0') echo 'selected="selected"'; ?>>Today</option>
-				<option value="1" <?php if ($this->last_days == '1') echo 'selected="selected"'; ?>>Yesterday</option>
-				<option value="7" <?php if ($this->last_days == '7') echo 'selected="selected"'; ?>>Last 7 days</option>
-				<option value="30" <?php if ($this->last_days == '30') echo 'selected="selected"'; ?>>Last 30 days</option>
-				<option value="60" <?php if ($this->last_days == '60') echo 'selected="selected"'; ?>>Last 60 days</option>
-			</select>
-			<?php
-		}
-		
-		if (isset($filters['username']) && $filters['username'] == true) {
-			?>
-			<label for="username">Username</label>
-			<input type="text" name="username" id="username" value="<?php echo $this->username; ?>" />
-			<?php
-		}
-		
-		if (isset($filters['role']) && $filters['role'] == true) {
-			global $ha_admin_controller;
-			$rows = $ha_admin_controller->get_data_services()->custom_query('distinct_role_from_user', array());
-			
-			?>
-			<label for="role">Role</label>
-			<select name="role" id="role">
-				<option value=""></option>
-				<?php
-			
-				foreach ($rows as $row) {
-					echo '<option value="' . $row->role . '"';
-					if ($row->role == $this->role) {
-							echo 'selected="selected"';
-					}
-					echo '>' . $row->role . '</option>'; 
-				}
-				?>
-			</select>
-			<?php
-		}
+				$count++;
+				$index++;
 				
-		?>
-		<input type="submit" class="button" value="Filter" />
-		<?php		
+				switch ($filter_key) {
+					case 'ip_address' :
+						?>
+						<label for="ip_address">IP Address</label>
+						<input type="text" name="ip_address" id="ip_address" value="<?php echo $this->ip_address; ?>" />
+						<?php
+						break;
+					case 'session_id' :
+						?>
+						<label for="session_id">Session ID</label>
+						<input type="text" name="session_id" id="session_id" value="<?php echo $this->session_id; ?>" />
+						<?php
+						break;
+					case 'event_type' :
+						global $ha_admin_controller;
+						$rows = $ha_admin_controller->get_data_services()->custom_query('distinct_event_type_from_user_events', array());
+						?>
+									
+						<label for="event_type">Event Type</label>
+						<select name="event_type" id="event_type">
+							<option value="" <?php if (!isset($this->event_type)) echo 'selected="selected"'; ?>>All</option>
+							<?php
+							foreach ($rows as $row) {
+								?>
+								<option value="<?php echo $row->event_type; ?>" <?php if ($this->event_type == $row->event_type) echo 'selected="selected"'; ?>><?php echo $row->event_type; ?></option>
+								<?php
+							}
+							?>
+						</select>
+						<?php					
+						break;
+					case 'event_types' :
+						global $ha_admin_controller;
+						$rows = $ha_admin_controller->get_data_services()->custom_query('distinct_event_type_from_user_events', array());
+							
+						$event_types = array();
+						foreach ($rows as $row) {
+							array_push($event_types,  $row->event_type);
+						}
+						?>
+									
+						<label class="ha_checkbox_label" for="event_types[]">Event Types</label>
+						<?php
+						foreach ($event_types as $event_type) {
+							?>
+							<label class="ha_checkbox_label">
+								<input name="event_types[]" type="checkbox" value="<?php echo $event_type; ?>" <?php 
+								if (is_array($this->event_types) && in_array($event_type, $this->event_types)) {
+									echo 'checked="checked"';
+								}
+								
+								?>><?php echo $event_type; ?></input>
+							</label>
+							<?php
+						}
+						
+						$count = $filters_per_row;
+							
+						break;
+					case 'url' :
+						global $ha_admin_controller;
+						$rows = $ha_admin_controller->get_data_services()->custom_query('distinct_url_from_user_events', array());
+						?>
+						<label for="url">Page URL</label>
+						<select name="url" id="url" class="regular-text">
+							<option value="">All</option>
+							<?php
+							foreach ($rows as $row) {
+								$current_url = stripslashes($row->url);
+								$selected = '';
+								if ($current_url == $this->url)
+									$selected = ' selected="selected"';
+								echo '<option value="' . addslashes($current_url) . '"' . $selected . '>' . $current_url . '</option>';
+							}
+							?>
+						</select>
+						<?php
+						break;
+					case 'page_width' :
+						global $ha_admin_controller;
+						$rows = $ha_admin_controller->get_data_services()->custom_query('distinct_page_width_from_user_events', array());
+						?>
+						<label for="page_width">Page Width</label>
+						<select name="page_width" id="width">
+							<option value="">All</option>
+							<?php
+							foreach ($rows as $row) {
+								$current_width= $row->page_width;
+								$selected = '';
+								if ($current_width == $this->page_width)
+									$selected = ' selected="selected"';
+								echo '<option value="' . $current_width . '"' . $selected . '>' . $current_width . 'px</option>';
+							}
+							?>
+						</select>
+						<?php
+						break;
+					case 'browser' :
+						global $ha_admin_controller;
+						$rows = $ha_admin_controller->get_data_services()->custom_query('distinct_browser_from_user_env', array());
+						?>
+						<label for="browser">Browser</label>
+						<select name="browser" id="browser">
+							<option value="">All</option>
+							<?php 
+							foreach ($rows as $row) {
+								$current_browser = $row->browser;
+								$selected = '';
+								if ($current_browser == $this->browser)
+									$selected = ' selected="selected"';
+								echo '<option value="' . $current_browser . '"' . $selected . '>' . $current_browser . '</option>';
+							}
+							?>
+						</select>
+						<?php
+						break;
+					case 'os' :
+						global $ha_admin_controller;
+						$rows = $ha_admin_controller->get_data_services()->custom_query('distinct_os_from_user_env', array());
+						?>
+						<label for="os">Operating System</label>
+						<select name="os" id="os">
+							<option value="">All</option>
+							<?php
+							foreach ($rows as $row) {
+								$current_os = $row->os;
+								$selected = '';
+								if ($current_os == $this->os)
+									$selected = ' selected="selected"';
+								echo '<option value="' . $current_os . '"' . $selected . '>' . $current_os . '</option>';
+							}
+							?>
+						</select>
+						<?php
+						break;
+					case 'device' :
+						global $ha_admin_controller;
+						$rows = $ha_admin_controller->get_data_services()->custom_query('distinct_device_from_user_env', array());
+						?>
+						<label for="device">Device</label>
+						<select name="device" id="device">
+							<option value="">All</option>
+							<?php
+							foreach ($rows as $row) {
+								$current_device = $row->device;
+								$selected = '';
+								if ($current_device == $this->device)
+									$selected = ' selected="selected"';
+								echo '<option value="' . $current_device . '"' . $selected . '>' . $current_device . '</option>';
+							}
+							?>
+						</select>
+						<?php
+						break;
+					case 'last_days' :
+						?>
+						<labe for="last_days">Days</labe>
+						<select name="last_days" id="last_days">
+							<option value="" <?php if (!isset($this->last_days)) echo 'selected="selected"'; ?>></option>
+							<option value="0" <?php if ($this->last_days == '0') echo 'selected="selected"'; ?>>Today</option>
+							<option value="1" <?php if ($this->last_days == '1') echo 'selected="selected"'; ?>>Yesterday</option>
+							<option value="7" <?php if ($this->last_days == '7') echo 'selected="selected"'; ?>>Last 7 days</option>
+							<option value="30" <?php if ($this->last_days == '30') echo 'selected="selected"'; ?>>Last 30 days</option>
+							<option value="60" <?php if ($this->last_days == '60') echo 'selected="selected"'; ?>>Last 60 days</option>
+						</select>
+						<?php	
+						break;
+					case 'username' :
+						?>
+						<label for="username">Username</label>
+						<input type="text" name="username" id="username" value="<?php echo $this->username; ?>" />
+						<?php
+						break;
+					case 'role' :
+						global $ha_admin_controller;
+						$rows = $ha_admin_controller->get_data_services()->custom_query('distinct_role_from_user', array());
+							
+						?>
+						<label for="role">Role</label>
+						<select name="role" id="role">
+							<option value=""></option>
+							<?php
+						
+							foreach ($rows as $row) {
+								echo '<option value="' . $row->role . '"';
+								if ($row->role == $this->role) {
+										echo 'selected="selected"';
+								}
+								echo '>' . $row->role . '</option>'; 
+							}
+							?>
+						</select>
+						<?php
+						break;
+					default : 
+						break;
+				}
+				
+				if (count($filters) == $index) {
+					echo '<input type="submit" class="button" value="Filter" />';
+				}
+				
+				if ($count % $filters_per_row == 0 && count($filters) != $index) {
+					echo '<br />';
+				}
+			}
+			
+			
+		}
+		
+			
 	}
 	
 	/**
@@ -477,12 +538,12 @@ class HA_Query_Helper {
 		}
 		
 		// event types
-		if (isset($filters['event_types']) && is_array($filters['event_types']) && count($filters['event_types']) > 0) {
+		if (isset($filters['event_types']) && is_array($filters['event_types'])) {
 			$event_types = $filters['event_types'];
 			$count = count($event_types);
 		
-			$query_filters .= ' AND ';
-			if ($count > 1) {
+			if ($count > 0) {
+				$query_filters .= ' AND ';
 				$query_filters .= '(';
 			}
 		
@@ -495,7 +556,7 @@ class HA_Query_Helper {
 				$index++;
 			}
 		
-			if ($count > 1) {
+			if ($count > 0) {
 				$query_filters .= ')';
 			}
 		} else if (isset($filters['event_type']) && strlen($filters['event_type']) > 0) {

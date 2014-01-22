@@ -14,7 +14,7 @@ class HA_Common {
 	const
 	PLUGIN_ID 							= 'ha',
 	CONFIG_DATA 						= 'config_data',
-	PLUGIN_VERSION						= '4.0.1',
+	PLUGIN_VERSION						= '4.0.4',
 	
 	// WordPress menu pages
 	MENU_PAGE_SLUG						= 'ha_menu_page',
@@ -36,9 +36,10 @@ class HA_Common {
 	ELEMENT_SETTINGS_TAB				= 'ha_elements_tab',
 	REPORTS_TAB							= 'ha_reports_tab',
 	USER_ACTIVITY_TAB 					= 'ha_user_activity_tab',
-	CUSTOM_EVENT_REPORT_TAB				= 'ha_custom_event_report_tab',
-	EVENTS_REPORT_TAB					= 'ha_events_report_tab',
-	SUMMARY_REPORT_TAB					= 'ha_summary_report_tab',
+	EVENT_STATISTICS_TABLE_REPORT_TAB	= 'ha_event_statistics_table_report_tab',
+	EVENT_TOTALS_BAR_GRAPH_REPORT_TAB	= 'ha_event_totals_bar_graph_report_tab',
+	EVENT_COMPARISON_LINE_GRAPH_REPORT_TAB	= 'ha_event_comparison_line_graph_report_tab',
+	EVENT_LINE_GRAPH_REPORT_TAB			= 'ha_event_line_graph_report_tab',
 	
 	// WordPress settings
 	GENERAL_SETTINGS_KEY 				= 'ha_general_settings',

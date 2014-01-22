@@ -66,9 +66,10 @@ class HA_Admin_Controller {
 		$this->users_tabs[HA_Common::USERS_TAB] = 'Users';
 		$this->users_tabs[HA_Common::USER_ACTIVITY_TAB] = 'User Activity';
 		
-		$this->reports_tabs[HA_Common::SUMMARY_REPORT_TAB] = 'Summary';
-		$this->reports_tabs[HA_Common::EVENTS_REPORT_TAB] = 'Events';
-		$this->reports_tabs[HA_Common::CUSTOM_EVENT_REPORT_TAB] = 'Custom Events';
+		$this->reports_tabs[HA_Common::EVENT_COMPARISON_LINE_GRAPH_REPORT_TAB] = 'Event Comparison Line Graph';
+		$this->reports_tabs[HA_Common::EVENT_LINE_GRAPH_REPORT_TAB] = 'Event Line Graph';
+		$this->reports_tabs[HA_Common::EVENT_STATISTICS_TABLE_REPORT_TAB] = 'Event Statistics Table';
+		$this->reports_tabs[HA_Common::EVENT_TOTALS_BAR_GRAPH_REPORT_TAB] = 'Event Totals Bar Graph';
 		
 		// Create settings page, add JavaScript and CSS
 		if( is_admin() ) {

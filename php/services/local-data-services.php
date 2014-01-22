@@ -26,8 +26,8 @@ class HA_Local_Data_Services implements HA_Data_Services {
 			case 'user_activity_table_data' :
 				return $this->user_activity_table_data($filters, $items_per_page, $page_num);
 				break;
-			case 'summary_report_data' :
-				return $this->summary_report_data($filters, $items_per_page, $page_num);
+			case 'event_statistics_table_report_data' :
+				return $this->event_statistics_table_report_data($filters, $items_per_page, $page_num);
 				break;
 			default :
 				break;
@@ -84,11 +84,14 @@ class HA_Local_Data_Services implements HA_Data_Services {
 			case 'user_activity_summary_data' :
 				return $this->user_activity_summary_data($filters);
 				break;
-			case 'events_report_data' :
-				return $this->events_report_data($filters);
+			case 'event_comparison_line_graph_report_data' :
+				return $this->event_comparison_line_graph_report_data($filters);
 				break;
-			case 'custom_events_report_data' :
-				return $this->custom_events_report_data($filters);
+			case 'event_line_graph_report_data' :
+				return $this->event_line_graph_report_data($filters);
+				break;
+			case 'event_totals_bar_graph_report_data' :
+				return $this->event_totals_bar_graph_report_data($filters);
 				break;
 			default :
 				break;
@@ -270,15 +273,27 @@ class HA_Local_Data_Services implements HA_Data_Services {
 	
 		return $wpdb->get_row($query, OBJECT, 0);
 	}
-	private function summary_report_data($filters, $items_per_page, $page_num) {
+	private function event_statistics_table_report_data($filters, $items_per_page, $page_num) {
 		global $wpdb;
+		
+		$count_users_query = '(SELECT COUNT(DISTINCT u_event.' . HA_Common::USER_ID_COLUMN . ') FROM '
+		. $wpdb->prefix . HA_Common::USER_EVENT_TBL_NAME . ' as u_event, '
+		. $wpdb->prefix . HA_Common::USER_ENV_TBL_NAME . ' AS u_env WHERE u_event.' . HA_Common::USER_ENV_ID_COLUMN
+		. ' = u_env.' . HA_Common::ID_COLUMN . ')';
+		$count_users_query = HA_Query_Helper::apply_query_filters($count_users_query, $filters);
+		
+		$count_pages_query = '(SELECT COUNT(DISTINCT u_event.' . HA_Common::URL_COLUMN . ') FROM '
+		. $wpdb->prefix . HA_Common::USER_EVENT_TBL_NAME . ' as u_event, '
+		. $wpdb->prefix . HA_Common::USER_ENV_TBL_NAME . ' AS u_env WHERE u_event.' . HA_Common::USER_ENV_ID_COLUMN
+		. ' = u_env.' . HA_Common::ID_COLUMN . ')';
+		$count_pages_query = HA_Query_Helper::apply_query_filters($count_pages_query, $filters);
+		
 		$query = 'SELECT COUNT(*) as ' . HA_Common::TOTAL_COLUMN . ', u_event.' . HA_Common::EVENT_TYPE_COLUMN
 		. ', u_event.' . HA_Common::RECORD_DATE_COLUMN . ' AS ' . HA_Common::RECORD_DATE_COLUMN
 		. ', u_env.' . HA_Common::DEVICE_COLUMN . ' AS ' . HA_Common::DEVICE_COLUMN . ','
 		. 'u_env.' . HA_Common::BROWSER_COLUMN . ' AS ' . HA_Common::BROWSER_COLUMN . ','
-		. 'u_env.' . HA_Common::OS_COLUMN . ' AS ' . HA_Common::OS_COLUMN
-		. ', COUNT(DISTINCT u_event.' . HA_Common::USER_ID_COLUMN . ') as count_users '
-		. ', COUNT(DISTINCT u_event.' . HA_Common::URL_COLUMN . ') as count_pages ' . ' FROM '
+		. 'u_env.' . HA_Common::OS_COLUMN . ' AS ' . HA_Common::OS_COLUMN. ', ' 
+		. $count_users_query . ' AS count_users' . ', ' . $count_pages_query . ' AS count_pages FROM '
 		. $wpdb->prefix . HA_Common::USER_EVENT_TBL_NAME . ' as u_event, '
 		. $wpdb->prefix . HA_Common::USER_ENV_TBL_NAME . ' AS u_env WHERE u_event.' . HA_Common::USER_ENV_ID_COLUMN
 		. ' = u_env.' . HA_Common::ID_COLUMN;
@@ -301,7 +316,7 @@ class HA_Local_Data_Services implements HA_Data_Services {
 	
 		return array('pagination_args' => $pagination_args, 'items' => $items);
 	}
-	private function events_report_data($filters) {
+	private function event_line_graph_report_data($filters) {
 		global $wpdb;
 
 		// Time graph
@@ -328,42 +343,15 @@ class HA_Local_Data_Services implements HA_Data_Services {
 
 		return json_decode( json_encode( array( 'time_data' => $time_data ) ), false );
 	}
-	private function custom_events_report_data($filters) {
+	private function event_comparison_line_graph_report_data($filters) {
 		global $wpdb;
-
-		// Counts data
-		$query = 'SELECT count(*) as count, u_event.' . HA_Common::EVENT_TYPE_COLUMN . ' FROM ' . $wpdb->prefix . HA_Common::USER_TBL_NAME
-		. ' AS u, ' . $wpdb->prefix . HA_Common::USER_EVENT_TBL_NAME . ' AS u_event, ' . $wpdb->prefix . HA_Common::USER_ENV_TBL_NAME
-		. ' AS u_env WHERE u_event.' . HA_Common::USER_ENV_ID_COLUMN . ' = u_env.' . HA_Common::ID_COLUMN . ' AND u.'
-		. HA_Common::ID_COLUMN . ' = u_event.' . HA_Common::USER_ID_COLUMN
-		. ' AND u_event.' . HA_Common::EVENT_TYPE_COLUMN . ' != "' . HA_Common::MOUSE_CLICK_EVENT_TYPE . '"'
-		. ' AND u_event.' . HA_Common::EVENT_TYPE_COLUMN . ' != "' . HA_Common::TOUCHSCREEN_TAP_EVENT_TYPE . '"'
-		. ' AND u_event.' . HA_Common::EVENT_TYPE_COLUMN . ' != "' . HA_Common::AJAX_ACTION_EVENT_TYPE . '"'
-		. ' AND u_event.' . HA_Common::EVENT_TYPE_COLUMN . ' != "' . HA_Common::TOUCHSCREEN_TAP_EVENT_TYPE . '"'
-		. ' AND u_event.' . HA_Common::EVENT_TYPE_COLUMN . ' != "' . HA_Common::PAGE_VIEW_EVENT_TYPE . '"';
-
-		$query = HA_Query_Helper::apply_query_filters($query, $filters);
-
-		$query .= ' GROUP BY ' . HA_Common::EVENT_TYPE_COLUMN;
-
-		$rows = $wpdb->get_results($query);
-		$count_data = array();
-		foreach ($rows as $row) {
-			$event_type = $row->event_type;
-			$count = $row->count;
-			array_push($count_data, array($event_type, $count));
-		}
 
 		// Time graph data
 		$query = 'SELECT DISTINCT DATE(  ' . HA_Common::RECORD_DATE_COLUMN . ' ) AS day, u_event.' . HA_Common::EVENT_TYPE_COLUMN . ', count(*) as count FROM '
 		. $wpdb->prefix . HA_Common::USER_TBL_NAME . ' AS u, ' . $wpdb->prefix . HA_Common::USER_EVENT_TBL_NAME . ' AS u_event, '
 		. $wpdb->prefix . HA_Common::USER_ENV_TBL_NAME . ' AS u_env WHERE u_event.' . HA_Common::USER_ENV_ID_COLUMN
-		. ' = u_env.' . HA_Common::ID_COLUMN . ' AND u.' . HA_Common::ID_COLUMN . ' = u_event.' . HA_Common::USER_ID_COLUMN
-		. ' AND u_event.' . HA_Common::EVENT_TYPE_COLUMN . ' != "' . HA_Common::MOUSE_CLICK_EVENT_TYPE . '"'
-		. ' AND u_event.' . HA_Common::EVENT_TYPE_COLUMN . ' != "' . HA_Common::TOUCHSCREEN_TAP_EVENT_TYPE . '"'
-		. ' AND u_event.' . HA_Common::EVENT_TYPE_COLUMN . ' != "' . HA_Common::AJAX_ACTION_EVENT_TYPE . '"'
-		. ' AND u_event.' . HA_Common::EVENT_TYPE_COLUMN . ' != "' . HA_Common::TOUCHSCREEN_TAP_EVENT_TYPE . '"'
-		. ' AND u_event.' . HA_Common::EVENT_TYPE_COLUMN . ' != "' . HA_Common::PAGE_VIEW_EVENT_TYPE . '"';
+		. ' = u_env.' . HA_Common::ID_COLUMN . ' AND u.' . HA_Common::ID_COLUMN . ' = u_event.' . HA_Common::USER_ID_COLUMN;
+
 		$query = HA_Query_Helper::apply_query_filters($query, $filters);
 
 		$query .= ' GROUP BY ' . HA_Common::EVENT_TYPE_COLUMN . ', day ORDER BY ' . HA_Common::RECORD_DATE_COLUMN . ' DESC';
@@ -386,7 +374,30 @@ class HA_Local_Data_Services implements HA_Data_Services {
 			$time_data[$event_type] = $data;
 		}
 
-		return json_decode( json_encode(array('count_data' => $count_data, 'time_data' => $time_data)), false);
+		return json_decode( json_encode(array('time_data' => $time_data)), false);
+	}
+	private function event_totals_bar_graph_report_data($filters) {
+		global $wpdb;
+	
+		// Counts data
+		$query = 'SELECT count(*) as count, u_event.' . HA_Common::EVENT_TYPE_COLUMN . ' FROM ' . $wpdb->prefix . HA_Common::USER_TBL_NAME
+		. ' AS u, ' . $wpdb->prefix . HA_Common::USER_EVENT_TBL_NAME . ' AS u_event, ' . $wpdb->prefix . HA_Common::USER_ENV_TBL_NAME
+		. ' AS u_env WHERE u_event.' . HA_Common::USER_ENV_ID_COLUMN . ' = u_env.' . HA_Common::ID_COLUMN . ' AND u.'
+		. HA_Common::ID_COLUMN . ' = u_event.' . HA_Common::USER_ID_COLUMN;
+	
+		$query = HA_Query_Helper::apply_query_filters($query, $filters);
+	
+		$query .= ' GROUP BY ' . HA_Common::EVENT_TYPE_COLUMN;
+	
+		$rows = $wpdb->get_results($query);
+		$count_data = array();
+		foreach ($rows as $row) {
+			$event_type = $row->event_type;
+			$count = $row->count;
+			array_push($count_data, array($event_type, $count));
+		}
+	
+		return json_decode( json_encode(array('count_data' => $count_data)), false);
 	}
 	private function clear_database() {
 		$response = array('status' => 'OK', 'message' => 'Database cleared successfully');

@@ -215,19 +215,21 @@ class HA_Admin_Page_View {
 	}
 	
 	public static function reports_page($tabs) {
-		$current_tab = isset( $_GET['tab'] ) ? $_GET['tab'] : HA_Common::SUMMARY_REPORT_TAB;
+		$current_tab = isset( $_GET['tab'] ) ? $_GET['tab'] : HA_Common::EVENT_COMPARISON_LINE_GRAPH_REPORT_TAB;
 		?>
 		<div class="wrap">
 			<?php 
 			HA_Admin_Page_View::page_header('Reports');
 			HA_Admin_Page_View::show_page_tabs(HA_Common::REPORTS_PAGE_SLUG, $tabs, $current_tab);
 			
-			if ($current_tab == HA_Common::CUSTOM_EVENT_REPORT_TAB) {
-				HA_Report_View::show_custom_events_report_tab();
-			} else if ($current_tab == HA_Common::EVENTS_REPORT_TAB) {
-				HA_Report_View::show_events_report_tab();
-			} else if ($current_tab == HA_Common::SUMMARY_REPORT_TAB) {
-				HA_Report_View::show_summary_report_tab();
+			if ($current_tab == HA_Common::EVENT_COMPARISON_LINE_GRAPH_REPORT_TAB) {
+				HA_Report_View::show_event_comparison_line_graph_report_tab();
+			} else if ($current_tab == HA_Common::EVENT_STATISTICS_TABLE_REPORT_TAB) {
+				HA_Report_View::show_event_statistics_table_report_tab();
+			} else if ($current_tab == HA_Common::EVENT_TOTALS_BAR_GRAPH_REPORT_TAB) {
+				HA_Report_View::show_event_totals_bar_graph_report_tab();
+			} else if ($current_tab == HA_Common::EVENT_LINE_GRAPH_REPORT_TAB) {
+				HA_Report_View::show_event_line_graph_report_tab();
 			}
 			?>
 		</div>

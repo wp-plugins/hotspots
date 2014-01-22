@@ -60,9 +60,9 @@ class HA_Summary_Table extends WP_List_Table {
 		return $columns= array(
 				HA_Common::ID_COLUMN => __(''),
 				HA_Common::EVENT_TYPE_COLUMN => __('Event Type'),
-				HA_Common::TOTAL_COLUMN => __('Total'),
+				HA_Common::TOTAL_COLUMN => __('Total Count'),
 				HA_Common::AVG_PER_USER_COLUMN => __('Average per User'),
-				HA_Common::AVG_PER_URL_COLUMN => __('Average per URL'),
+				HA_Common::AVG_PER_URL_COLUMN => __('Average per Page URL'),
 		);
 	}
 	
@@ -97,7 +97,7 @@ class HA_Summary_Table extends WP_List_Table {
 		}
 		
 		global $ha_admin_controller;
-		$data = $ha_admin_controller->get_data_services()->table_query('summary_report_data', $query_helper->get_filters(), $items_per_page, $page_num);
+		$data = $ha_admin_controller->get_data_services()->table_query('event_statistics_table_report_data', $query_helper->get_filters(), $items_per_page, $page_num);
 		
 		$this->set_pagination_args( $data['pagination_args'] );
 		$this->items =   $data['items'];
@@ -118,7 +118,7 @@ class HA_Summary_Table extends WP_List_Table {
 				break;
 			}
 			case HA_Common::AVG_PER_URL_COLUMN : {
-				$avg_per_url = ($item['count_pages'] > 0) ? round(($item['total'] / $item['count_users']), 2) : '0';
+				$avg_per_url = ($item['count_pages'] > 0) ? round(($item['total'] / $item['count_pages']), 2) : '0';
 				echo $avg_per_url;
 				break;
 			}

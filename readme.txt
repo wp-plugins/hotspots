@@ -110,6 +110,10 @@ You will need to understand jQuery selectors first here: http://api.jquery.com/c
 
 == Changelog ==
 
+= 4.0.4 (22/01/2014)
+* Improved reports
+* Added event types as a query filter
+
 = 4.0.3 (14/01/2014) =
 * Improved and refactored calls to data services
 * Removed remote settings view

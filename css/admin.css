@@ -1,5 +1,13 @@
-input[type="checkbox"] + label.ha_role {
-	margin-right: 20px;
+input[type="checkbox"] + label.ha_checkbox_label, label.ha_checkbox_label {
+	margin-right: 10px;
+	margin-bottom: 5px;
+	display: inline-block;
+}
+
+div.ha_filter_row {
+	vertical-align: middle;
+	display: inline-block;
+	clear: both;
 }
 
 .ha-settings-form .button {
