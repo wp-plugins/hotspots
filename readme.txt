@@ -57,7 +57,7 @@ Custom events can be added for mouse clicks, touch screen taps or form submits o
 i.e. hotspots.saveEvent('my_event','My description', 'My misc data');
 
 
-*Note: This plugin has been formelly known as Hotspots User Tracker*
+*Note: This plugin was formally known as Hotspots User Tracker*
 
 == Installation ==
 
