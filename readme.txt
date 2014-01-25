@@ -69,6 +69,10 @@ The plugin should not be used where performance is critical as an additional ser
 6. Users table
 7. General settings
 8. Heatmap settings
+9. Report 1
+10. Report 2
+11. Report 3
+12. Report 4
 
 == Frequently Asked Questions ==
 
