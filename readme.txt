@@ -92,7 +92,7 @@ If you're using a caching plugin such as W3TC then empty all page cache. Also em
 
 **Does the plugin impact performance?**
 
-The free plugin may have a small impact on your website performance as an additional server request is made for each mouse click, touch screen tap, AJAX action, page view and custom event. For websites with a low usage, this performance impact is negligable to the user. However you can purchase two plugins which allow you to direct all user activity events to be saved on a remote host and database to reduce load on your server. For more information, visit http://danielpowney.com/?download=hotspots-analytics-remote
+The free plugin may have a small impact on your website performance as an additional server request is made for each mouse click, touch screen tap, AJAX action, page view and custom event. For websites with a low usage, this performance impact is negligable to the user. However you can purchase two plugins which allow you to direct all user activity events to be saved on a remote host and database to reduce load on your server. For more information, visit http://danielpowney.com/downloads/hotspots-analytics-remote-bundle/
 
 **Can I make the plugin only work on certain pages?**
 
