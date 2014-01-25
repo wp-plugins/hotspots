@@ -120,6 +120,10 @@ You will need to understand jQuery selectors first here: http://api.jquery.com/c
 
 == Changelog ==
 
+= 4.0.7 (25/01/2014) =
+* Added event_type filters to users table
+
+
 = 4.0.6 (25/01/2014) =
 * Fixed report bug with query filters
 

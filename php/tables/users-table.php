@@ -33,14 +33,17 @@ class HA_Users_Table extends WP_List_Table {
 	function extra_tablenav( $which ) {
 		if ( $which == "top" ) {
 			$query_helper = new HA_Query_Helper();
-			$query_helper->get_session_filters(array('last_days' => true, 'ip_address' => true, 'username' => true, 'role' => true));
-				
+			
 			$filters = array(
 					'last_days' => true,
 					'ip_address' => true,
 					'username' => true,
-					'role' => true
+					'role' => true,
+					'event_type' => true
 			);
+			
+			$query_helper->get_session_filters($filters);
+				
 			$query_helper->show_filters($filters);
 			
 		}
@@ -83,7 +86,7 @@ class HA_Users_Table extends WP_List_Table {
 	function prepare_items() {
 		
 		$query_helper = new HA_Query_Helper();
-		$query_helper->get_session_filters(array('last_days' => true, 'ip_address' => true, 'username' => true, 'role' => true));
+		$query_helper->get_session_filters(array('last_days' => true, 'ip_address' => true, 'username' => true, 'role' => true, 'event_type' => true));
 		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			$query_helper->get_http_filters('POST');
 		} else {
