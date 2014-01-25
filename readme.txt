@@ -12,7 +12,7 @@ The most advanced analytics plugin for WordPress websites including heatmaps, us
 
 == Description ==
 
-Hotspots Analytics is the most advanced free analytics plugin for WordPress websites including heatmaps, user activity and custom event tracking. It can be a great compliment to Google Analytics and provides support for responsive web design and touch screen devices.
+Hotspots Analytics is the most advanced analytics plugin for WordPress websites including heatmaps, user activity and custom event tracking. It can be a great compliment to Google Analytics and provides support for responsive web design and touchscreen devices.
 
 The key features of the plugin are:
 
@@ -55,6 +55,9 @@ There are various reports which provide statistics and graphs of all user activi
 Custom events can be added for mouse clicks, touch screen taps or form submits on any HTML element selected using a jQuery selector. Alternatively you can use JavaScript to save custom events using the saveEvent function of the global hotspots object 
 
 i.e. hotspots.saveEvent('my_event','My description', 'My misc data');
+
+
+*Note: This plugin has been formelly known as Hotspots User Tracker*
 
 == Installation ==
 
