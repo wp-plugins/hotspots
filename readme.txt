@@ -29,7 +29,7 @@ Here's a demo in debug mode: http://danielpowney.com/hotspots-analytics?drawHeat
 
 = Remote Setting =
 
-The plugin should not be used where performance is critical as an additional server request is made for each mouse click, touch screen tap, AJAX action, page view and custom event. However you can purchase two plugins which allow you to direct all user activity events to be saved on a remote host and database to reduce load on your server. For more information, visit http://danielpowney.com/?downloads/hotspots-analytics-remote-bundle/
+The plugin should not be used where performance is critical as an additional server request is made for each mouse click, touch screen tap, AJAX action, page view and custom event. However you can purchase two plugins which allow you to direct all user activity events to be saved on a remote host and database to reduce load on your server. For more information, visit http://danielpowney.com/downloads/hotspots-analytics-remote-bundle/
 
 = Heatmaps =
 There are two types of heatmaps, a confetti heatmap with spots and heatmap.js. Each heatmap shows the density heat of mouse clicks and or touch screen taps from green which is cool to red which is hot. Heatmap.js is an open source JavaScript library for drawing heatmaps using HTML5 canvas.
