@@ -14,7 +14,7 @@ class HA_Common {
 	const
 	PLUGIN_ID 							= 'ha',
 	CONFIG_DATA 						= 'config_data',
-	PLUGIN_VERSION						= '4.0.5',
+	PLUGIN_VERSION						= '4.0.6',
 	
 	// WordPress menu pages
 	MENU_PAGE_SLUG						= 'ha_menu_page',

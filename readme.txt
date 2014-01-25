@@ -109,10 +109,14 @@ No. There is an setting called width allowance which allows up to 20 pixels each
 You will need to understand jQuery selectors first here: http://api.jquery.com/category/selectors/. You can bind a mouse click, touchscreen tap, or form submit event to any HTML elements on the pahe by using jQuery selectors. 
 
 == Changelog ==
+
+= 4.0.6 (25/01/2014) =
+* Fixed report bug with query filters
+
 = 4.0.5 (22/01/2014) =
 * Fixed page width retrieve events bug
 
-= 4.0.4 (22/01/2014)
+= 4.0.4 (22/01/2014) =
 * Improved reports
 * Added event types as a query filter
 

@@ -279,14 +279,16 @@ class HA_Local_Data_Services implements HA_Data_Services {
 		$count_users_query = '(SELECT COUNT(DISTINCT u_event.' . HA_Common::USER_ID_COLUMN . ') FROM '
 		. $wpdb->prefix . HA_Common::USER_EVENT_TBL_NAME . ' as u_event, '
 		. $wpdb->prefix . HA_Common::USER_ENV_TBL_NAME . ' AS u_env WHERE u_event.' . HA_Common::USER_ENV_ID_COLUMN
-		. ' = u_env.' . HA_Common::ID_COLUMN . ')';
+		. ' = u_env.' . HA_Common::ID_COLUMN;
 		$count_users_query = HA_Query_Helper::apply_query_filters($count_users_query, $filters);
+		$count_users_query .= ')';
 		
 		$count_pages_query = '(SELECT COUNT(DISTINCT u_event.' . HA_Common::URL_COLUMN . ') FROM '
 		. $wpdb->prefix . HA_Common::USER_EVENT_TBL_NAME . ' as u_event, '
 		. $wpdb->prefix . HA_Common::USER_ENV_TBL_NAME . ' AS u_env WHERE u_event.' . HA_Common::USER_ENV_ID_COLUMN
-		. ' = u_env.' . HA_Common::ID_COLUMN . ')';
+		. ' = u_env.' . HA_Common::ID_COLUMN;
 		$count_pages_query = HA_Query_Helper::apply_query_filters($count_pages_query, $filters);
+		$count_pages_query .= ')';
 		
 		$query = 'SELECT COUNT(*) as ' . HA_Common::TOTAL_COLUMN . ', u_event.' . HA_Common::EVENT_TYPE_COLUMN
 		. ', u_event.' . HA_Common::RECORD_DATE_COLUMN . ' AS ' . HA_Common::RECORD_DATE_COLUMN
@@ -301,7 +303,7 @@ class HA_Local_Data_Services implements HA_Data_Services {
 		$query = HA_Query_Helper::apply_query_filters($query, $filters);
 	
 		$query .= ' GROUP BY ' . HA_Common::EVENT_TYPE_COLUMN;
-	
+		
 		// pagination
 		$item_count = $wpdb->query( $query ); //return the total number of affected rows
 		$total_pages = ceil( $item_count / $items_per_page );
