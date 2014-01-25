@@ -27,6 +27,10 @@ The key features of the plugin are:
 
 Here's a demo in debug mode: http://danielpowney.com/hotspots-analytics?drawHeatmap=true
 
+= Remote Setting =
+
+The plugin should not be used where performance is critical as an additional server request is made for each mouse click, touch screen tap, AJAX action, page view and custom event. However you can purchase two plugins which allow you to direct all user activity events to be saved on a remote host and database to reduce load on your server. For more information, visit http://danielpowney.com/?downloads/hotspots-analytics-remote-bundle/
+
 = Heatmaps =
 There are two types of heatmaps, a confetti heatmap with spots and heatmap.js. Each heatmap shows the density heat of mouse clicks and or touch screen taps from green which is cool to red which is hot. Heatmap.js is an open source JavaScript library for drawing heatmaps using HTML5 canvas.
 
@@ -39,19 +43,18 @@ When the heatmap is displayed, a HTML5 canvas drawing is overlayed on the websit
 A comprehensive summary of all user activity on your website can be viewed including a sequence list of mouse clicks, touch screen taps, page views, AJAX actions and custom defined events. Additional information is provided such as time elapsed since previous event and the individual mouse clicks and or touch screen taps can viewed overlayed on the web page to show you exactly what was clicked or tapped.
 
 = Reports =
-There are various reports which provide statistics and graphs of all user activity on your website. Each report can be filtered for different devices, browsers, operating systems, page widths and within a period of time (today, yesterday, last week, last 30 days or last 60 days). The following are some examples of reports that can be generated:
+There are various reports which provide statistics and graphs of all user activity on your website. Each report can be filtered for different devices, browsers, operating systems, page widths and within a period of time (today, yesterday, last week, last 30 days or last 60 days). The following reports are available:
 
-*   Graph and count of all page views, page hits, mouse clicks, touch screen taps, AJAX actions and custom events,
-*   Averages and total count of all page views, page hits, mouse clicks, touch screen taps, AJAX actions and custom events per users and pages,
-*   Compare a graph and count of multiple custom events which can be used to determine which are more popular or easy to use,
+*   Event comparison line graph which compares selected events over time
+*   Event line graph which details events over time
+*   Event statistics table which shows the total counts, averages per user and averages per page for all event types
+*   Events total bar graph which shows the total counts of events
 
 = Custom Events =
 
-Custom events can be added for mouse clicks, touch screen taps or form submits on any HTML element selected using a jQuery selector. Alternatively you can use JavaScript to save custom events using the saveEvent function of the global hotspots object i.e. hotspots.saveEvent('my_event','My description', 'My misc data');
+Custom events can be added for mouse clicks, touch screen taps or form submits on any HTML element selected using a jQuery selector. Alternatively you can use JavaScript to save custom events using the saveEvent function of the global hotspots object 
 
-= Remote Setting =
-
-The plugin should not be used where performance is critical as an additional server request is made for each mouse click, touch screen tap, AJAX action, page view and custom event. However you can purchase two plugins which allow you to direct all user activity events to be saved on a remote host and database to reduce load on your server. For more information, visit http://danielpowney.com/?downloads/hotspots-analytics-remote-bundle
+i.e. hotspots.saveEvent('my_event','My description', 'My misc data');
 
 == Installation ==
 
