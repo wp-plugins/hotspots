@@ -150,7 +150,7 @@ var events = new function() {
 	 */
 	this.setupSaveMouseClickEvent = function(selector, eventType, description, data) {
 		// support mouse clicks always
-		jQuery(selector).live('click', function(e) {
+		jQuery(document).on('click', selector, function(e) {
 			var event = e ? e : window.event;
 			var coords = utils.getEventXYCoords(event);
 			var xCoord = coords.xCoord;

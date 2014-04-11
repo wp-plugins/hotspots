@@ -3,6 +3,22 @@ jQuery(document).ready(function() {
 	jQuery('.date-field').datepicker({
         dateFormat : 'yy-mm-dd'
     });
+	
+	jQuery('#dashboard-widgets .show-filters').css('display', 'inline-block');
+	
+	jQuery('#dashboard-widgets .show-filters').live('click', function(e) {
+		e.preventDefault();
+		jQuery('#dashboard-widgets .hide-filters').css('display', 'inline-block');
+		jQuery('#dashboard-widgets .ha-filters').css('display', 'inline');
+		jQuery('#dashboard-widgets .show-filters').css('display', 'none');
+	});
+	
+	jQuery('.hide-filters').live('click', function(e) {
+		e.preventDefault();
+		jQuery('#dashboard-widgets .hide-filters').css('display', 'none');
+		jQuery('#dashboard-widgets .ha-filters').css('display', 'none');
+		jQuery('#dashboard-widgets .show-filters').css('display', 'inline-block');
+	});
 });
 
 // Metabox toggle
@@ -11,15 +27,15 @@ jQuery(document).ready(function($){$(".if-js-closed").removeClass("if-js-closed"
 });
 
 // Secondary button flags
-jQuery("#clear-database").live('click',function(e) {
+jQuery(document).on('click', '#clear-database', function(e) {
 	jQuery("#clear-database-flag").val("true");
 });
-jQuery("#test-connection").live('click',function(e) {
+jQuery(document).on('click', '#test-connection', function(e) {
 	jQuery("#test-connection-flag").val("true");
 });
 
 // view heat map buttons
-jQuery(".view-heat-map-button").live('click', function(e) {
+jQuery(document).on('click', '.view-heat-map-button', function(e) {
 	e.preventDefault();
 	var btnId = this.id; 
 	

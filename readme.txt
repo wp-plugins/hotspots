@@ -120,6 +120,9 @@ You will need to understand jQuery selectors first here: http://api.jquery.com/c
 
 == Changelog ==
 
+= 4.0.8 (11/04/2014) =
+* Replaced deprecated jQuery live with on 
+
 = 4.0.7 (25/01/2014) =
 * Added event_type filters to users table
 
