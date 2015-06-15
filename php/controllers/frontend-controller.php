@@ -16,15 +16,6 @@ class HA_Frontend_Controller {
 	// TODO make this an option
 	private $ignore_ajax_actions = array('save_user_event', 'retrieve_user_events');
 	
-	private $data_services = null;
-	
-	public function set_data_services(&$data_services) {
-		$this->data_services = $data_services;
-	}
-	public function get_data_services() {
-		return $this->data_services;
-	}
-
 	/**
 	 * Constructor
 	 *
@@ -47,19 +38,14 @@ class HA_Frontend_Controller {
 
 		wp_enqueue_style( 'ha_frontend-style' , plugins_url( $root_relative_path . 'css' . DIRECTORY_SEPARATOR . 'frontend.css', __FILE__ ) );
 		wp_enqueue_script( 'ha_heatmap', plugins_url( $root_relative_path . 'js' .  DIRECTORY_SEPARATOR . 'heatmap' . DIRECTORY_SEPARATOR . 'heatmap.js', __FILE__ ), array(), false, true );
-		wp_enqueue_script( 'ha_modernizer', plugins_url( $root_relative_path . 'js' .  DIRECTORY_SEPARATOR . 'modernizer' . DIRECTORY_SEPARATOR . 'modernizer.custom.730.js', __FILE__ ), array(), false, true );
-		wp_enqueue_script( 'ha_utils', plugins_url( $root_relative_path . 'js' . DIRECTORY_SEPARATOR . 'utils.js', __FILE__ ), array( 'jquery', 'ha_heatmap', 'ha_modernizer' ), false, true );
-		wp_enqueue_script( 'ha_drawing', plugins_url( $root_relative_path . 'js' . DIRECTORY_SEPARATOR . 'drawing.js', __FILE__ ), array( 'jquery', 'ha_heatmap', 'ha_modernizer', 'ha_utils' ), false, true );
-		wp_enqueue_script( 'ha_events', plugins_url( $root_relative_path . 'js' . DIRECTORY_SEPARATOR . 'events.js', __FILE__ ), array( 'jquery', 'ha_heatmap', 'ha_modernizer', 'ha_utils', 'ha_drawing' ), false, true );
-		wp_enqueue_script( 'ha_frontend-script', plugins_url( $root_relative_path . 'js' . DIRECTORY_SEPARATOR . 'frontend.js', __FILE__ ), array( 'jquery', 'ha_heatmap', 'ha_modernizer', 'ha_utils', 'ha_drawing', 'ha_events' ), false, true );
+		wp_enqueue_script( 'ha_utils', plugins_url( $root_relative_path . 'js' . DIRECTORY_SEPARATOR . 'utils.js', __FILE__ ), array( 'jquery', 'ha_heatmap' ), false, true );
+		wp_enqueue_script( 'ha_drawing', plugins_url( $root_relative_path . 'js' . DIRECTORY_SEPARATOR . 'drawing.js', __FILE__ ), array( 'jquery', 'ha_heatmap', 'ha_utils' ), false, true );
+		wp_enqueue_script( 'ha_events', plugins_url( $root_relative_path . 'js' . DIRECTORY_SEPARATOR . 'events.js', __FILE__ ), array( 'jquery', 'ha_heatmap', 'ha_utils', 'ha_drawing' ), false, true );
+		wp_enqueue_script( 'ha_frontend-script', plugins_url( $root_relative_path . 'js' . DIRECTORY_SEPARATOR . 'frontend.js', __FILE__ ), array( 'jquery', 'ha_heatmap', 'ha_utils', 'ha_drawing', 'ha_events' ), false, true );
 
 		// for loading dialog
 		wp_enqueue_script('jquery-ui-dialog');
-		wp_enqueue_style('jquery-style', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/smoothness/jquery-ui.css');
-		
-		$this->data_services = new HA_Local_Data_Services();
-		
-		do_action('ha_frontend_controller_assets', $this);
+		wp_enqueue_style('jquery-style', '//ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/smoothness/jquery-ui.css');
 		
 		$config_array = $this->construct_config_array();
 
@@ -86,8 +72,8 @@ class HA_Frontend_Controller {
 		$session_id = session_id();
 		
 		// get or create user details and user environment details
-		$user_details = HA_Common::get_user_details($ip_address, $session_id, true, $this->data_services);
-		$user_environment_details = HA_Common::get_user_environment_details($user_details['user_id'], true, $this->data_services);
+		$user_details = HA_Common::get_user_details($ip_address, $session_id, false, null);
+		$user_environment_details = HA_Common::get_user_environment_details($user_details['user_id'], false, null);
 		
 		$config_array = array_merge($config_array, $user_environment_details);
 		$config_array = array_merge($config_array, $user_details);
